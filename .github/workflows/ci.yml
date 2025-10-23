@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 'fix/*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  checks:
+    name: TypeScript + Rust checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        working-directory: linux-ai-assistant
+        run: npm ci
+
+      - name: TypeScript typecheck
+        working-directory: linux-ai-assistant
+        run: npx tsc --noEmit
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cargo check
+        working-directory: linux-ai-assistant/src-tauri
+        run: cargo check --workspace --all-targets
