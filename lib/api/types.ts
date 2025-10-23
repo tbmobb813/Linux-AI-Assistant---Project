@@ -51,52 +51,52 @@ export const db = {
   // Conversation operations
   conversations: {
     create: async (data: NewConversation): Promise<Conversation> => {
-      return invoke('create_conversation', {
+      return invoke<Conversation>('create_conversation', {
         title: data.title,
         model: data.model,
         provider: data.provider,
-        systemPrompt: data.system_prompt,
+        system_prompt: data.system_prompt,
       });
     },
 
     get: async (id: string): Promise<Conversation | null> => {
-      return invoke('get_conversation', { id });
+      return invoke<Conversation | null>('get_conversation', { id });
     },
 
     getAll: async (limit: number = 50): Promise<Conversation[]> => {
-      return invoke('get_all_conversations', { limit });
+      return invoke<Conversation[]>('get_all_conversations', { limit });
     },
 
     updateTitle: async (id: string, title: string): Promise<void> => {
-      return invoke('update_conversation_title', { id, title });
+      return invoke<void>('update_conversation_title', { id, title });
     },
 
     delete: async (id: string): Promise<void> => {
-      return invoke('delete_conversation', { id });
+      return invoke<void>('delete_conversation', { id });
     },
 
     search: async (query: string, limit: number = 20): Promise<Conversation[]> => {
-      return invoke('search_conversations', { query, limit });
+      return invoke<Conversation[]>('search_conversations', { query, limit });
     },
   },
 
   // Message operations
   messages: {
     create: async (data: NewMessage): Promise<Message> => {
-      return invoke('create_message', {
-        conversationId: data.conversation_id,
+      return invoke<Message>('create_message', {
+        conversation_id: data.conversation_id,
         role: data.role,
         content: data.content,
-        tokensUsed: data.tokens_used,
+        tokens_used: data.tokens_used,
       });
     },
 
     getByConversation: async (conversationId: string): Promise<Message[]> => {
-      return invoke('get_conversation_messages', { conversationId });
+      return invoke<Message[]>('get_conversation_messages', { conversation_id: conversationId });
     },
 
     getLastN: async (conversationId: string, n: number): Promise<Message[]> => {
-      return invoke('get_last_messages', { conversationId, n });
+      return invoke<Message[]>('get_last_messages', { conversation_id: conversationId, n });
     },
 
     search: async (query: string, limit: number = 50): Promise<Message[]> => {
@@ -104,35 +104,35 @@ export const db = {
     },
 
     delete: async (id: string): Promise<void> => {
-      return invoke('delete_message', { id });
+      return invoke<void>('delete_message', { id });
     },
 
     getTokenCount: async (conversationId: string): Promise<number> => {
-      return invoke('get_conversation_token_count', { conversationId });
+      return invoke<number>('get_conversation_token_count', { conversation_id: conversationId });
     },
   },
 
   // Settings operations
   settings: {
     set: async (key: string, value: string): Promise<void> => {
-      return invoke('set_setting', { key, value });
+      return invoke<void>('set_setting', { key, value });
     },
 
     get: async (key: string): Promise<string | null> => {
-      return invoke('get_setting', { key });
+      return invoke<string | null>('get_setting', { key });
     },
 
     getAll: async (): Promise<Setting[]> => {
-      return invoke('get_all_settings');
+      return invoke<Setting[]>('get_all_settings');
     },
 
     delete: async (key: string): Promise<void> => {
-      return invoke('delete_setting', { key });
+      return invoke<void>('delete_setting', { key });
     },
 
     // Convenience methods for JSON storage
     setJSON: async <T>(key: string, value: T): Promise<void> => {
-      return invoke('set_setting', { key, value: JSON.stringify(value) });
+      return invoke<void>('set_setting', { key, value: JSON.stringify(value) });
     },
 
     getJSON: async <T>(key: string): Promise<T | null> => {
