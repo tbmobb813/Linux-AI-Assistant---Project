@@ -1,7 +1,6 @@
 {
   "folders": [
-    { "path": "." },
-    { "path": "linux-ai-assistant" }
+    { "path": "." }
   ],
   "settings": {
     "css.lint.unknownAtRules": "ignore",
