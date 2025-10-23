@@ -1,7 +1,5 @@
-# !/bin/bash
-
+#!/bin/bash
 # Linux AI Assistant - Complete Setup Script
-
 # This script will set up your development environment on Zorin OS/Ubuntu-based systems
 
 set -e  # Exit on any error
@@ -10,7 +8,6 @@ echo "🚀 Starting Linux AI Assistant Development Setup..."
 echo ""
 
 # Colors for output
-
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
@@ -29,7 +26,6 @@ print_error() {
 }
 
 # Step 1: Check and install system dependencies
-
 print_step "Installing system dependencies..."
 
 sudo apt update
@@ -50,12 +46,11 @@ sudo apt install -y \
 print_success "System dependencies installed"
 
 # Step 2: Install Rust if not present
-
 print_step "Checking for Rust installation..."
 
 if ! command -v rustc &> /dev/null; then
     print_step "Installing Rust..."
-    curl --proto '=https' --tlsv1.2 -sSf <https://sh.rustup.rs> | sh -s -- -y
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env"
     print_success "Rust installed successfully"
 else
@@ -63,17 +58,15 @@ else
 fi
 
 # Ensure cargo is in PATH
-
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # Step 3: Install Node.js via nvm
-
 print_step "Checking for Node.js installation..."
 
 if ! command -v node &> /dev/null; then
     print_step "Installing nvm and Node.js..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-
+    
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     
@@ -85,13 +78,11 @@ else
 fi
 
 # Step 4: Install Tauri CLI
-
 print_step "Installing Tauri CLI..."
 cargo install tauri-cli --version "^2.0.0"
 print_success "Tauri CLI installed"
 
 # Step 5: Create project directory
-
 print_step "Creating project structure..."
 
 PROJECT_NAME="linux-ai-assistant"
@@ -104,11 +95,9 @@ mkdir -p "$PROJECT_NAME"
 cd "$PROJECT_NAME"
 
 # Step 6: Initialize Tauri project
-
 print_step "Initializing Tauri project with React and TypeScript..."
 
 # Create package.json
-
 cat > package.json << 'EOF'
 {
   "name": "linux-ai-assistant",
@@ -152,13 +141,11 @@ EOF
 print_success "package.json created"
 
 # Step 7: Install npm dependencies
-
 print_step "Installing Node.js dependencies (this may take a few minutes)..."
 npm install
 print_success "Node.js dependencies installed"
 
 # Step 8: Create Vite config
-
 print_step "Creating Vite configuration..."
 
 cat > vite.config.ts << 'EOF'
@@ -182,7 +169,6 @@ EOF
 print_success "Vite config created"
 
 # Step 9: Create TypeScript config
-
 print_step "Creating TypeScript configuration..."
 
 cat > tsconfig.json << 'EOF'
@@ -229,7 +215,6 @@ EOF
 print_success "TypeScript configs created"
 
 # Step 10: Initialize Tailwind CSS
-
 print_step "Setting up Tailwind CSS..."
 
 npx tailwindcss init -p
@@ -251,14 +236,12 @@ EOF
 print_success "Tailwind CSS configured"
 
 # Step 11: Create source directories
-
 print_step "Creating project structure..."
 
 mkdir -p src/{components/{chat,settings,sidebar,common},lib/{api,stores,utils},styles}
 mkdir -p public
 
 # Step 12: Create main HTML file
-
 cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
@@ -276,7 +259,6 @@ cat > index.html << 'EOF'
 EOF
 
 # Step 13: Create global styles
-
 cat > src/styles/globals.css << 'EOF'
 @tailwind base;
 @tailwind components;
@@ -304,14 +286,13 @@ body {
   min-height: 100vh;
 }
 
-# root {
+#root {
   width: 100%;
   height: 100vh;
 }
 EOF
 
 # Step 14: Create main React entry point
-
 cat > src/main.tsx << 'EOF'
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -326,7 +307,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 EOF
 
 # Step 15: Create basic App component
-
 cat > src/App.tsx << 'EOF'
 import { useState } from "react";
 
@@ -338,7 +318,7 @@ function App() {
       <header className="p-4 border-b border-gray-700">
         <h1 className="text-2xl font-bold">Linux AI Assistant</h1>
       </header>
-
+      
       <main className="flex-1 overflow-y-auto p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gray-800 rounded-lg p-6 mb-4">
@@ -376,18 +356,16 @@ EOF
 print_success "React components created"
 
 # Step 16: Initialize Tauri
-
 print_step "Initializing Tauri backend..."
 
 cargo tauri init --app-name "linux-ai-assistant" \
   --window-title "Linux AI Assistant" \
   --dist-dir "../dist" \
-  --dev-path http://localhost:1420 \
+  --dev-path "http://localhost:1420" \
   --before-dev-command "npm run dev" \
   --before-build-command "npm run build" || true
 
 # Step 17: Update Tauri config
-
 print_step "Configuring Tauri..."
 
 cat > src-tauri/tauri.conf.json << 'EOF'
@@ -430,7 +408,6 @@ cat > src-tauri/tauri.conf.json << 'EOF'
 EOF
 
 # Step 18: Create Cargo.toml for Tauri
-
 cat > src-tauri/Cargo.toml << 'EOF'
 [package]
 name = "linux-ai-assistant"
@@ -459,12 +436,11 @@ custom-protocol = ["tauri/custom-protocol"]
 EOF
 
 # Step 19: Create basic Tauri main.rs
-
 cat > src-tauri/src/main.rs << 'EOF'
 // Prevents additional console window on Windows in release
-# ![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-# [tauri::command]
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! Welcome to Linux AI Assistant!", name)
 }
@@ -482,7 +458,6 @@ EOF
 print_success "Tauri backend configured"
 
 # Step 20: Create CLI tool structure
-
 print_step "Creating CLI companion tool structure..."
 
 mkdir -p cli/src
@@ -503,15 +478,15 @@ EOF
 cat > cli/src/main.rs << 'EOF'
 use clap::{Parser, Subcommand};
 
-# [derive(Parser)]
-# [command(name = "lai")]
-# [command(about = "Linux AI Assistant CLI", long_about = None)]
+#[derive(Parser)]
+#[command(name = "lai")]
+#[command(about = "Linux AI Assistant CLI", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
 }
 
-# [derive(Subcommand)]
+#[derive(Subcommand)]
 enum Commands {
     /// Send a message to the AI
     Ask {
@@ -541,9 +516,7 @@ EOF
 print_success "CLI tool structure created"
 
 # Step 21: Create README
-
 cat > README.md << 'EOF'
-
 # Linux AI Assistant
 
 A native desktop AI assistant built specifically for Linux users.
@@ -594,38 +567,30 @@ MIT
 EOF
 
 # Step 22: Create .gitignore
-
 cat > .gitignore << 'EOF'
-
 # Dependencies
-
 node_modules/
 target/
 
 # Build outputs
-
 dist/
 src-tauri/target/
 
 # Environment variables
-
 .env
 .env.local
 
 # IDE
-
 .vscode/
 .idea/
 *.swp
 *.swo
 
 # OS
-
 .DS_Store
 Thumbs.db
 
 # Logs
-
 *.log
 npm-debug.log*
 EOF
@@ -633,7 +598,6 @@ EOF
 print_success "Project files created"
 
 # Final step
-
 echo ""
 echo "================================================================"
 print_success "Setup complete! 🎉"

@@ -51,52 +51,52 @@ export const db = {
   // Conversation operations
   conversations: {
     create: async (data: NewConversation): Promise<Conversation> => {
-      return invoke<Conversation>('create_conversation', {
+      return invoke('create_conversation', {
         title: data.title,
         model: data.model,
         provider: data.provider,
-        system_prompt: data.system_prompt,
+        systemPrompt: data.system_prompt,
       });
     },
 
     get: async (id: string): Promise<Conversation | null> => {
-      return invoke<Conversation | null>('get_conversation', { id });
+      return invoke('get_conversation', { id });
     },
 
     getAll: async (limit: number = 50): Promise<Conversation[]> => {
-      return invoke<Conversation[]>('get_all_conversations', { limit });
+      return invoke('get_all_conversations', { limit });
     },
 
     updateTitle: async (id: string, title: string): Promise<void> => {
-      return invoke<void>('update_conversation_title', { id, title });
+      return invoke('update_conversation_title', { id, title });
     },
 
     delete: async (id: string): Promise<void> => {
-      return invoke<void>('delete_conversation', { id });
+      return invoke('delete_conversation', { id });
     },
 
     search: async (query: string, limit: number = 20): Promise<Conversation[]> => {
-      return invoke<Conversation[]>('search_conversations', { query, limit });
+      return invoke('search_conversations', { query, limit });
     },
   },
 
   // Message operations
   messages: {
     create: async (data: NewMessage): Promise<Message> => {
-      return invoke<Message>('create_message', {
-        conversation_id: data.conversation_id,
+      return invoke('create_message', {
+        conversationId: data.conversation_id,
         role: data.role,
         content: data.content,
-        tokens_used: data.tokens_used,
+        tokensUsed: data.tokens_used,
       });
     },
 
     getByConversation: async (conversationId: string): Promise<Message[]> => {
-      return invoke<Message[]>('get_conversation_messages', { conversation_id: conversationId });
+      return invoke('get_conversation_messages', { conversationId });
     },
 
     getLastN: async (conversationId: string, n: number): Promise<Message[]> => {
-      return invoke<Message[]>('get_last_messages', { conversation_id: conversationId, n });
+      return invoke('get_last_messages', { conversationId, n });
     },
 
     search: async (query: string, limit: number = 50): Promise<Message[]> => {
@@ -104,35 +104,35 @@ export const db = {
     },
 
     delete: async (id: string): Promise<void> => {
-      return invoke<void>('delete_message', { id });
+      return invoke('delete_message', { id });
     },
 
     getTokenCount: async (conversationId: string): Promise<number> => {
-      return invoke<number>('get_conversation_token_count', { conversation_id: conversationId });
+      return invoke('get_conversation_token_count', { conversationId });
     },
   },
 
   // Settings operations
   settings: {
     set: async (key: string, value: string): Promise<void> => {
-      return invoke<void>('set_setting', { key, value });
+      return invoke('set_setting', { key, value });
     },
 
     get: async (key: string): Promise<string | null> => {
-      return invoke<string | null>('get_setting', { key });
+      return invoke('get_setting', { key });
     },
 
     getAll: async (): Promise<Setting[]> => {
-      return invoke<Setting[]>('get_all_settings');
+      return invoke('get_all_settings');
     },
 
     delete: async (key: string): Promise<void> => {
-      return invoke<void>('delete_setting', { key });
+      return invoke('delete_setting', { key });
     },
 
     // Convenience methods for JSON storage
     setJSON: async <T>(key: string, value: T): Promise<void> => {
-      return invoke<void>('set_setting', { key, value: JSON.stringify(value) });
+      return invoke('set_setting', { key, value: JSON.stringify(value) });
     },
 
     getJSON: async <T>(key: string): Promise<T | null> => {
@@ -163,10 +163,10 @@ interface ChatState {
   selectConversation: (id: string) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
-
+  
   sendMessage: (content: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
-
+  
   clearError: () => void;
 }
 
@@ -195,14 +195,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
         model,
         provider,
       });
-
+      
       set((state) => ({
         conversations: [conversation, ...state.conversations],
         currentConversation: conversation,
         messages: [],
         isLoading: false,
       }));
-
+      
       return conversation;
     } catch (error) {
       set({ error: String(error), isLoading: false });
@@ -213,14 +213,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   selectConversation: async (id) => {
     try {
       set({ isLoading: true, error: null });
-
+      
       const conversation = await db.conversations.get(id);
       if (!conversation) {
         throw new Error('Conversation not found');
       }
-
+      
       const messages = await db.messages.getByConversation(id);
-
+      
       set({
         currentConversation: conversation,
         messages,
@@ -235,7 +235,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       await db.conversations.delete(id);
-
+      
       set((state) => ({
         conversations: state.conversations.filter((c) => c.id !== id),
         currentConversation: state.currentConversation?.id === id ? null : state.currentConversation,
@@ -250,7 +250,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   updateConversationTitle: async (id, title) => {
     try {
       await db.conversations.updateTitle(id, title);
-
+      
       set((state) => ({
         conversations: state.conversations.map((c) =>
           c.id === id ? { ...c, title } : c
@@ -273,18 +273,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       set({ isLoading: true, error: null });
-
+      
       // Create user message
       const userMessage = await db.messages.create({
         conversation_id: currentConversation.id,
         role: 'user',
         content,
       });
-
+      
       set((state) => ({
         messages: [...state.messages, userMessage],
       }));
-
+      
       // TODO: Call AI API and get response
       // For now, we'll create a placeholder assistant message
       const assistantMessage = await db.messages.create({
@@ -292,7 +292,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         role: 'assistant',
         content: 'AI response will go here once we implement the AI provider integration.',
       });
-
+      
       set((state) => ({
         messages: [...state.messages, assistantMessage],
         isLoading: false,
@@ -305,7 +305,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   deleteMessage: async (id) => {
     try {
       await db.messages.delete(id);
-
+      
       set((state) => ({
         messages: state.messages.filter((m) => m.id !== id),
       }));
@@ -328,7 +328,7 @@ interface SettingsState {
   defaultProvider: string;
   defaultModel: string;
   apiKeys: Record<string, string>;
-
+  
   // Actions
   loadSettings: () => Promise<void>;
   setTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;
