@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "." },
+    { "path": "linux-ai-assistant" }
+  ],
+  "settings": {
+    "css.lint.unknownAtRules": "ignore",
+    "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs"
+  }
+}
