@@ -40,6 +40,11 @@ State Management: Zustand
 - Perfect for chat state, settings, conversations
 - Built-in persistence middleware
 
+Important note
+--------------
+
+This repository's history was rewritten on 2025-10-23 to remove historical build artifacts and vendor files (for example: `node_modules/`, `linux-ai-assistant/dist/`, and Rust `target/` directories). Please see `docs/post-rewrite-notice.md` for details and re-clone instructions.
+
 Markdown Rendering: react-markdown + rehype plugins
 - Code syntax highlighting with highlight.js
 - Math rendering with KaTeX
