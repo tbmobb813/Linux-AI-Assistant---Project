@@ -382,7 +382,7 @@ print_step "Initializing Tauri backend..."
 cargo tauri init --app-name "linux-ai-assistant" \
   --window-title "Linux AI Assistant" \
   --dist-dir "../dist" \
-  --dev-path "<http://localhost:1420>" \
+  --dev-path http://localhost:1420 \
   --before-dev-command "npm run dev" \
   --before-build-command "npm run build" || true
 
