@@ -163,10 +163,10 @@ interface ChatState {
   selectConversation: (id: string) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
-  
+
   sendMessage: (content: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
-  
+
   clearError: () => void;
 }
 
@@ -195,14 +195,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
         model,
         provider,
       });
-      
+
       set((state) => ({
         conversations: [conversation, ...state.conversations],
         currentConversation: conversation,
         messages: [],
         isLoading: false,
       }));
-      
+
       return conversation;
     } catch (error) {
       set({ error: String(error), isLoading: false });
@@ -213,14 +213,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   selectConversation: async (id) => {
     try {
       set({ isLoading: true, error: null });
-      
+
       const conversation = await db.conversations.get(id);
       if (!conversation) {
         throw new Error('Conversation not found');
       }
-      
+
       const messages = await db.messages.getByConversation(id);
-      
+
       set({
         currentConversation: conversation,
         messages,
@@ -235,7 +235,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       await db.conversations.delete(id);
-      
+
       set((state) => ({
         conversations: state.conversations.filter((c) => c.id !== id),
         currentConversation: state.currentConversation?.id === id ? null : state.currentConversation,
@@ -250,7 +250,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   updateConversationTitle: async (id, title) => {
     try {
       await db.conversations.updateTitle(id, title);
-      
+
       set((state) => ({
         conversations: state.conversations.map((c) =>
           c.id === id ? { ...c, title } : c
@@ -273,18 +273,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       set({ isLoading: true, error: null });
-      
+
       // Create user message
       const userMessage = await db.messages.create({
         conversation_id: currentConversation.id,
         role: 'user',
         content,
       });
-      
+
       set((state) => ({
         messages: [...state.messages, userMessage],
       }));
-      
+
       // TODO: Call AI API and get response
       // For now, we'll create a placeholder assistant message
       const assistantMessage = await db.messages.create({
@@ -292,7 +292,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         role: 'assistant',
         content: 'AI response will go here once we implement the AI provider integration.',
       });
-      
+
       set((state) => ({
         messages: [...state.messages, assistantMessage],
         isLoading: false,
@@ -305,7 +305,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   deleteMessage: async (id) => {
     try {
       await db.messages.delete(id);
-      
+
       set((state) => ({
         messages: state.messages.filter((m) => m.id !== id),
       }));
@@ -328,7 +328,7 @@ interface SettingsState {
   defaultProvider: string;
   defaultModel: string;
   apiKeys: Record<string, string>;
-  
+
   // Actions
   loadSettings: () => Promise<void>;
   setTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;

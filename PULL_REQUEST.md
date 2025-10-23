@@ -37,10 +37,12 @@ Title: Move Tauri backend into crate and fix frontend invoke keys
 
 Summary
 -------
+
 This branch moves the Tauri backend Rust modules into `linux-ai-assistant/src-tauri/src` and splits combined files into proper `commands/` and `database/` submodules. It also fixes the frontend Tauri invoke wrapper to use snake_case payload keys matching the Rust command parameters and adds typed invoke generics for safer TypeScript checks.
 
 Changes
 -------
+
 - Moved backend modules from top-level `src/` into `linux-ai-assistant/src-tauri/src/`
   - `commands/` (conversations, messages, settings)
   - `database/` (schema, conversations, messages, settings)
@@ -49,10 +51,12 @@ Changes
 
 Why
 ---
+
 Tauri expects the Rust source for the app to live in the `src-tauri` crate. The previous placement caused the crate to miss module definitions. The frontend and backend argument naming needed to match exactly for Tauri's invoke argument mapping.
 
 How to test
 -----------
+
 1. From a system (non-snap) terminal, run:
 
 ```bash
@@ -66,5 +70,6 @@ npm run tauri dev
 
 Notes
 -----
+
 - I intentionally added typed invoke calls to catch mismatches earlier.
 - Consider adding a CI job that runs the frontend `npx tsc --noEmit` and Rust `cargo check` to catch regressions.
