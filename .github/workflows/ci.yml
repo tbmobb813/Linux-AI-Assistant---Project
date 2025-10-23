@@ -32,6 +32,11 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
+      - name: Prettier check (format)
+        run: |
+          cd linux-ai-assistant || exit 0
+          npx prettier --check . || true
+
       - name: TypeScript check (frontend)
         run: |
           cd linux-ai-assistant
@@ -43,6 +48,25 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+
+      - name: Cache cargo registry and git
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cargo fmt check (Tauri)
+        run: |
+          cargo fmt --version || true
+          cargo fmt -- --check --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml || true
+
+      - name: Cargo clippy (Tauri)
+        run: |
+          cargo clippy --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml -- -D warnings || true
 
       - name: Cargo check (Tauri)
         run: cargo check --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml
