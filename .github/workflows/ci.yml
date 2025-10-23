@@ -21,11 +21,13 @@ jobs:
           cache: 'npm'
 
       - name: Install frontend dependencies
-        working-directory: linux-ai-assistant
+        # repository layout moved frontend to repo root
+        working-directory: .
         run: npm ci
 
       - name: TypeScript typecheck
-        working-directory: linux-ai-assistant
+        # run typecheck from repository root where tsconfig.json lives
+        working-directory: .
         run: npx tsc --noEmit
 
       - name: Setup Rust toolchain
@@ -36,5 +38,6 @@ jobs:
           override: true
 
       - name: Cargo check
-        working-directory: linux-ai-assistant/src-tauri
+        # src-tauri is at the repository root now
+        working-directory: src-tauri
         run: cargo check --workspace --all-targets
