@@ -398,7 +398,7 @@ cat > src-tauri/tauri.conf.json << 'EOF'
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devUrl": "<http://localhost:1420>",
+    "devUrl": "http://localhost:1420",
     "frontendDist": "../dist"
   },
   "bundle": {
