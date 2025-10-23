@@ -72,7 +72,7 @@ print_step "Checking for Node.js installation..."
 
 if ! command -v node &> /dev/null; then
     print_step "Installing nvm and Node.js..."
-    curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh> | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
