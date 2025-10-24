@@ -1,3 +1,6 @@
+[![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
+
 Linux AI Desktop Assistant - Project Documentation
 Project Overview
 Mission Statement
@@ -39,6 +42,11 @@ State Management: Zustand
 - Lightweight alternative to Redux
 - Perfect for chat state, settings, conversations
 - Built-in persistence middleware
+
+Important note
+--------------
+
+This repository's history was rewritten on 2025-10-23 to remove historical build artifacts and vendor files (for example: `node_modules/`, `linux-ai-assistant/dist/`, and Rust `target/` directories). Please see `docs/post-rewrite-notice.md` for details and re-clone instructions.
 
 Markdown Rendering: react-markdown + rehype plugins
 - Code syntax highlighting with highlight.js
