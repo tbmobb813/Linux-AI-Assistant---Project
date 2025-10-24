@@ -24,21 +24,25 @@ Native performance for system integration
 Core Technologies
 Frontend Layer
 Framework: React 18+
+
 - Component-based architecture for chat interface
 - Hooks for state management
 - Suspense for async operations
 
 Styling: Tailwind CSS 3+
+
 - Utility-first approach
 - Custom theming for Linux desktop integration
 - Dark/Light mode support
 
 UI Components: shadcn/ui
+
 - Accessible, customizable components
 - Radix UI primitives
 - Designed for modern applications
 
 State Management: Zustand
+
 - Lightweight alternative to Redux
 - Perfect for chat state, settings, conversations
 - Built-in persistence middleware
@@ -49,6 +53,7 @@ Important note
 This repository's history was rewritten on 2025-10-23 to remove historical build artifacts and vendor files (for example: `node_modules/`, `linux-ai-assistant/dist/`, and Rust `target/` directories). Please see `docs/post-rewrite-notice.md` for details and re-clone instructions.
 
 Markdown Rendering: react-markdown + rehype plugins
+
 - Code syntax highlighting with highlight.js
 - Math rendering with KaTeX
 - Mermaid diagram support
@@ -60,22 +65,26 @@ Framework: Tauri 2.0
 - File system access
 
 HTTP Client: reqwest
+
 - Async HTTP requests to AI APIs
 - Connection pooling
 - Timeout handling
 
 Database: rusqlite
+
 - SQLite integration
 - Conversation history
 - User preferences
 - Cache management
 
 Async Runtime: tokio
+
 - Async/await for API calls
 - Concurrent request handling
 - Stream processing for real-time responses
 
 Serialization: serde + serde_json
+
 - JSON handling for API communication
 - Configuration serialization
 System Integration
@@ -84,14 +93,17 @@ Clipboard: arboard
 - Copy responses, paste context
 
 Global Hotkeys: tauri-plugin-global-shortcut
+
 - System-wide keyboard shortcuts
 - Invoke assistant from anywhere
 
 Notifications: tauri-plugin-notification
+
 - Desktop notifications
 - Response completion alerts
 
 Keyring: keyring-rs
+
 - Secure API key storage
 - System keychain integration
 Project Structure
@@ -294,7 +306,7 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(
     content_rowid=rowid
 );
 API Provider Interface
-#[async_trait]
+# [async_trait]
 pub trait AIProvider {
     async fn send_message(
         &self,
@@ -302,7 +314,7 @@ pub trait AIProvider {
         model: &str,
         stream: bool,
     ) -> Result<Response, AIError>;
-    
+
     async fn stream_message(
         &self,
         messages: Vec<Message>,
@@ -314,6 +326,7 @@ pub trait AIProvider {
     fn requires_api_key(&self) -> bool;
 }
 Configuration File Format
+
 # ~/.config/linux-ai-assistant/config.toml
 
 [general]
@@ -340,7 +353,7 @@ models = ["claude-sonnet-4.5", "claude-opus-4"]
 
 [providers.ollama]
 enabled = false
-endpoint = "http://localhost:11434"
+endpoint = "<http://localhost:11434>"
 Key Features & Requirements
 Must Have (MVP)
 ✅ Multi-provider AI chat (OpenAI, Anthropic, Gemini)
@@ -386,17 +399,22 @@ Package downloads across all channels
 Community contributions (PRs, issues)
 Development Setup
 Prerequisites
+
 # Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+curl --proto '=https' --tlsv1.2 -sSf <https://sh.rustup.rs> | sh
 
 # Install Node.js (via nvm recommended)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh> | bash
 nvm install --lts
 
 # Install Tauri CLI
+
 cargo install tauri-cli
 
 # Install system dependencies (Ubuntu/Debian)
+
 sudo apt update
 sudo apt install libwebkit2gtk-4.0-dev \
     build-essential \
@@ -408,10 +426,13 @@ sudo apt install libwebkit2gtk-4.0-dev \
     libayatana-appindicator3-dev \
     librsvg2-dev
 Initial Project Setup
+
 # Create new Tauri project
+
 npm create tauri-app@latest
 
 # Install frontend dependencies
+
 npm install react react-dom
 npm install -D @types/react @types/react-dom
 npm install zustand
@@ -420,6 +441,7 @@ npm install tailwindcss postcss autoprefixer
 npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu
 
 # Add Tauri plugins
+
 cargo add tauri-plugin-notification
 cargo add tauri-plugin-global-shortcut
 cargo add keyring

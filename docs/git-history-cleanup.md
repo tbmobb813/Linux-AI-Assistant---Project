@@ -54,6 +54,7 @@ git push --force --tags
 
 Notes & warnings
 ---------------
+
 - This is destructive to history: all collaborators must re-clone or rebase carefully.
 - Coordinate with the team and set a maintenance window.
 - Backup your repository before rewrites.

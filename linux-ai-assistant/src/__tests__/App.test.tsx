@@ -4,7 +4,7 @@ import App from '../App'
 
 test('renders project title', () => {
   render(<App />)
-  // The README/project has the title 'Linux AI Desktop Assistant - Project Documentation'
-  const el = screen.getByText(/Linux AI Desktop Assistant/i)
-  expect(el).toBeInTheDocument()
+  // The app header uses 'Linux AI Assistant'
+  const heading = screen.getByRole('heading', { name: /Linux AI Assistant/i })
+  expect(heading).toBeTruthy()
 })
