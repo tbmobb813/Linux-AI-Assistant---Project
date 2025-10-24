@@ -1,6 +1,32 @@
 {
+  "name": "linux-ai-assistant-repo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "linux-ai-assistant"
+  ],
+  "scripts": {
+    "dev": "npm run -w linux-ai-assistant dev",
+    "build": "npm run -w linux-ai-assistant build",
+    "preview": "npm run -w linux-ai-assistant preview",
+    "tauri": "npm run -w linux-ai-assistant tauri",
+    "prepare": "husky install"
+  },
   "devDependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2"
+  },
+  "husky": {
+    "version": "8"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.rs": [
+      "cargo fmt --",
+      "git add"
+    ]
   }
 }
