@@ -2,114 +2,122 @@ name: CI
 
 on:
   push:
-    branches: [ main, master, chore/*, fix/*, feat/* ]
+    branches:
+      - main
+      - master
+      - chore/**
+      - fix/**
+      - feat/**
   pull_request:
     branches: [ main, master ]
 
-jobs:
-  checks:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+permissions:
+  contents: read
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
-
-      - name: Install JS dependencies
-        run: npm ci
-
-      - name: Prettier check (format)
-        run: |
-          cd linux-ai-assistant || exit 0
-          npx prettier --check . || true
-
-      - name: TypeScript check (frontend)
-        run: |
-          cd linux-ai-assistant
-          npx tsc --noEmit
-
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Cache cargo registry and git
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Cargo fmt check (Tauri)
-        run: |
-          cargo fmt --version || true
-          cargo fmt -- --check --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml || true
-
-      - name: Cargo clippy (Tauri)
-        run: |
-          cargo clippy --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml -- -D warnings || true
-
-      - name: Cargo check (Tauri)
-        run: cargo check --manifest-path=linux-ai-assistant/src-tauri/Cargo.toml
-name: CI
-
-on:
-  push:
-    branches: [ main, 'fix/*' ]
-  pull_request:
-    branches: [ main ]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   checks:
     name: TypeScript + Rust checks
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ---------- Node / Frontend ----------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22'           # use '20' if your project requires LTS 20
           cache: 'npm'
 
+      - name: Detect frontend directory
+        id: fe
+        shell: bash
+        run: |
+          if [ -f "package.json" ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+          elif [ -d "linux-ai-assistant" ] && [ -f "linux-ai-assistant/package.json" ]; then
+            echo "dir=linux-ai-assistant" >> $GITHUB_OUTPUT
+          else
+            echo "dir=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install frontend dependencies
-        # repository layout moved frontend to repo root
-        working-directory: .
+        if: ${{ steps.fe.outputs.dir != '' }}
+        working-directory: ${{ steps.fe.outputs.dir }}
         run: npm ci
 
-      - name: TypeScript typecheck
-        # run typecheck from repository root where tsconfig.json lives
-        working-directory: .
-        run: npx tsc --noEmit
+      - name: Prettier check
+        if: ${{ steps.fe.outputs.dir != '' }}
+        working-directory: ${{ steps.fe.outputs.dir }}
+        run: |
+          npx prettier --version >/dev/null 2>&1 || npm i -D prettier
+          npx prettier --check .
 
+      - name: TypeScript typecheck
+        if: ${{ steps.fe.outputs.dir != '' && hashFiles(format('{0}/tsconfig.json', steps.fe.outputs.dir)) != '' }}
+        working-directory: ${{ steps.fe.outputs.dir }}
+        run: |
+          npx typescript --version >/dev/null 2>&1 || npm i -D typescript
+          npx tsc --noEmit
+
+      - name: Run frontend tests (coverage)
+        if: ${{ steps.fe.outputs.dir != '' }}
+        working-directory: ${{ steps.fe.outputs.dir }}
+        run: |
+          npm ci
+          npm run test:coverage
+
+      - name: Upload frontend coverage
+        if: ${{ steps.fe.outputs.dir != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: ${{ steps.fe.outputs.dir }}/coverage
+
+      # ---------- Rust / Tauri ----------
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
+          components: rustfmt, clippy
           override: true
 
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri
+            linux-ai-assistant/src-tauri
+
+      - name: Detect Tauri directory
+        id: tauri
+        shell: bash
+        run: |
+          if [ -f "src-tauri/Cargo.toml" ]; then
+            echo "dir=src-tauri" >> $GITHUB_OUTPUT
+          elif [ -f "linux-ai-assistant/src-tauri/Cargo.toml" ]; then
+            echo "dir=linux-ai-assistant/src-tauri" >> $GITHUB_OUTPUT
+          else
+            echo "dir=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Cargo fmt (check)
+        if: ${{ steps.tauri.outputs.dir != '' }}
+        working-directory: ${{ steps.tauri.outputs.dir }}
+        run: cargo fmt -- --check
+
+      - name: Cargo clippy (deny warnings)
+        if: ${{ steps.tauri.outputs.dir != '' }}
+        working-directory: ${{ steps.tauri.outputs.dir }}
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
       - name: Cargo check
-        # src-tauri is at the repository root now
-        working-directory: src-tauri
+        if: ${{ steps.tauri.outputs.dir != '' }}
+        working-directory: ${{ steps.tauri.outputs.dir }}
         run: cargo check --workspace --all-targets
