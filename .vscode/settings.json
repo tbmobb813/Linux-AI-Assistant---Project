@@ -13,11 +13,9 @@
   "css.lint.unknownAtRules": "ignore",
   "less.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
-
   // Tailwind IntelliSense: point to the workspace package Tailwind config
   // (helps the extension locate the config when working from a multi-package repo)
   "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-
   // Optional: ensure the extension recognizes HTML in plain text files if needed
   "tailwindCSS.includeLanguages": {
     "plaintext": "html"
@@ -41,48 +39,48 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": null
   {
-    // VS Code workspace settings (merged). Keep comments — settings.json supports JSONC.
-    "rust-analyzer.linkedProjects": [
-      "linux-ai-assistant/src-tauri/Cargo.toml"
-    ],
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": null,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
-    },
-    "[rust]": {
-      "editor.defaultFormatter": "rust-lang.rust-analyzer",
-      "editor.formatOnSave": true
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": null
-    },
-    "[typescriptreact]": {
-      "editor.defaultFormatter": null
-    },
-    "rust-analyzer.checkOnSave.command": "clippy",
-    "rust-analyzer.cargo.features": "all",
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "typescript.enablePromptUseWorkspaceTsdk": true,
-    "files.associations": {
-      "*.rs": "rust"
-    },
-    "files.exclude": {
-      "**/target": true,
-      "**/node_modules": true
-    },
-    "search.exclude": {
-      "**/node_modules": true,
-      "**/target": true,
-      "**/dist": true
-    },
-    "files.watcherExclude": {
-      "**/target/**": true,
-      "**/node_modules/**": true
-    },
-    // Tailwind IntelliSense: help the extension find the config in this multi-package repo
-    "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-    "tailwindCSS.includeLanguages": {
-      "plaintext": "html"
+      // VS Code workspace settings (merged). Keep comments — settings.json supports JSONC.
+      "rust-analyzer.linkedProjects": [
+        "linux-ai-assistant/src-tauri/Cargo.toml"
+      ],
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": null,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+      },
+      "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true
+      },
+      "[typescript]": {
+        "editor.defaultFormatter": null
+      },
+      "[typescriptreact]": {
+        "editor.defaultFormatter": null
+      },
+      "rust-analyzer.checkOnSave.command": "clippy",
+      "rust-analyzer.cargo.features": "all",
+      "typescript.tsdk": "node_modules/typescript/lib",
+      "typescript.enablePromptUseWorkspaceTsdk": true,
+      "files.associations": {
+        "*.rs": "rust"
+      },
+      "files.exclude": {
+        "**/target": true,
+        "**/node_modules": true
+      },
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/target": true,
+        "**/dist": true
+      },
+      "files.watcherExclude": {
+        "**/target/**": true,
+        "**/node_modules/**": true
+      },
+      // Tailwind IntelliSense: help the extension find the config in this multi-package repo
+      "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
+      "tailwindCSS.includeLanguages": {
+        "plaintext": "html"
+      }
     }
-  }
