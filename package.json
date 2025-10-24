@@ -10,11 +10,19 @@
     "build": "npm run -w linux-ai-assistant build",
     "preview": "npm run -w linux-ai-assistant preview",
     "tauri": "npm run -w linux-ai-assistant tauri",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "tauri-dev": "bash ./dev/tauri-dev.sh"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2"
+    "@tauri-apps/cli": "2.9.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
+    "tailwindcss": "^3.4.4",
+    "postcss": "^8.4.39",
+    "autoprefixer": "^10.4.19"
   },
   "husky": {
     "version": "8"
