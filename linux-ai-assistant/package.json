@@ -43,7 +43,6 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "jsdom": "^22.0.0",
-    "@types/testing-library__react": "^14.0.0",
     "@vitest/coverage-v8": "^1.6.1",
     "@playwright/test": "^1.56.1",
     "husky": "^8.0.3"
