@@ -9,7 +9,9 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
             updated_at INTEGER NOT NULL,
             model TEXT NOT NULL,
             provider TEXT NOT NULL,
-            system_prompt TEXT
+            system_prompt TEXT,
+            deleted INTEGER NOT NULL DEFAULT 0,
+            deleted_at INTEGER
         )",
         [],
     )?;
@@ -22,6 +24,8 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
             content TEXT NOT NULL,
             timestamp INTEGER NOT NULL,
             tokens_used INTEGER,
+            deleted INTEGER NOT NULL DEFAULT 0,
+            deleted_at INTEGER,
             FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
         )",
         [],

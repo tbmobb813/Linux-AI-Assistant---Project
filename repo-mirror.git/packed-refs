@@ -1,0 +1,7 @@
+# pack-refs with: peeled fully-peeled sorted 
+7f6c78560483d57823d33f99e9ecf2cd2b2c08eb refs/heads/chore/move-lib-into-frontend
+d1e7680071e29b0b551e8ac7fcb0ac0612a59231 refs/heads/fix/move-tauri-backend
+046bec80f4302b678c3d335102db57db2687f44b refs/heads/main
+c876a4b8459f578bc9f31df3e6a1e086ad1b60fe refs/remotes/origin/chore/move-lib-into-frontend
+d1e7680071e29b0b551e8ac7fcb0ac0612a59231 refs/remotes/origin/fix/move-tauri-backend
+046bec80f4302b678c3d335102db57db2687f44b refs/remotes/origin/main

@@ -40,7 +40,7 @@ MIT
 
 Snap vs system terminal (important)
 
-- If you run the development workflow from a terminal provided by a snap-packaged app (for example the VS Code snap), the Snap runtime can inject its own shared libraries (under `/snap/core20/...`) into processes. That can cause symbol lookup errors when running native binaries built against the system libraries (for example: "undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE").
+- If you run the development workflow from a terminal provided by a snap-packaged app (for example the VS Code snap), the Snap runtime can inject its own shared libraries (under `/snap/core20/...`) into processes. That can cause symbol lookup errors when running native binaries built against the system libraries (for example: "undefined symbol: \_\_libc_pthread_init, version GLIBC_PRIVATE").
 - Workaround: run `npm run tauri dev` or execute the built binary from a normal system terminal (gnome-terminal, xterm, konsole) — not from a snap-wrapped terminal. This ensures the system loader uses your distribution's libraries.
 
 Quick commands (system terminal):

@@ -12,4 +12,12 @@ export default defineConfig({
       ignored: ["**/src-tauri/**"],
     },
   },
+  // Prevent Vite/Rollup from trying to statically resolve Tauri's API modules
+  // when building a web bundle. These modules are only available at runtime
+  // inside the Tauri desktop environment.
+  build: {
+    rollupOptions: {
+      external: [/^@tauri-apps\/api($|\/)/],
+    },
+  },
 });

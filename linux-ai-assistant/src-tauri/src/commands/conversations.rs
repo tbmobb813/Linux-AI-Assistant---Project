@@ -52,6 +52,15 @@ pub async fn delete_conversation(
 }
 
 #[tauri::command]
+pub async fn restore_conversation(
+    db: State<'_, Database>,
+    id: String,
+) -> Result<(), String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    Conversation::restore(&conn, &id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn search_conversations(
     db: State<'_, Database>,
     query: String,

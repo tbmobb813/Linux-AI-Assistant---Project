@@ -43,7 +43,8 @@ impl Message {
     }
 
     pub fn get_by_conversation(conn: &Connection, conversation_id: &str) -> Result<Vec<Self>> {
-        let mut stmt = conn.prepare("SELECT id, conversation_id, role, content, timestamp, tokens_used FROM messages WHERE conversation_id = ?1 ORDER BY timestamp ASC")?;
+        // Only return non-deleted messages
+        let mut stmt = conn.prepare("SELECT id, conversation_id, role, content, timestamp, tokens_used FROM messages WHERE conversation_id = ?1 AND deleted = 0 ORDER BY timestamp ASC")?;
         let messages = stmt.query_map(params![conversation_id], |row| {
             Ok(Message {
                 id: row.get(0)?,
@@ -58,7 +59,7 @@ impl Message {
     }
 
     pub fn get_last_n(conn: &Connection, conversation_id: &str, n: i64) -> Result<Vec<Self>> {
-        let mut stmt = conn.prepare("SELECT id, conversation_id, role, content, timestamp, tokens_used FROM messages WHERE conversation_id = ?1 ORDER BY timestamp DESC LIMIT ?2")?;
+        let mut stmt = conn.prepare("SELECT id, conversation_id, role, content, timestamp, tokens_used FROM messages WHERE conversation_id = ?1 AND deleted = 0 ORDER BY timestamp DESC LIMIT ?2")?;
         let messages = stmt.query_map(params![conversation_id, n], |row| {
             Ok(Message {
                 id: row.get(0)?,
@@ -75,7 +76,7 @@ impl Message {
     }
 
     pub fn search(conn: &Connection, query: &str, limit: i64) -> Result<Vec<Self>> {
-        let mut stmt = conn.prepare("SELECT m.id, m.conversation_id, m.role, m.content, m.timestamp, m.tokens_used FROM messages m JOIN messages_fts fts ON m.rowid = fts.rowid WHERE messages_fts MATCH ?1 ORDER BY m.timestamp DESC LIMIT ?2")?;
+        let mut stmt = conn.prepare("SELECT m.id, m.conversation_id, m.role, m.content, m.timestamp, m.tokens_used FROM messages m JOIN messages_fts fts ON m.rowid = fts.rowid WHERE messages_fts MATCH ?1 AND m.deleted = 0 ORDER BY m.timestamp DESC LIMIT ?2")?;
         let messages = stmt.query_map(params![query, limit], |row| {
             Ok(Message {
                 id: row.get(0)?,
@@ -90,7 +91,15 @@ impl Message {
     }
 
     pub fn delete(conn: &Connection, id: &str) -> Result<()> {
-        conn.execute("DELETE FROM messages WHERE id = ?1", params![id])?;
+        // Soft-delete message by marking deleted flag
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+        conn.execute(
+            "UPDATE messages SET deleted = 1, deleted_at = ?1 WHERE id = ?2",
+            params![now, id],
+        )?;
         Ok(())
     }
 
