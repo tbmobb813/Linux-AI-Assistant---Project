@@ -17,6 +17,8 @@ export interface ApiMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: number;
+  // Optional UI-only status to represent per-message delivery state in the frontend
+  status?: 'pending' | 'sent' | 'failed';
   tokens_used?: number;
 }
 
