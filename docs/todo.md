@@ -26,4 +26,5 @@ This file tracks higher-level tasks and progress for the Linux AI Assistant proj
 - [ ] Packaging for DEB/RPM/AppImage
 
 ---
+
 Generated/updated on: 2025-10-24

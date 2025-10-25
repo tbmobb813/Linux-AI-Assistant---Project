@@ -1,9 +1,11 @@
 # Complete Database Layer Setup Guide
 
 ## Overview
+
 This guide will walk you through setting up the complete database layer for your Linux AI Assistant, including both backend (Rust) and frontend (TypeScript) integration.
 
 ## Prerequisites
+
 ✅ You've run the initial setup script  
 ✅ You have VS Code installed (optional but recommended)  
 ✅ Your project is at `linux-ai-assistant/`
@@ -42,6 +44,7 @@ mkdir -p src-tauri/src/commands
 Now create these files with the code from the artifacts:
 
 ### Backend Files (Rust):
+
 1. **src-tauri/src/database/mod.rs** - Main database module
 2. **src-tauri/src/database/schema.rs** - Database schema
 3. **src-tauri/src/database/conversations.rs** - Conversation operations
@@ -54,6 +57,7 @@ Now create these files with the code from the artifacts:
 10. **src-tauri/src/main.rs** - Updated main file
 
 ### Frontend Files (TypeScript):
+
 1. **src/lib/api/types.ts** - TypeScript types
 2. **src/lib/api/database.ts** - Database API wrapper
 3. **src/lib/stores/chatStore.ts** - Chat state management
@@ -70,6 +74,7 @@ mkdir -p .vscode
 ```
 
 Create the following files from the VS Code artifact:
+
 1. **.vscode/settings.json** - Workspace settings
 2. **.vscode/extensions.json** - Recommended extensions
 3. **.vscode/launch.json** - Debug configurations
@@ -80,11 +85,13 @@ Create the following files from the VS Code artifact:
 ### Install VS Code Extensions
 
 Open VS Code and install the recommended extensions:
+
 - Press `Ctrl+Shift+P`
 - Type "Extensions: Show Recommended Extensions"
 - Install all recommended extensions
 
 Key extensions:
+
 - **rust-analyzer** - Rust language support
 - **Tauri** - Tauri development tools
 - **Prettier** - Code formatting
@@ -108,6 +115,7 @@ cargo build --manifest-path=./src-tauri/Cargo.toml
 ```
 
 If you get any errors, they'll typically be:
+
 - Missing dependencies → Run `cargo build` again
 - Syntax errors → Check the file content matches the artifacts
 - Module not found → Ensure all `mod.rs` files exist
@@ -131,10 +139,10 @@ mod tests {
     fn test_database_creation() {
         let temp_dir = std::env::temp_dir();
         let db_path = temp_dir.join("test_db.db");
-        
+
         let db = Database::new(db_path.clone()).unwrap();
         assert!(db_path.exists());
-        
+
         // Cleanup
         std::fs::remove_file(db_path).ok();
     }
@@ -174,7 +182,7 @@ import { useSettingsStore } from './lib/stores/settingsStore';
 
 function App() {
   const [message, setMessage] = useState('');
-  
+
   const {
     conversations,
     currentConversation,
@@ -186,7 +194,7 @@ function App() {
     selectConversation,
     sendMessage,
   } = useChatStore();
-  
+
   const { loadSettings } = useSettingsStore();
 
   useEffect(() => {
@@ -215,7 +223,7 @@ function App() {
         >
           New Conversation
         </button>
-        
+
         <div className="space-y-2">
           {conversations.map((conv) => (
             <button
@@ -274,7 +282,7 @@ function App() {
               Select a conversation or create a new one
             </div>
           )}
-          
+
           {isLoading && (
             <div className="text-center text-gray-400">
               <div className="animate-pulse">Processing...</div>
@@ -322,6 +330,7 @@ npm run tauri dev
 ```
 
 The application should:
+
 1. Open in a new window
 2. Show an empty sidebar (no conversations yet)
 3. Allow you to click "New Conversation"
@@ -336,6 +345,7 @@ The application should:
 ### Check the Database File
 
 The database is created at:
+
 ```bash
 # On Linux
 ~/.local/share/com.linuxai.assistant/database.db
@@ -361,23 +371,28 @@ SELECT * FROM messages;
 ### Common Issues:
 
 **1. "Failed to initialize database"**
+
 - Check file permissions on the app data directory
 - Ensure rusqlite is properly installed: `cargo build`
 
 **2. "invoke command not found"**
+
 - Verify command is registered in `main.rs`
 - Check command name matches between Rust and TypeScript
 
 **3. TypeScript errors in VS Code**
+
 - Run: `npm install`
 - Restart VS Code
 - Check `@tauri-apps/api` is installed
 
 **4. Rust compilation errors**
+
 - Run: `cargo clean --manifest-path=./src-tauri/Cargo.toml`
 - Rebuild: `cargo build --manifest-path=./src-tauri/Cargo.toml`
 
 **5. Hot reload not working**
+
 - Restart dev server
 - Check vite config is correct
 
@@ -427,12 +442,15 @@ Recommended workflow in VS Code:
 After making changes:
 
 ### Frontend Changes:
+
 - Save file → Vite auto-reloads → See changes immediately
 
 ### Backend Changes:
+
 - Save file → Tauri rebuilds → App restarts automatically
 
 ### Database Schema Changes:
+
 - Delete the database file
 - Restart app to recreate with new schema
 
@@ -446,6 +464,6 @@ After making changes:
 ✅ Settings are persisted  
 ✅ No console errors  
 ✅ VS Code extensions working  
-✅ Hot reload functioning  
+✅ Hot reload functioning
 
 If all items are checked, your database layer is fully operational!

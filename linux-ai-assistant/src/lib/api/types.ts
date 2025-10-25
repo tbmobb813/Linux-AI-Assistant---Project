@@ -14,11 +14,11 @@ export interface ApiConversation {
 export interface ApiMessage {
   id: string;
   conversation_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: number;
   // Optional UI-only status to represent per-message delivery state in the frontend
-  status?: 'pending' | 'sent' | 'failed';
+  status?: "pending" | "sent" | "failed";
   tokens_used?: number;
 }
 
@@ -37,7 +37,7 @@ export interface NewConversation {
 
 export interface NewMessage {
   conversation_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   tokens_used?: number;
 }

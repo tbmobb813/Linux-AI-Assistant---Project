@@ -13,7 +13,7 @@ How it works
 
 Swap in a real provider
 
-- Implement a new provider module that implements the `Provider` interface (e.g., `openaiProvider.ts`) and update the factory in `provider.ts` to return it based on env (VITE_ variables) or runtime configuration.
+- Implement a new provider module that implements the `Provider` interface (e.g., `openaiProvider.ts`) and update the factory in `provider.ts` to return it based on env (VITE\_ variables) or runtime configuration.
 - For Tauri/native usage, consider exposing provider configuration via the backend and reading secrets from secure storage or environment variables; do not commit API keys into source.
 
 CI and packaging
