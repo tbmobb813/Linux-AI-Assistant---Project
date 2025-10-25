@@ -3,9 +3,11 @@
 // own file (conversations.rs, messages.rs, settings.rs).
 
 pub mod conversations;
+pub mod health;
 pub mod messages;
 pub mod settings;
-
+pub mod window;
+pub mod provider;
 
 // src-tauri/Cargo.toml (Updated dependencies)
 // Add this to your existing Cargo.toml

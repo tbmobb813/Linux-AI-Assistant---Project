@@ -1,17 +1,19 @@
 {
-  "name": "Linux AI Assistant Dev Container",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
-  "features": {},
-  "postCreateCommand": "bash -lc 'set -e; curl https://sh.rustup.rs -sSf | sh -s -- -y || true; source $HOME/.cargo/env || true; cargo --version || true; npm ci || true'",
-  "forwardPorts": [3000],
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "rust-lang.rust-analyzer",
-        "ms-vscode.vscode-typescript-next",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
-      ]
+    "name": "Linux AI Assistant Dev Container",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+    "features": {},
+    "postCreateCommand": "bash -lc 'set -e; curl https://sh.rustup.rs -sSf | sh -s -- -y || true; source $HOME/.cargo/env || true; cargo --version || true; corepack enable || true; corepack prepare pnpm@latest --activate || true; pnpm -w install || true'",
+    "forwardPorts": [
+        3000
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "rust-lang.rust-analyzer",
+                "ms-vscode.vscode-typescript-next",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint"
+            ]
+        }
     }
-  }
 }

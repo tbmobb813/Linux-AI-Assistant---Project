@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'           # use '20' if your project requires LTS 20
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Detect frontend directory
         id: fe
@@ -46,10 +46,13 @@ jobs:
             echo "dir=" >> $GITHUB_OUTPUT
           fi
 
-      - name: Install frontend dependencies
+      - name: Install frontend dependencies (pnpm)
         if: ${{ steps.fe.outputs.dir != '' }}
         working-directory: ${{ steps.fe.outputs.dir }}
-        run: npm ci
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.19.0 --activate
+          pnpm install --frozen-lockfile
 
       - name: Prettier check
         if: ${{ steps.fe.outputs.dir != '' }}
@@ -69,8 +72,10 @@ jobs:
         if: ${{ steps.fe.outputs.dir != '' }}
         working-directory: ${{ steps.fe.outputs.dir }}
         run: |
-          npm ci
-          npm run test:coverage
+          corepack enable
+          corepack prepare pnpm@10.19.0 --activate
+          pnpm install --frozen-lockfile
+          pnpm run test:coverage
 
       - name: Upload frontend coverage
         if: ${{ steps.fe.outputs.dir != '' }}

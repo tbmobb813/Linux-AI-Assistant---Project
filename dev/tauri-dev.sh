@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FRONTEND_DIR="$REPO_ROOT/linux-ai-assistant"
-PNPM_CMD="pnpm -w -C $FRONTEND_DIR run tauri -- dev"
+PNPM_CMD="cd \"$FRONTEND_DIR\" && pnpm exec tauri dev"
 # Candidate libpthread paths for common linux distros
 CANDIDATES=(
   "/lib/x86_64-linux-gnu/libpthread.so.0"
@@ -82,13 +82,35 @@ if [ "$NO_PRELOAD" -eq 1 ]; then
 fi
 
 # If we found a candidate libpthread, use it. Otherwise run without preload but warn.
+LOG="$REPO_ROOT/dev/tauri-dev.log"
 if [ -n "$LIBPTHREAD" ]; then
   echo "Using LD_PRELOAD=$LIBPTHREAD"
   export LD_PRELOAD="$LIBPTHREAD"
-  # exec to replace shell; this preserves signals and ensures Ctrl-C works
-  exec sh -c "$PNPM_CMD"
 else
   echo "Warning: couldn't locate a system libpthread to LD_PRELOAD." >&2
   echo "Attempting to run without LD_PRELOAD. If you see a symbol lookup error, try running this script inside the devcontainer or set LD_PRELOAD manually." >&2
-  exec sh -c "$PNPM_CMD"
 fi
+
+# Start the tauri dev process in the background so we can run smoke tests against the frontend.
+echo "Starting tauri dev in $FRONTEND_DIR (logs -> $LOG)"
+sh -c "$PNPM_CMD" >"$LOG" 2>&1 &
+TAURI_PID=$!
+echo "Started tauri dev (pid $TAURI_PID). Waiting for frontend to become available..."
+
+# Run smoke test script that waits for the frontend / Vite server to respond.
+SMOKE_SCRIPT="$REPO_ROOT/dev/smoke.sh"
+if [ -x "$SMOKE_SCRIPT" ]; then
+  if "$SMOKE_SCRIPT"; then
+    echo "Smoke test passed: frontend reachable"
+  else
+    echo "Smoke test failed. Check logs: $LOG" >&2
+  fi
+else
+  echo "Smoke script not executable or not found: $SMOKE_SCRIPT (skipping)"
+fi
+
+# Wait for the tauri dev process to exit so the script behaves like a long-running process.
+wait $TAURI_PID
+EXIT_CODE=$?
+echo "tauri dev process exited with code $EXIT_CODE"
+exit $EXIT_CODE

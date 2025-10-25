@@ -1,5 +1,6 @@
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
+[![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
 Linux AI Desktop Assistant - Project Documentation
 Project Overview
@@ -306,28 +307,10 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(
     content_rowid=rowid
 );
 API Provider Interface
-# [async_trait]
-pub trait AIProvider {
-    async fn send_message(
-        &self,
-        messages: Vec<Message>,
-        model: &str,
-        stream: bool,
-    ) -> Result<Response, AIError>;
-
-    async fn stream_message(
-        &self,
-        messages: Vec<Message>,
-        model: &str,
-    ) -> Result<StreamResponse, AIError>;
-    
-    fn get_available_models(&self) -> Vec<ModelInfo>;
-    
-    fn requires_api_key(&self) -> bool;
-}
 Configuration File Format
 
-# ~/.config/linux-ai-assistant/config.toml
+~/.config/linux-ai-assistant/config.toml
+===========================================
 
 [general]
 theme = "system"  # system, dark, light
@@ -441,6 +424,67 @@ npm install tailwindcss postcss autoprefixer
 npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu
 
 # Add Tauri plugins
+
+Developer environment: pnpm (recommended)
+-----------------------------------------
+
+This repository now uses pnpm as the workspace package manager (via Corepack) for faster, more
+deterministic installs and smaller disk usage. If you're contributing, please use Corepack or
+install pnpm locally.
+
+Using Corepack (recommended):
+
+```bash
+corepack enable
+corepack prepare pnpm@10.19.0 --activate
+pnpm -w install
+```
+
+Or install pnpm directly:
+
+```bash
+npm i -g pnpm
+pnpm -w install
+```
+
+Common pnpm commands
+
+- Install workspace deps: `pnpm -w install`
+- Run frontend tests: `pnpm -w -C linux-ai-assistant test`
+- Run frontend dev: `pnpm -w -C linux-ai-assistant dev`
+
+Dev run workaround for Snap / system-library issues
+-----------------------------------------------
+
+On some systems (notably when running inside Snap-wrapped environments), native Tauri
+dev builds can fail at runtime with a GLIBC symbol lookup error referencing
+`libpthread.so.0` (for example: `__libc_pthread_init, version GLIBC_PRIVATE`). If
+you see that error when running `pnpm -w -C linux-ai-assistant run tauri -- dev`,
+you can use the included wrapper script which attempts a safe LD_PRELOAD override:
+
+```bash
+# from repo root
+chmod +x dev/tauri-dev.sh
+dev/tauri-dev.sh
+```
+
+The wrapper locates a system `libpthread.so.0` (common paths like
+`/lib/x86_64-linux-gnu/libpthread.so.0`) and sets `LD_PRELOAD` before launching
+the workspace `tauri dev` process. If you prefer to run without the preload,
+use:
+
+```bash
+dev/tauri-dev.sh --no-preload
+```
+
+Prefer opening this repository in the provided devcontainer for a reproducible
+developer environment that avoids host packaging quirks.
+
+CI/Devcontainer
+
+The devcontainer and CI are configured to use Corepack and pin pnpm `10.19.0`. If you need a
+different pnpm version, update the Corepack prepare invocation in `.devcontainer/devcontainer.json`
+and `.github/workflows/ci.yml`.
 
 cargo add tauri-plugin-notification
 cargo add tauri-plugin-global-shortcut

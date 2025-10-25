@@ -1,20 +1,5 @@
-# !/bin/bash
 
-# Linux AI Assistant - Complete Setup Script
-
-# This script will set up your development environment on Zorin OS/Ubuntu-based systems
-
-set -e  # Exit on any error
-
-echo "🚀 Starting Linux AI Assistant Development Setup..."
-echo ""
-
-# Colors for output
-
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Linux AI Assistant - Setup Guide
 
 print_step() {
     echo -e "${BLUE}==>${NC} $1"
@@ -72,7 +57,7 @@ print_step "Checking for Node.js installation..."
 
 if ! command -v node &> /dev/null; then
     print_step "Installing nvm and Node.js..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh> | bash
 
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -87,7 +72,7 @@ fi
 # Step 4: Install Tauri CLI
 
 print_step "Installing Tauri CLI..."
-cargo install tauri-cli --version "^2.0.0"
+ cargo install tauri-cli --version "2.9.1"
 print_success "Tauri CLI installed"
 
 # Step 5: Create project directory
@@ -165,7 +150,7 @@ cat > vite.config.ts << 'EOF'
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// https://vitejs.dev/config/
+// <https://vitejs.dev/config/>
 export default defineConfig({
   plugins: [react()],
   clearScreen: false,
@@ -305,6 +290,7 @@ body {
 }
 
 # root {
+
   width: 100%;
   height: 100vh;
 }
@@ -382,7 +368,7 @@ print_step "Initializing Tauri backend..."
 cargo tauri init --app-name "linux-ai-assistant" \
   --window-title "Linux AI Assistant" \
   --dist-dir "../dist" \
-  --dev-path http://localhost:1420 \
+  --dev-path <http://localhost:1420> \
   --before-dev-command "npm run dev" \
   --before-build-command "npm run build" || true
 
@@ -398,7 +384,7 @@ cat > src-tauri/tauri.conf.json << 'EOF'
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "<http://localhost:1420>",
     "frontendDist": "../dist"
   },
   "bundle": {
@@ -462,9 +448,11 @@ EOF
 
 cat > src-tauri/src/main.rs << 'EOF'
 // Prevents additional console window on Windows in release
+
 # ![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 # [tauri::command]
+
 fn greet(name: &str) -> String {
     format!("Hello, {}! Welcome to Linux AI Assistant!", name)
 }
@@ -504,14 +492,18 @@ cat > cli/src/main.rs << 'EOF'
 use clap::{Parser, Subcommand};
 
 # [derive(Parser)]
+
 # [command(name = "lai")]
+
 # [command(about = "Linux AI Assistant CLI", long_about = None)]
+
 struct Cli {
     #[command(subcommand)]
     command: Commands,
 }
 
 # [derive(Subcommand)]
+
 enum Commands {
     /// Send a message to the AI
     Ask {
@@ -639,6 +631,11 @@ echo "================================================================"
 print_success "Setup complete! 🎉"
 echo "================================================================"
 echo ""
+echo ""
+echo "================================================================"
+print_success "Setup complete! 🎉"
+echo "================================================================"
+echo ""
 echo "Your project is ready at: $(pwd)"
 echo ""
 echo "Next steps:"
@@ -652,5 +649,9 @@ echo "  npm run tauri dev       # Run in development mode"
 echo "  npm run tauri build     # Build for production"
 echo "  cd cli && cargo run     # Test CLI tool"
 echo ""
+echo "Documentation: See README.md and docs/ folder"
+echo ""
+echo ""
+echo "Documentation: See README.md and docs/ folder"
 echo "Documentation: See README.md and docs/ folder"
 echo ""
