@@ -64,21 +64,17 @@ export default function ConversationItem({
               // Refresh the conversation list and select restored conv
               await useChatStore.getState().loadConversations();
               await useChatStore.getState().selectConversation(snapshot.id);
-              useUiStore
-                .getState()
-                .addToast({
-                  message: "Conversation restored",
-                  type: "success",
-                  ttl: 3000,
-                });
+              useUiStore.getState().addToast({
+                message: "Conversation restored",
+                type: "success",
+                ttl: 3000,
+              });
             } catch (e: any) {
-              useUiStore
-                .getState()
-                .addToast({
-                  message: `Restore failed: ${String(e)}`,
-                  type: "error",
-                  ttl: 4000,
-                });
+              useUiStore.getState().addToast({
+                message: `Restore failed: ${String(e)}`,
+                type: "error",
+                ttl: 4000,
+              });
             }
           },
         },
@@ -94,7 +90,9 @@ export default function ConversationItem({
 
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-800 ${selected ? "bg-gray-800" : ""}`}
+      className={`flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer hover:bg-gray-800 ${
+        selected ? "bg-gray-800" : ""
+      }`}
       onClick={() => onSelect(conversation.id)}
     >
       <div className="flex-1">

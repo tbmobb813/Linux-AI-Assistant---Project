@@ -8,7 +8,13 @@ export default function Toaster() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`p-2 rounded shadow-md text-sm pointer-events-auto transform transition-all duration-200 ease-out ${t.type === "error" ? "bg-red-600 text-white" : t.type === "success" ? "bg-green-600 text-white" : "bg-gray-800 text-white"}`}
+          className={`p-2 rounded shadow-md text-sm pointer-events-auto transform transition-all duration-200 ease-out ${
+            t.type === "error"
+              ? "bg-red-600 text-white"
+              : t.type === "success"
+              ? "bg-green-600 text-white"
+              : "bg-gray-800 text-white"
+          }`}
           role="status"
           aria-live="polite"
         >

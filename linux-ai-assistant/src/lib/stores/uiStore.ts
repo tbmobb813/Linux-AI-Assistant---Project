@@ -28,7 +28,7 @@ export const useUiStore = create<UiState>((set) => ({
     if (toast.ttl && toast.ttl > 0) {
       setTimeout(
         () => set((s) => ({ toasts: s.toasts.filter((x) => x.id !== id) })),
-        toast.ttl,
+        toast.ttl
       );
     }
     return id;

@@ -5,7 +5,7 @@ export const mockProvider: Provider = {
   async generateResponse(
     _conversationId: string,
     messages: ProviderMessage[],
-    onChunk?,
+    onChunk?
   ) {
     const last = [...messages].reverse().find((m) => m.role === "user");
     const payload = last ? last.content : "Hello from mock provider!";

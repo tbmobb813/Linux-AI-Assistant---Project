@@ -22,7 +22,7 @@ interface ChatState {
   createConversation: (
     title: string,
     model: string,
-    provider: string,
+    provider: string
   ) => Promise<Conversation>;
   selectConversation: (id: string) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
@@ -121,7 +121,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       set((state) => ({
         conversations: state.conversations.map((c) =>
-          c.id === id ? { ...c, title } : c,
+          c.id === id ? { ...c, title } : c
         ),
         currentConversation:
           state.currentConversation?.id === id
@@ -168,7 +168,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // Replace optimistic message with the one returned from DB and mark sent
       set((state) => ({
         messages: state.messages.map((m) =>
-          m.id === optimisticId ? { ...userMessage, status: "sent" } : m,
+          m.id === optimisticId ? { ...userMessage, status: "sent" } : m
         ),
       }));
 
@@ -203,7 +203,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages: state.messages.map((m) =>
               m.id === optimisticAssistantId
                 ? { ...m, content: (m.content || "") + chunk }
-                : m,
+                : m
             ),
           }));
         };
@@ -211,7 +211,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const assistantContent = await provider.generateResponse(
           currentConversation.id,
           messagesForProvider as any,
-          onChunk,
+          onChunk
         );
         // if provider didn't stream, assistantContent will hold final string
         if (!finalContent) finalContent = assistantContent;
@@ -227,7 +227,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messages: state.messages.map((m) =>
             m.id === optimisticAssistantId
               ? { ...assistantMessage, status: "sent" }
-              : m,
+              : m
           ),
           isLoading: false,
         }));
@@ -235,7 +235,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // mark assistant message as failed
         set((state) => ({
           messages: state.messages.map((m) =>
-            m.id === optimisticAssistantId ? { ...m, status: "failed" } : m,
+            m.id === optimisticAssistantId ? { ...m, status: "failed" } : m
           ),
           error: String(err),
           isLoading: false,
@@ -247,7 +247,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         messages: state.messages.map((m) =>
           typeof m.id === "string" && m.id === optimisticId
             ? { ...m, status: "failed" }
-            : m,
+            : m
         ),
         error: String(error),
         isLoading: false,
@@ -270,7 +270,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // mark pending
       set((state) => ({
         messages: state.messages.map((m) =>
-          m.id === id ? { ...m, status: "pending" } : m,
+          m.id === id ? { ...m, status: "pending" } : m
         ),
       }));
 
@@ -284,7 +284,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // replace failed message with persisted one
       set((state) => ({
         messages: state.messages.map((m) =>
-          m.id === id ? { ...userMessage, status: "sent" } : m,
+          m.id === id ? { ...userMessage, status: "sent" } : m
         ),
       }));
 
@@ -316,7 +316,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages: state.messages.map((m) =>
               m.id === optimisticAssistantId
                 ? { ...m, content: (m.content || "") + chunk }
-                : m,
+                : m
             ),
           }));
         };
@@ -324,7 +324,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const assistantContent = await provider.generateResponse(
           currentConversation.id,
           messagesForProvider as any,
-          onChunk,
+          onChunk
         );
         if (!finalContent) finalContent = assistantContent;
 
@@ -338,14 +338,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messages: state.messages.map((m) =>
             m.id === optimisticAssistantId
               ? { ...assistantMessage, status: "sent" }
-              : m,
+              : m
           ),
           isLoading: false,
         }));
       } catch (err) {
         set((state) => ({
           messages: state.messages.map((m) =>
-            m.id === optimisticAssistantId ? { ...m, status: "failed" } : m,
+            m.id === optimisticAssistantId ? { ...m, status: "failed" } : m
           ),
           error: String(err),
           isLoading: false,
@@ -354,7 +354,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       set((state) => ({
         messages: state.messages.map((m) =>
-          m.id === id ? { ...m, status: "failed" } : m,
+          m.id === id ? { ...m, status: "failed" } : m
         ),
         error: String(error),
         isLoading: false,

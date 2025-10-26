@@ -19,7 +19,7 @@ test("shows placeholder when no conversation selected", async () => {
     render(<ChatInterface />);
   });
   expect(
-    screen.getByText(/Select or create a conversation to get started/i),
+    screen.getByText(/Select or create a conversation to get started/i)
   ).toBeTruthy();
 });
 
@@ -46,7 +46,7 @@ test("typing and sending calls sendMessage and clears input", async () => {
   });
 
   const input = screen.getByPlaceholderText(
-    /Type a message/i,
+    /Type a message/i
   ) as HTMLInputElement;
   act(() => {
     fireEvent.change(input, { target: { value: "hello world" } });
@@ -93,7 +93,7 @@ test("disables send while pending", async () => {
   });
 
   const input = screen.getByPlaceholderText(
-    /Type a message/i,
+    /Type a message/i
   ) as HTMLInputElement;
   act(() => {
     fireEvent.change(input, { target: { value: "pending message" } });

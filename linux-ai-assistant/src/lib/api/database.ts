@@ -14,7 +14,7 @@ import type {
 // add timeouts, logging, or other cross-cutting behaviors for Tauri calls.
 async function callInvoke<T>(
   cmd: string,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): Promise<T> {
   try {
     return await invoke<T>(cmd as any, args as any);
@@ -61,7 +61,7 @@ export const database = {
 
     search: async (
       query: string,
-      limit: number = 20,
+      limit: number = 20
     ): Promise<Conversation[]> => {
       return callInvoke<Conversation[]>("search_conversations", {
         query,

@@ -24,7 +24,7 @@ test("renders empty state and calls createConversation when New clicked", async 
       provider,
       created_at: Date.now(),
       updated_at: Date.now(),
-    }),
+    })
   );
 
   useChatStore.setState({

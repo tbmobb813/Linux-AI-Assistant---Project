@@ -18,7 +18,7 @@ export interface Provider {
   generateResponse(
     conversationId: string,
     messages: ProviderMessage[],
-    onChunk?: (chunk: string) => void,
+    onChunk?: (chunk: string) => void
   ): Promise<string>;
 }
 
@@ -49,7 +49,7 @@ export function getProvider(): Provider {
                   conversation_id: conversationId,
                   messages,
                   model: (import.meta as any).env?.VITE_OPENAI_MODEL || null,
-                },
+                }
               );
 
               let buffer = "";
@@ -65,14 +65,14 @@ export function getProvider(): Provider {
                       onChunk(chunk);
                     } catch (_) {}
                   }
-                },
+                }
               );
 
               const unlistenEndP = listenFn("provider-stream-end", (e: any) => {
                 const payload: any = e.payload;
                 if (payload?.session_id === sessionId) {
                   Promise.all([unlistenChunkP, unlistenEndP]).then(
-                    (fns: any[]) => fns.forEach((fn) => fn && fn()),
+                    (fns: any[]) => fns.forEach((fn) => fn && fn())
                   );
                 }
               });
