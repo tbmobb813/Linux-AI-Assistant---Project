@@ -1,9 +1,11 @@
 # Complete Database Layer Setup Guide
 
 ## Overview
+
 This guide will walk you through setting up the complete database layer for your Linux AI Assistant, including both backend (Rust) and frontend (TypeScript) integration.
 
 ## Prerequisites
+
 ✅ You've run the initial setup script  
 ✅ You have VS Code installed (optional but recommended)  
 ✅ Your project is at `linux-ai-assistant/`
@@ -42,6 +44,7 @@ mkdir -p src-tauri/src/commands
 Now create these files with the code from the artifacts:
 
 ### Backend Files (Rust):
+
 1. **src-tauri/src/database/mod.rs** - Main database module
 2. **src-tauri/src/database/schema.rs** - Database schema
 3. **src-tauri/src/database/conversations.rs** - Conversation operations
@@ -54,6 +57,7 @@ Now create these files with the code from the artifacts:
 10. **src-tauri/src/main.rs** - Updated main file
 
 ### Frontend Files (TypeScript):
+
 1. **src/lib/api/types.ts** - TypeScript types
 2. **src/lib/api/database.ts** - Database API wrapper
 3. **src/lib/stores/chatStore.ts** - Chat state management
@@ -70,6 +74,7 @@ mkdir -p .vscode
 ```
 
 Create the following files from the VS Code artifact:
+
 1. **.vscode/settings.json** - Workspace settings
 2. **.vscode/extensions.json** - Recommended extensions
 3. **.vscode/launch.json** - Debug configurations
@@ -80,11 +85,13 @@ Create the following files from the VS Code artifact:
 ### Install VS Code Extensions
 
 Open VS Code and install the recommended extensions:
+
 - Press `Ctrl+Shift+P`
 - Type "Extensions: Show Recommended Extensions"
 - Install all recommended extensions
 
 Key extensions:
+
 - **rust-analyzer** - Rust language support
 - **Tauri** - Tauri development tools
 - **Prettier** - Code formatting
@@ -108,6 +115,7 @@ cargo build --manifest-path=./src-tauri/Cargo.toml
 ```
 
 If you get any errors, they'll typically be:
+
 - Missing dependencies → Run `cargo build` again
 - Syntax errors → Check the file content matches the artifacts
 - Module not found → Ensure all `mod.rs` files exist
@@ -131,10 +139,10 @@ mod tests {
     fn test_database_creation() {
         let temp_dir = std::env::temp_dir();
         let db_path = temp_dir.join("test_db.db");
-        
+
         let db = Database::new(db_path.clone()).unwrap();
         assert!(db_path.exists());
-        
+
         // Cleanup
         std::fs::remove_file(db_path).ok();
     }
@@ -168,13 +176,13 @@ Now let's test that everything works together:
 Replace your `src/App.tsx` with this test version:
 
 ```typescript
-import { useEffect, useState } from 'react';
-import { useChatStore } from './lib/stores/chatStore';
-import { useSettingsStore } from './lib/stores/settingsStore';
+import { useEffect, useState } from "react";
+import { useChatStore } from "./lib/stores/chatStore";
+import { useSettingsStore } from "./lib/stores/settingsStore";
 
 function App() {
-  const [message, setMessage] = useState('');
-  
+  const [message, setMessage] = useState("");
+
   const {
     conversations,
     currentConversation,
@@ -186,7 +194,7 @@ function App() {
     selectConversation,
     sendMessage,
   } = useChatStore();
-  
+
   const { loadSettings } = useSettingsStore();
 
   useEffect(() => {
@@ -196,13 +204,13 @@ function App() {
   }, []);
 
   const handleCreateNew = async () => {
-    await createConversation('New Conversation', 'gpt-4', 'openai');
+    await createConversation("New Conversation", "gpt-4", "openai");
   };
 
   const handleSendMessage = async () => {
     if (!message.trim() || !currentConversation) return;
     await sendMessage(message);
-    setMessage('');
+    setMessage("");
   };
 
   return (
@@ -215,7 +223,7 @@ function App() {
         >
           New Conversation
         </button>
-        
+
         <div className="space-y-2">
           {conversations.map((conv) => (
             <button
@@ -223,8 +231,8 @@ function App() {
               onClick={() => selectConversation(conv.id)}
               className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                 currentConversation?.id === conv.id
-                  ? 'bg-gray-700'
-                  : 'hover:bg-gray-700'
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
               }`}
             >
               <div className="font-medium truncate">{conv.title}</div>
@@ -238,11 +246,9 @@ function App() {
       <main className="flex-1 flex flex-col">
         <header className="p-4 border-b border-gray-700">
           <h1 className="text-xl font-bold">
-            {currentConversation?.title || 'Linux AI Assistant'}
+            {currentConversation?.title || "Linux AI Assistant"}
           </h1>
-          {error && (
-            <p className="text-red-400 text-sm mt-1">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
         </header>
 
         {/* Messages */}
@@ -253,13 +259,13 @@ function App() {
                 <div
                   key={msg.id}
                   className={`p-4 rounded-lg ${
-                    msg.role === 'user'
-                      ? 'bg-blue-600 ml-12'
-                      : 'bg-gray-800 mr-12'
+                    msg.role === "user"
+                      ? "bg-blue-600 ml-12"
+                      : "bg-gray-800 mr-12"
                   }`}
                 >
                   <div className="font-semibold text-sm mb-1">
-                    {msg.role === 'user' ? 'You' : 'Assistant'}
+                    {msg.role === "user" ? "You" : "Assistant"}
                   </div>
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 </div>
@@ -274,7 +280,7 @@ function App() {
               Select a conversation or create a new one
             </div>
           )}
-          
+
           {isLoading && (
             <div className="text-center text-gray-400">
               <div className="animate-pulse">Processing...</div>
@@ -289,7 +295,7 @@ function App() {
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Type your message..."
               disabled={!currentConversation || isLoading}
               className="flex-1 px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -322,6 +328,7 @@ npm run tauri dev
 ```
 
 The application should:
+
 1. Open in a new window
 2. Show an empty sidebar (no conversations yet)
 3. Allow you to click "New Conversation"
@@ -336,6 +343,7 @@ The application should:
 ### Check the Database File
 
 The database is created at:
+
 ```bash
 # On Linux
 ~/.local/share/com.linuxai.assistant/database.db
@@ -361,23 +369,28 @@ SELECT * FROM messages;
 ### Common Issues:
 
 **1. "Failed to initialize database"**
+
 - Check file permissions on the app data directory
 - Ensure rusqlite is properly installed: `cargo build`
 
 **2. "invoke command not found"**
+
 - Verify command is registered in `main.rs`
 - Check command name matches between Rust and TypeScript
 
 **3. TypeScript errors in VS Code**
+
 - Run: `npm install`
 - Restart VS Code
 - Check `@tauri-apps/api` is installed
 
 **4. Rust compilation errors**
+
 - Run: `cargo clean --manifest-path=./src-tauri/Cargo.toml`
 - Rebuild: `cargo build --manifest-path=./src-tauri/Cargo.toml`
 
 **5. Hot reload not working**
+
 - Restart dev server
 - Check vite config is correct
 
@@ -427,12 +440,15 @@ Recommended workflow in VS Code:
 After making changes:
 
 ### Frontend Changes:
+
 - Save file → Vite auto-reloads → See changes immediately
 
 ### Backend Changes:
+
 - Save file → Tauri rebuilds → App restarts automatically
 
 ### Database Schema Changes:
+
 - Delete the database file
 - Restart app to recreate with new schema
 
@@ -446,6 +462,6 @@ After making changes:
 ✅ Settings are persisted  
 ✅ No console errors  
 ✅ VS Code extensions working  
-✅ Hot reload functioning  
+✅ Hot reload functioning
 
 If all items are checked, your database layer is fully operational!

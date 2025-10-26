@@ -3,9 +3,11 @@
 ## Project Overview
 
 ### Mission Statement
+
 Build a native Linux desktop AI assistant that provides first-class support for Linux users, addressing the platform neglect from major AI providers while delivering superior system integration, developer workflow optimization, and privacy-respecting architecture.
 
 ### Core Value Propositions
+
 - **Native Linux Experience**: True desktop integration with system-level features
 - **Multi-Model Support**: Access GPT, Claude, Gemini, and local models from one interface
 - **Developer-First Design**: Deep integration with terminal, git, and development workflows
@@ -19,6 +21,7 @@ Build a native Linux desktop AI assistant that provides first-class support for 
 ### Primary Tech Stack Decision: Tauri
 
 **Rationale**: Tauri chosen over Electron for the following reasons:
+
 - Smaller binary size (3-5MB vs 100MB+)
 - Lower memory footprint (uses system webview)
 - Better security model with Rust backend
@@ -28,6 +31,7 @@ Build a native Linux desktop AI assistant that provides first-class support for 
 ### Core Technologies
 
 #### Frontend Layer
+
 ```
 Framework: React 18+
 - Component-based architecture for chat interface
@@ -56,6 +60,7 @@ Markdown Rendering: react-markdown + rehype plugins
 ```
 
 #### Backend Layer (Rust)
+
 ```
 Framework: Tauri 2.0
 - Window management
@@ -85,6 +90,7 @@ Serialization: serde + serde_json
 ```
 
 #### System Integration
+
 ```
 Clipboard: arboard
 - Cross-platform clipboard access
@@ -197,9 +203,11 @@ linux-ai-assistant/
 ## Development Roadmap
 
 ### Phase 1: Foundation (Weeks 1-3)
+
 **Goal**: Basic application structure and chat interface
 
 **Milestones**:
+
 - [ ] Set up Tauri project with React frontend
 - [ ] Implement basic window management and system tray
 - [ ] Create chat interface UI components
@@ -210,9 +218,11 @@ linux-ai-assistant/
 **Deliverable**: Functional desktop app with local conversation storage
 
 ### Phase 2: AI Integration (Weeks 4-6)
+
 **Goal**: Connect to multiple AI providers
 
 **Milestones**:
+
 - [ ] Implement OpenAI API adapter with streaming support
 - [ ] Add Anthropic Claude integration
 - [ ] Add Google Gemini support
@@ -224,9 +234,11 @@ linux-ai-assistant/
 **Deliverable**: Working AI chat with multiple provider options
 
 ### Phase 3: System Integration (Weeks 7-9)
+
 **Goal**: Native Linux desktop features
 
 **Milestones**:
+
 - [ ] Global hotkey registration and handler
 - [ ] Clipboard integration (copy responses, paste context)
 - [ ] Desktop notifications for completed responses
@@ -237,9 +249,11 @@ linux-ai-assistant/
 **Deliverable**: Truly native Linux desktop experience
 
 ### Phase 4: Developer Features (Weeks 10-12)
+
 **Goal**: Workflow optimization for developers
 
 **Milestones**:
+
 - [ ] CLI companion tool with IPC communication
 - [ ] File system watcher for project context
 - [ ] Git integration (detect repo, branch, changes)
@@ -250,9 +264,11 @@ linux-ai-assistant/
 **Deliverable**: Developer-optimized workflow integration
 
 ### Phase 5: Local AI & Privacy (Weeks 13-15)
+
 **Goal**: Privacy-respecting local processing options
 
 **Milestones**:
+
 - [ ] Ollama integration for local models
 - [ ] Model download and management UI
 - [ ] Hybrid routing (local vs cloud)
@@ -263,9 +279,11 @@ linux-ai-assistant/
 **Deliverable**: Complete privacy control for users
 
 ### Phase 6: Polish & Distribution (Weeks 16-18)
+
 **Goal**: Production-ready application
 
 **Milestones**:
+
 - [ ] Performance optimization and profiling
 - [ ] Comprehensive error handling
 - [ ] User documentation and help system
@@ -329,15 +347,15 @@ pub trait AIProvider {
         model: &str,
         stream: bool,
     ) -> Result<Response, AIError>;
-    
+
     async fn stream_message(
         &self,
         messages: Vec<Message>,
         model: &str,
     ) -> Result<StreamResponse, AIError>;
-    
+
     fn get_available_models(&self) -> Vec<ModelInfo>;
-    
+
     fn requires_api_key(&self) -> bool;
 }
 ```
@@ -379,6 +397,7 @@ endpoint = "http://localhost:11434"
 ## Key Features & Requirements
 
 ### Must Have (MVP)
+
 1. ✅ Multi-provider AI chat (OpenAI, Anthropic, Gemini)
 2. ✅ Conversation history with search
 3. ✅ Markdown rendering with code syntax highlighting
@@ -389,6 +408,7 @@ endpoint = "http://localhost:11434"
 8. ✅ Export conversations
 
 ### Should Have (V1.0)
+
 1. 🎯 CLI companion tool
 2. 🎯 Local model support via Ollama
 3. 🎯 Clipboard integration
@@ -398,6 +418,7 @@ endpoint = "http://localhost:11434"
 7. 🎯 Conversation branching
 
 ### Nice to Have (Future)
+
 1. 💡 End-to-end encrypted sync
 2. 💡 Voice input/output
 3. 💡 Image generation integration
@@ -411,6 +432,7 @@ endpoint = "http://localhost:11434"
 ## Success Metrics
 
 ### Technical Metrics
+
 - Application startup time < 2 seconds
 - Memory usage < 200MB idle
 - Response streaming latency < 100ms
@@ -418,12 +440,14 @@ endpoint = "http://localhost:11434"
 - Binary size < 15MB
 
 ### User Experience Metrics
+
 - Time to first message < 10 seconds (including setup)
 - Keyboard-only workflow support
 - Hotkey response time < 200ms
 - Search results returned < 500ms
 
 ### Community Metrics
+
 - GitHub stars (target: 1000+ in first 6 months)
 - Active users (target: 5000+ in first year)
 - Package downloads across all channels
@@ -434,6 +458,7 @@ endpoint = "http://localhost:11434"
 ## Development Setup
 
 ### Prerequisites
+
 ```bash
 # Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -459,6 +484,7 @@ sudo apt install libwebkit2gtk-4.0-dev \
 ```
 
 ### Initial Project Setup
+
 ```bash
 # Create new Tauri project
 npm create tauri-app@latest
@@ -487,12 +513,14 @@ cargo add serde_json
 ## Contributing Guidelines
 
 ### Code Standards
+
 - **Rust**: Follow Rust API guidelines, use clippy
 - **TypeScript**: Strict mode enabled, ESLint + Prettier
 - **Commits**: Conventional commits format
 - **Testing**: Unit tests for all business logic
 
 ### Pull Request Process
+
 1. Fork and create feature branch
 2. Write tests for new functionality
 3. Update documentation
@@ -504,6 +532,7 @@ cargo add serde_json
 ## License Considerations
 
 **Recommended**: MIT or Apache 2.0
+
 - Permissive for community adoption
 - Compatible with commercial use
 - Encourages contributions
@@ -513,6 +542,7 @@ cargo add serde_json
 ## Marketing & Distribution Strategy
 
 ### Launch Channels
+
 1. **Reddit**: r/linux, r/opensource, r/programming
 2. **Hacker News**: Show HN post
 3. **Linux Forums**: Ubuntu forums, Arch forums
@@ -520,6 +550,7 @@ cargo add serde_json
 5. **Blog Post**: Technical deep-dive on architecture
 
 ### Key Messaging
+
 - "First-class AI assistant built specifically for Linux"
 - "Privacy-respecting with local model support"
 - "Developer-optimized with terminal integration"
@@ -530,12 +561,14 @@ cargo add serde_json
 ## Risk Mitigation
 
 ### Technical Risks
+
 - **API Changes**: Abstract providers behind interfaces
 - **Platform Fragmentation**: Test on multiple distros
 - **Performance Issues**: Profile early and often
 - **Security Vulnerabilities**: Regular dependency audits
 
 ### Market Risks
+
 - **Official Linux Apps**: Position as enhanced alternative
 - **Competition**: Focus on unique Linux-specific features
 - **Sustainability**: Consider freemium or sponsorship model
@@ -545,18 +578,21 @@ cargo add serde_json
 ## Next Steps
 
 1. **Immediate** (This Week):
+
    - Set up development environment
    - Initialize Tauri project with React
    - Create basic project structure
    - Set up version control and GitHub repo
 
 2. **Short-term** (This Month):
+
    - Implement Phase 1 milestones
    - Get basic chat interface working
    - Set up database layer
    - Create initial documentation
 
 3. **Medium-term** (Next 3 Months):
+
    - Complete Phases 2-4
    - Beta test with small group
    - Gather feedback and iterate

@@ -21,157 +21,169 @@ Native performance for system integration
 Core Technologies
 Frontend Layer
 Framework: React 18+
+
 - Component-based architecture for chat interface
 - Hooks for state management
 - Suspense for async operations
 
 Styling: Tailwind CSS 3+
+
 - Utility-first approach
 - Custom theming for Linux desktop integration
 - Dark/Light mode support
 
 UI Components: shadcn/ui
+
 - Accessible, customizable components
 - Radix UI primitives
 - Designed for modern applications
 
 State Management: Zustand
+
 - Lightweight alternative to Redux
 - Perfect for chat state, settings, conversations
 - Built-in persistence middleware
 
 Markdown Rendering: react-markdown + rehype plugins
+
 - Code syntax highlighting with highlight.js
 - Math rendering with KaTeX
 - Mermaid diagram support
-Backend Layer (Rust)
-Framework: Tauri 2.0
+  Backend Layer (Rust)
+  Framework: Tauri 2.0
 - Window management
 - System tray integration
 - Global shortcuts
 - File system access
 
 HTTP Client: reqwest
+
 - Async HTTP requests to AI APIs
 - Connection pooling
 - Timeout handling
 
 Database: rusqlite
+
 - SQLite integration
 - Conversation history
 - User preferences
 - Cache management
 
 Async Runtime: tokio
+
 - Async/await for API calls
 - Concurrent request handling
 - Stream processing for real-time responses
 
 Serialization: serde + serde_json
+
 - JSON handling for API communication
 - Configuration serialization
-System Integration
-Clipboard: arboard
+  System Integration
+  Clipboard: arboard
 - Cross-platform clipboard access
 - Copy responses, paste context
 
 Global Hotkeys: tauri-plugin-global-shortcut
+
 - System-wide keyboard shortcuts
 - Invoke assistant from anywhere
 
 Notifications: tauri-plugin-notification
+
 - Desktop notifications
 - Response completion alerts
 
 Keyring: keyring-rs
+
 - Secure API key storage
 - System keychain integration
-Project Structure
-linux-ai-assistant/
-├── src/                          # React frontend
-│   ├── components/
-│   │   ├── chat/
-│   │   │   ├── ChatInterface.tsx
-│   │   │   ├── MessageList.tsx
-│   │   │   ├── MessageInput.tsx
-│   │   │   └── StreamingMessage.tsx
-│   │   ├── settings/
-│   │   │   ├── SettingsPanel.tsx
-│   │   │   ├── ApiKeyManager.tsx
-│   │   │   └── ModelSelector.tsx
-│   │   ├── sidebar/
-│   │   │   ├── ConversationList.tsx
-│   │   │   └── ConversationItem.tsx
-│   │   └── common/
-│   │       ├── CodeBlock.tsx
-│   │       └── MarkdownRenderer.tsx
-│   ├── lib/
-│   │   ├── api/
-│   │   │   ├── types.ts
-│   │   │   └── tauri-commands.ts
-│   │   ├── stores/
-│   │   │   ├── chatStore.ts
-│   │   │   ├── settingsStore.ts
-│   │   │   └── conversationStore.ts
-│   │   └── utils/
-│   │       ├── markdown.ts
-│   │       └── formatting.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── styles/
-│       └── globals.css
-│
-├── src-tauri/                    # Rust backend
-│   ├── src/
-│   │   ├── main.rs
-│   │   ├── commands/             # Tauri commands
-│   │   │   ├── mod.rs
-│   │   │   ├── chat.rs
-│   │   │   ├── conversations.rs
-│   │   │   └── settings.rs
-│   │   ├── ai_providers/         # AI API integrations
-│   │   │   ├── mod.rs
-│   │   │   ├── openai.rs
-│   │   │   ├── anthropic.rs
-│   │   │   ├── gemini.rs
-│   │   │   └── ollama.rs
-│   │   ├── database/             # SQLite operations
-│   │   │   ├── mod.rs
-│   │   │   ├── schema.rs
-│   │   │   ├── conversations.rs
-│   │   │   └── migrations.rs
-│   │   ├── system/               # System integrations
-│   │   │   ├── mod.rs
-│   │   │   ├── clipboard.rs
-│   │   │   ├── hotkeys.rs
-│   │   │   └── tray.rs
-│   │   └── utils/
-│   │       ├── mod.rs
-│   │       ├── crypto.rs
-│   │       └── config.rs
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-│
-├── cli/                          # Terminal companion tool
-│   ├── src/
-│   │   ├── main.rs
-│   │   ├── commands.rs
-│   │   └── ipc.rs
-│   └── Cargo.toml
-│
-├── docs/
-│   ├── architecture.md
-│   ├── api-integration.md
-│   ├── user-guide.md
-│   └── development.md
-│
-├── package.json
-├── tsconfig.json
-├── tailwind.config.js
-└── README.md
-Development Roadmap
-Phase 1: Foundation (Weeks 1-3)
-Goal: Basic application structure and chat interface
+  Project Structure
+  linux-ai-assistant/
+  ├── src/ # React frontend
+  │ ├── components/
+  │ │ ├── chat/
+  │ │ │ ├── ChatInterface.tsx
+  │ │ │ ├── MessageList.tsx
+  │ │ │ ├── MessageInput.tsx
+  │ │ │ └── StreamingMessage.tsx
+  │ │ ├── settings/
+  │ │ │ ├── SettingsPanel.tsx
+  │ │ │ ├── ApiKeyManager.tsx
+  │ │ │ └── ModelSelector.tsx
+  │ │ ├── sidebar/
+  │ │ │ ├── ConversationList.tsx
+  │ │ │ └── ConversationItem.tsx
+  │ │ └── common/
+  │ │ ├── CodeBlock.tsx
+  │ │ └── MarkdownRenderer.tsx
+  │ ├── lib/
+  │ │ ├── api/
+  │ │ │ ├── types.ts
+  │ │ │ └── tauri-commands.ts
+  │ │ ├── stores/
+  │ │ │ ├── chatStore.ts
+  │ │ │ ├── settingsStore.ts
+  │ │ │ └── conversationStore.ts
+  │ │ └── utils/
+  │ │ ├── markdown.ts
+  │ │ └── formatting.ts
+  │ ├── App.tsx
+  │ ├── main.tsx
+  │ └── styles/
+  │ └── globals.css
+  │
+  ├── src-tauri/ # Rust backend
+  │ ├── src/
+  │ │ ├── main.rs
+  │ │ ├── commands/ # Tauri commands
+  │ │ │ ├── mod.rs
+  │ │ │ ├── chat.rs
+  │ │ │ ├── conversations.rs
+  │ │ │ └── settings.rs
+  │ │ ├── ai_providers/ # AI API integrations
+  │ │ │ ├── mod.rs
+  │ │ │ ├── openai.rs
+  │ │ │ ├── anthropic.rs
+  │ │ │ ├── gemini.rs
+  │ │ │ └── ollama.rs
+  │ │ ├── database/ # SQLite operations
+  │ │ │ ├── mod.rs
+  │ │ │ ├── schema.rs
+  │ │ │ ├── conversations.rs
+  │ │ │ └── migrations.rs
+  │ │ ├── system/ # System integrations
+  │ │ │ ├── mod.rs
+  │ │ │ ├── clipboard.rs
+  │ │ │ ├── hotkeys.rs
+  │ │ │ └── tray.rs
+  │ │ └── utils/
+  │ │ ├── mod.rs
+  │ │ ├── crypto.rs
+  │ │ └── config.rs
+  │ ├── Cargo.toml
+  │ └── tauri.conf.json
+  │
+  ├── cli/ # Terminal companion tool
+  │ ├── src/
+  │ │ ├── main.rs
+  │ │ ├── commands.rs
+  │ │ └── ipc.rs
+  │ └── Cargo.toml
+  │
+  ├── docs/
+  │ ├── architecture.md
+  │ ├── api-integration.md
+  │ ├── user-guide.md
+  │ └── development.md
+  │
+  ├── package.json
+  ├── tsconfig.json
+  ├── tailwind.config.js
+  └── README.md
+  Development Roadmap
+  Phase 1: Foundation (Weeks 1-3)
+  Goal: Basic application structure and chat interface
 
 Milestones:
 
@@ -254,62 +266,63 @@ Technical Specifications
 Database Schema
 -- Conversations table
 CREATE TABLE conversations (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL,
-    model TEXT NOT NULL,
-    provider TEXT NOT NULL
+id TEXT PRIMARY KEY,
+title TEXT NOT NULL,
+created_at INTEGER NOT NULL,
+updated_at INTEGER NOT NULL,
+model TEXT NOT NULL,
+provider TEXT NOT NULL
 );
 
 -- Messages table
 CREATE TABLE messages (
-    id TEXT PRIMARY KEY,
-    conversation_id TEXT NOT NULL,
-    role TEXT NOT NULL, -- 'user' or 'assistant'
-    content TEXT NOT NULL,
-    timestamp INTEGER NOT NULL,
-    tokens_used INTEGER,
-    FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+id TEXT PRIMARY KEY,
+conversation_id TEXT NOT NULL,
+role TEXT NOT NULL, -- 'user' or 'assistant'
+content TEXT NOT NULL,
+timestamp INTEGER NOT NULL,
+tokens_used INTEGER,
+FOREIGN KEY (conversation_id) REFERENCES conversations(id)
 );
 
 -- Settings table
 CREATE TABLE settings (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
+key TEXT PRIMARY KEY,
+value TEXT NOT NULL
 );
 
 -- Full-text search
 CREATE VIRTUAL TABLE messages_fts USING fts5(
-    content,
-    content=messages,
-    content_rowid=rowid
+content,
+content=messages,
+content_rowid=rowid
 );
-API Provider Interface
-#[async_trait]
+API Provider Interface #[async_trait]
 pub trait AIProvider {
-    async fn send_message(
-        &self,
-        messages: Vec<Message>,
-        model: &str,
-        stream: bool,
-    ) -> Result<Response, AIError>;
-    
+async fn send_message(
+&self,
+messages: Vec<Message>,
+model: &str,
+stream: bool,
+) -> Result<Response, AIError>;
+
     async fn stream_message(
         &self,
         messages: Vec<Message>,
         model: &str,
     ) -> Result<StreamResponse, AIError>;
-    
+
     fn get_available_models(&self) -> Vec<ModelInfo>;
-    
+
     fn requires_api_key(&self) -> bool;
+
 }
 Configuration File Format
+
 # ~/.config/linux-ai-assistant/config.toml
 
 [general]
-theme = "system"  # system, dark, light
+theme = "system" # system, dark, light
 default_provider = "openai"
 default_model = "gpt-4"
 
@@ -378,32 +391,40 @@ Package downloads across all channels
 Community contributions (PRs, issues)
 Development Setup
 Prerequisites
+
 # Install Rust
+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install Node.js (via nvm recommended)
+
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install --lts
 
 # Install Tauri CLI
+
 cargo install tauri-cli
 
 # Install system dependencies (Ubuntu/Debian)
+
 sudo apt update
 sudo apt install libwebkit2gtk-4.0-dev \
-    build-essential \
-    curl \
-    wget \
-    file \
-    libssl-dev \
-    libgtk-3-dev \
-    libayatana-appindicator3-dev \
-    librsvg2-dev
+ build-essential \
+ curl \
+ wget \
+ file \
+ libssl-dev \
+ libgtk-3-dev \
+ libayatana-appindicator3-dev \
+ librsvg2-dev
 Initial Project Setup
+
 # Create new Tauri project
+
 npm create tauri-app@latest
 
 # Install frontend dependencies
+
 npm install react react-dom
 npm install -D @types/react @types/react-dom
 npm install zustand
@@ -412,6 +433,7 @@ npm install tailwindcss postcss autoprefixer
 npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu
 
 # Add Tauri plugins
+
 cargo add tauri-plugin-notification
 cargo add tauri-plugin-global-shortcut
 cargo add keyring

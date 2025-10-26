@@ -79,7 +79,7 @@ fi
 
 # Step 4: Install Tauri CLI
 print_step "Installing Tauri CLI..."
-cargo install tauri-cli --version "^2.0.0"
+cargo install tauri-cli --version "2.9.1"
 print_success "Tauri CLI installed"
 
 # Step 5: Create project directory

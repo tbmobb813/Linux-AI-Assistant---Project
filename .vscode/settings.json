@@ -1,26 +1,14 @@
 {
-  // Silence CSS/SCSS/LESS unknown at-rule warnings (e.g. @tailwind)
-  "css.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore",
-  "scss.lint.unknownAtRules": "ignore",
-
-  // Tailwind IntelliSense: point to the workspace package Tailwind config
-  // (helps the extension locate the config when working from a multi-package repo)
-  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-
-  // Optional: ensure the extension recognizes HTML in plain text files if needed
-  "tailwindCSS.includeLanguages": {
-    "plaintext": "html"
-  }
-}
-// .vscode/settings.json
-// VS Code workspace settings for the project
-{
+  // ----- Global editor behavior -----
   "editor.formatOnSave": true,
   "editor.defaultFormatter": null,
+
+  // Only run ESLint fixes on explicit save (ESLint v3 recommended)
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+
+  // ----- Language-specific -----
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.formatOnSave": true
@@ -31,12 +19,24 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": null
   },
+
+  // ----- Rust Analyzer -----
+  "rust-analyzer.linkedProjects": ["linux-ai-assistant/src-tauri/Cargo.toml"],
   "rust-analyzer.checkOnSave.command": "clippy",
-  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.cargo.allFeatures": true,
+  "rust-analyzer.cargo.noDefaultFeatures": false,
+
+  // ----- TypeScript -----
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // ----- File associations / excludes -----
   "files.associations": {
     "*.rs": "rust"
+  },
+  "files.exclude": {
+    "**/target": true,
+    "**/node_modules": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -44,161 +44,18 @@
     "**/dist": true
   },
   "files.watcherExclude": {
-    "**/target/**": true,
-    "**/node_modules/**": true
+    "**/node_modules/**": true,
+    "**/target/**": true
+  },
+
+  // ----- CSS/Tailwind -----
+  "css.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+
+  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
+
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
   }
 }
-
-// .vscode/extensions.json
-// Recommended VS Code extensions
-{
-  "recommendations": [
-    "rust-lang.rust-analyzer",
-    "tauri-apps.tauri-vscode",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "bradlc.vscode-tailwindcss",
-    "dsznajder.es7-react-js-snippets",
-    "usernamehw.errorlens",
-    "eamodio.gitlens",
-    "christian-kohler.path-intellisense",
-    "ms-vscode.vscode-typescript-next"
-  ]
-}
-
-// .vscode/launch.json
-// Debug configurations
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Tauri Development Debug",
-      "cargo": {
-        "args": [
-          "build",
-          "--manifest-path=./src-tauri/Cargo.toml",
-          "--no-default-features"
-        ]
-      },
-      "preLaunchTask": "ui:dev"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Tauri Production Debug",
-      "cargo": {
-        "args": [
-          "build",
-          "--release",
-          "--manifest-path=./src-tauri/Cargo.toml"
-        ]
-      },
-      "preLaunchTask": "ui:build"
-    }
-  ]
-}
-
-// .vscode/tasks.json
-// Build tasks
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "ui:dev",
-      "type": "shell",
-      "command": "npm run dev",
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
-      "label": "ui:build",
-      "type": "shell",
-      "command": "npm run build",
-      "problemMatcher": []
-    },
-    {
-      "label": "tauri:dev",
-      "type": "shell",
-      "command": "npm run tauri dev",
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
-      "label": "rust:check",
-      "type": "shell",
-      "command": "cargo check --manifest-path=./src-tauri/Cargo.toml",
-      "problemMatcher": ["$rustc"]
-    },
-    {
-      "label": "rust:test",
-      "type": "shell",
-      "command": "cargo test --manifest-path=./src-tauri/Cargo.toml",
-      "problemMatcher": ["$rustc"]
-    }
-  ]
-}
-
-// .prettierrc
-// Prettier configuration
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 2,
-  "useTabs": false,
-  "arrowParens": "always",
-  "endOfLine": "lf"
-}
-
-// .eslintrc.cjs
-// ESLint configuration
-module.exports = {
-  root: true,
-  env: { browser: true, es2020: true },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended',
-  ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
-  parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
-  rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-  },
-}
-
-// rust-toolchain.toml
-// Rust toolchain version
-[toolchain]
-channel = "stable"
-components = ["rustfmt", "clippy"]
-
-// .editorconfig
-// Editor configuration for consistency
-root = true
-
-[*]
-charset = utf-8
-end_of_line = lf
-indent_style = space
-indent_size = 2
-insert_final_newline = true
-trim_trailing_whitespace = true
-
-[*.rs]
-indent_size = 4
-
-[*.md]
-trim_trailing_whitespace = false
-
-[Makefile]
-indent_style = tab
