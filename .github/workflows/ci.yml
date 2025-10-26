@@ -87,12 +87,16 @@ jobs:
 
       - name: Run frontend tests (coverage)
         if: ${{ steps.fe.outputs.dir != '' }}
-        working-directory: ${{ steps.fe.outputs.dir }}
         run: |
           corepack enable
           corepack prepare pnpm@10.19.0 --activate
           pnpm install --frozen-lockfile
-          pnpm run test:coverage
+          # Run test:coverage in the detected frontend package
+          if [ "${{ steps.fe.outputs.dir }}" = "." ]; then
+            pnpm --filter linux-ai-assistant run test:coverage
+          else
+            pnpm -C "${{ steps.fe.outputs.dir }}" run test:coverage
+          fi
 
       - name: Upload frontend coverage
         if: ${{ steps.fe.outputs.dir != '' }}
