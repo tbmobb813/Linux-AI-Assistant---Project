@@ -10,7 +10,6 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
         // Plugins
-        // Plugins
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         // Optional: attach a log plugin during debug for easier troubleshooting
