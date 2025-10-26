@@ -4,8 +4,8 @@ import ChatInterface from "../components/ChatInterface";
 import { useChatStore } from "../lib/stores/chatStore";
 import { vi, afterEach } from "vitest";
 
-afterEach(() => {
-  act(() => {
+afterEach(async () => {
+  await act(async () => {
     useChatStore.setState({
       currentConversation: null,
       conversations: [],

@@ -4,9 +4,9 @@ import ConversationList from "../components/ConversationList";
 import { useChatStore } from "../lib/stores/chatStore";
 import { vi, afterEach } from "vitest";
 
-afterEach(() => {
+afterEach(async () => {
   // Reset store state to a clean baseline after each test
-  act(() => {
+  await act(async () => {
     useChatStore.setState({
       currentConversation: null,
       conversations: [],
