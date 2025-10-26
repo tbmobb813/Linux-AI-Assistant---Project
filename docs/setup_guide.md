@@ -1,10 +1,10 @@
-#!/bin/bash
+# !/bin/bash
 
 # Linux AI Assistant - Setup Guide
 
 # This script contains helper steps to bootstrap the development environment
 
-# for the Linux AI Assistant project on Debian/Ubuntu-based systems.
+# for the Linux AI Assistant project on Debian/Ubuntu-based systems
 
 set -euo pipefail
 
@@ -57,7 +57,7 @@ print_step "Checking for Rust installation..."
 
 if ! command -v rustc >/dev/null 2>&1; then
 print_step "Installing Rust..."
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+curl --proto '=https' --tlsv1.2 -sSf <https://sh.rustup.rs> | sh -s -- -y
 
 # shellcheck disable=SC1090
 
@@ -77,7 +77,7 @@ print_step "Checking for Node.js installation..."
 
 if ! command -v node >/dev/null 2>&1; then
 print_step "Installing nvm and Node.js..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh> | bash
 export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
@@ -127,8 +127,9 @@ cargo tauri init --app-name "linux-ai-assistant" \
 --window-title "Linux AI Assistant" \
  --dist-dir "../dist" \
 <<<<<<< HEAD
---dev-path "http://localhost:1420" \
+--dev-path "<http://localhost:1420>" \
 =======
+
 --dev-path <http://localhost:1420> \
 
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
@@ -267,8 +268,7 @@ EOF
 cat > cli/src/main.rs << 'EOF'
 use clap::{Parser, Subcommand};
 
-<<<<<<< HEAD #[derive(Parser)] #[command(name = "lai")] #[command(about = "Linux AI Assistant CLI", long_about = None)]
-=======
+# <<<<<<< HEAD #[derive(Parser)] #[command(name = "lai")] #[command(about = "Linux AI Assistant CLI", long_about = None)]
 
 # [derive(Parser)]
 
@@ -291,8 +291,7 @@ command: Commands,
 > > > > > > > f5e45eb (chore: format repo with Prettier (auto-fix))
 > > > > > > > }
 
-<<<<<<< HEAD #[derive(Subcommand)]
-=======
+# <<<<<<< HEAD #[derive(Subcommand)]
 
 # [derive(Subcommand)]
 
@@ -454,6 +453,7 @@ echo "Documentation: See README.md and docs/ folder"
 <<<<<<< HEAD
 echo ""
 =======
+
 echo ""
 echo ""
 echo "Documentation: See README.md and docs/ folder"
