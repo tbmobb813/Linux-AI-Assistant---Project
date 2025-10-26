@@ -9,17 +9,34 @@
     "dev": "npm run -w linux-ai-assistant dev",
     "build": "npm run -w linux-ai-assistant build",
     "preview": "npm run -w linux-ai-assistant preview",
-    "tauri": "npm run -w linux-ai-assistant tauri"
+    "tauri": "npm run -w linux-ai-assistant tauri",
+    "prepare": "( [ -x \"./node_modules/.bin/husky\" ] && ./node_modules/.bin/husky install ) || ( command -v husky >/dev/null 2>&1 && husky install ) || true",
+    "tauri-dev": "bash ./dev/tauri-dev.sh"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0",
+    "@playwright/test": "^1.56.1",
+    "@tauri-apps/cli": "2.9.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4",
-    "tailwindcss": "^3.4.4",
+    "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
-    "autoprefixer": "^10.4.19"
+    "prettier": "^2.8.8",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
+  },
+  "husky": {
+    "version": "8"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.rs": [
+      "cargo fmt --",
+      "git add"
+    ]
   }
 }

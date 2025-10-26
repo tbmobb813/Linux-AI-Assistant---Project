@@ -1,0 +1,128 @@
+name: CI Lite
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch: {}
+
+jobs:
+  quick-test:
+    name: Frontend tests + Rust tests + smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable Corepack and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check (frontend)
+        working-directory: linux-ai-assistant
+        run: |
+          echo "--- environment ---"
+          node -v
+          pnpm -v
+          echo "--- tsc version ---"
+          pnpm -C . exec -- tsc -v || true
+
+          echo "--- running tsc --noEmit ---"
+          pnpm -C . exec -- tsc --noEmit
+
+      - name: Run frontend tests (Vitest)
+        working-directory: linux-ai-assistant
+        run: pnpm -C . test --reporter dot
+
+      - name: Build and preview frontend for smoke
+        working-directory: linux-ai-assistant
+        run: |
+          pnpm -C . build
+          pnpm -C . preview --port 1420 &
+          PREVIEW_PID=$!
+          echo "Preview PID: $PREVIEW_PID"
+          sleep 2
+
+      - name: Run smoke test
+        run: ./dev/smoke.sh
+
+      - name: Install system dependencies for native builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            cmake \
+            libglib2.0-dev \
+            libgirepository1.0-dev \
+            libdbus-1-dev \
+            libssl-dev \
+            libsecret-1-dev \
+            libgtk-3-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libwebkit2gtk-4.1-dev
+
+      - name: Run Rust tests
+        run: cargo test --manifest-path "linux-ai-assistant/src-tauri/Cargo.toml"
+
+  package-linux:
+    name: Package Linux (manual trigger)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    needs: quick-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable Corepack and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        working-directory: linux-ai-assistant
+        run: pnpm -C . build
+
+      - name: Install system dependencies for native builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            cmake \
+            libglib2.0-dev \
+            libgirepository1.0-dev \
+            libdbus-1-dev \
+            libssl-dev \
+            libsecret-1-dev \
+            libgtk-3-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libwebkit2gtk-4.1-dev
+            libwebkit2gtk-4.0-dev
+
+      - name: Build rust backend (release)
+        run: cargo build --manifest-path "linux-ai-assistant/src-tauri/Cargo.toml" --release
+
+      - name: Attempt Tauri bundle
+        working-directory: linux-ai-assistant
+        run: |
+          echo "Attempting to run 'pnpm exec tauri build' - this may require extra host packages (libgtk, appimage tools, etc)."
+          pnpm -C . exec tauri build || echo "Tauri build failed; check logs and run locally to finish packaging."
