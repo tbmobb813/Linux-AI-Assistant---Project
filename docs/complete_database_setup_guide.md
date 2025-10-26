@@ -176,12 +176,12 @@ Now let's test that everything works together:
 Replace your `src/App.tsx` with this test version:
 
 ```typescript
-import { useEffect, useState } from 'react';
-import { useChatStore } from './lib/stores/chatStore';
-import { useSettingsStore } from './lib/stores/settingsStore';
+import { useEffect, useState } from "react";
+import { useChatStore } from "./lib/stores/chatStore";
+import { useSettingsStore } from "./lib/stores/settingsStore";
 
 function App() {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const {
     conversations,
@@ -204,13 +204,13 @@ function App() {
   }, []);
 
   const handleCreateNew = async () => {
-    await createConversation('New Conversation', 'gpt-4', 'openai');
+    await createConversation("New Conversation", "gpt-4", "openai");
   };
 
   const handleSendMessage = async () => {
     if (!message.trim() || !currentConversation) return;
     await sendMessage(message);
-    setMessage('');
+    setMessage("");
   };
 
   return (
@@ -231,8 +231,8 @@ function App() {
               onClick={() => selectConversation(conv.id)}
               className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                 currentConversation?.id === conv.id
-                  ? 'bg-gray-700'
-                  : 'hover:bg-gray-700'
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
               }`}
             >
               <div className="font-medium truncate">{conv.title}</div>
@@ -246,11 +246,9 @@ function App() {
       <main className="flex-1 flex flex-col">
         <header className="p-4 border-b border-gray-700">
           <h1 className="text-xl font-bold">
-            {currentConversation?.title || 'Linux AI Assistant'}
+            {currentConversation?.title || "Linux AI Assistant"}
           </h1>
-          {error && (
-            <p className="text-red-400 text-sm mt-1">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
         </header>
 
         {/* Messages */}
@@ -261,13 +259,13 @@ function App() {
                 <div
                   key={msg.id}
                   className={`p-4 rounded-lg ${
-                    msg.role === 'user'
-                      ? 'bg-blue-600 ml-12'
-                      : 'bg-gray-800 mr-12'
+                    msg.role === "user"
+                      ? "bg-blue-600 ml-12"
+                      : "bg-gray-800 mr-12"
                   }`}
                 >
                   <div className="font-semibold text-sm mb-1">
-                    {msg.role === 'user' ? 'You' : 'Assistant'}
+                    {msg.role === "user" ? "You" : "Assistant"}
                   </div>
                   <div className="whitespace-pre-wrap">{msg.content}</div>
                 </div>
@@ -297,7 +295,7 @@ function App() {
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Type your message..."
               disabled={!currentConversation || isLoading}
               className="flex-1 px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"

@@ -22,11 +22,9 @@
   },
 
   // ----- Rust Analyzer -----
-  "rust-analyzer.linkedProjects": [
-    "linux-ai-assistant/src-tauri/Cargo.toml"
-  ],
+  "rust-analyzer.linkedProjects": ["linux-ai-assistant/src-tauri/Cargo.toml"],
   "rust-analyzer.checkOnSave.command": "clippy",
-  "rust-analyzer.cargo.allFeatures": true,        // was: cargo.features = "all" (invalid)
+  "rust-analyzer.cargo.allFeatures": true, // was: cargo.features = "all" (invalid)
   "rust-analyzer.cargo.noDefaultFeatures": false, // adjust if needed
 
   // ----- TypeScript -----

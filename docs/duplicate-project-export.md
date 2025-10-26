@@ -578,18 +578,21 @@ cargo add serde_json
 ## Next Steps
 
 1. **Immediate** (This Week):
+
    - Set up development environment
    - Initialize Tauri project with React
    - Create basic project structure
    - Set up version control and GitHub repo
 
 2. **Short-term** (This Month):
+
    - Implement Phase 1 milestones
    - Get basic chat interface working
    - Set up database layer
    - Create initial documentation
 
 3. **Medium-term** (Next 3 Months):
+
    - Complete Phases 2-4
    - Beta test with small group
    - Gather feedback and iterate
