@@ -1,43 +1,95 @@
 # Node modules (ignore in any package)
 **/node_modules/
 
-# Ignore package-locks in subpackages but keep the root lockfile
+# pnpm
+.pnpm-debug.log*
+
+# Ignore package-locks in subpackages but keep workspace lockfile
 **/package-lock.json
 !/package-lock.json
+# Keep pnpm-lock.yaml (required for deterministic installs)
+!pnpm-lock.yaml
 
 # Build outputs
 dist/
 **/dist/
+build/
+**/build/
 
 # Tauri / Rust build artifacts
 **/target/
 src-tauri/target/
 cli/target/
+**/Cargo.lock
+!cli/Cargo.lock
+!linux-ai-assistant/src-tauri/Cargo.lock
+
+# Tauri generated files
+**/src-tauri/gen/
+**/.tauri/
 
 # Environment files
 .env
 .env.*
+!.env.example
 
 # Editor/IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
+*~
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dev/logs/
+
+# Test coverage
+coverage/
+**/coverage/
+*.lcov
+.nyc_output/
+
+# Vitest
+.vitest/
 
 # Misc caches
 .cache/
 .parcel-cache/
-coverage/
+.eslintcache
+.stylelintcache
 
-# Other
+# Temporary files
+*.tmp
+*.temp
 *.bak
+*.swp
+*.swo
+*~
+
+# Git backups/mirrors (your local backups)
+repo-mirror.git/
+repo-origin-backup*/
+*.git/
+
+# VS Code workspace files (optional - uncomment if you want to ignore)
+# *.code-workspace
