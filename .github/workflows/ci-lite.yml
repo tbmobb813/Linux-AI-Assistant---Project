@@ -30,17 +30,25 @@ jobs:
 
       - name: TypeScript check (frontend)
         working-directory: linux-ai-assistant
-        run: pnpm -s -C . tsc --noEmit
+        run: |
+          echo "--- environment ---"
+          node -v
+          pnpm -v
+          echo "--- tsc version ---"
+          pnpm -C . exec -- tsc -v || true
+
+          echo "--- running tsc --noEmit ---"
+          pnpm -C . exec -- tsc --noEmit
 
       - name: Run frontend tests (Vitest)
         working-directory: linux-ai-assistant
-        run: pnpm -s -C . test --reporter dot
+        run: pnpm -C . test --reporter dot
 
       - name: Build and preview frontend for smoke
         working-directory: linux-ai-assistant
         run: |
-          pnpm -s -C . build
-          pnpm -s -C . preview --port 1420 &
+          pnpm -C . build
+          pnpm -C . preview --port 1420 &
           PREVIEW_PID=$!
           echo "Preview PID: $PREVIEW_PID"
           sleep 2
@@ -75,7 +83,7 @@ jobs:
 
       - name: Build frontend
         working-directory: linux-ai-assistant
-        run: pnpm -s -C . build
+        run: pnpm -C . build
 
       - name: Build rust backend (release)
         run: cargo build --manifest-path "linux-ai-assistant/src-tauri/Cargo.toml" --release
@@ -84,4 +92,4 @@ jobs:
         working-directory: linux-ai-assistant
         run: |
           echo "Attempting to run 'pnpm exec tauri build' - this may require extra host packages (libgtk, appimage tools, etc)."
-          pnpm -s -C . exec tauri build || echo "Tauri build failed; check logs and run locally to finish packaging."
+          pnpm -C . exec tauri build || echo "Tauri build failed; check logs and run locally to finish packaging."
