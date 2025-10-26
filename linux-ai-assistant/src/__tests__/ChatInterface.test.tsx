@@ -5,12 +5,14 @@ import { useChatStore } from "../lib/stores/chatStore";
 import { vi, afterEach } from "vitest";
 
 afterEach(() => {
-  useChatStore.setState({
-    currentConversation: null,
-    conversations: [],
-    messages: [],
-    isLoading: false,
-    error: null,
+  act(() => {
+    useChatStore.setState({
+      currentConversation: null,
+      conversations: [],
+      messages: [],
+      isLoading: false,
+      error: null,
+    });
   });
 });
 
@@ -19,7 +21,7 @@ test("shows placeholder when no conversation selected", async () => {
     render(<ChatInterface />);
   });
   expect(
-    screen.getByText(/Select or create a conversation to get started/i)
+    screen.getByText(/Select or create a conversation to get started/i),
   ).toBeTruthy();
 });
 
@@ -28,17 +30,19 @@ test("typing and sending calls sendMessage and clears input", async () => {
     return;
   });
 
-  useChatStore.setState({
-    currentConversation: {
-      id: "c1",
-      title: "Test",
-      model: "gpt-4",
-      provider: "local",
-      created_at: Date.now(),
-      updated_at: Date.now(),
-    },
-    messages: [],
-    sendMessage: sendMock,
+  act(() => {
+    useChatStore.setState({
+      currentConversation: {
+        id: "c1",
+        title: "Test",
+        model: "gpt-4",
+        provider: "local",
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      },
+      messages: [],
+      sendMessage: sendMock,
+    });
   });
 
   await act(async () => {
@@ -46,7 +50,7 @@ test("typing and sending calls sendMessage and clears input", async () => {
   });
 
   const input = screen.getByPlaceholderText(
-    /Type a message/i
+    /Type a message/i,
   ) as HTMLInputElement;
   act(() => {
     fireEvent.change(input, { target: { value: "hello world" } });
@@ -74,18 +78,20 @@ test("disables send while pending", async () => {
     });
   });
 
-  useChatStore.setState({
-    currentConversation: {
-      id: "c1",
-      title: "Test",
-      model: "gpt-4",
-      provider: "local",
-      created_at: Date.now(),
-      updated_at: Date.now(),
-    },
-    messages: [],
-    sendMessage: sendMock,
-    isLoading: false,
+  act(() => {
+    useChatStore.setState({
+      currentConversation: {
+        id: "c1",
+        title: "Test",
+        model: "gpt-4",
+        provider: "local",
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      },
+      messages: [],
+      sendMessage: sendMock,
+      isLoading: false,
+    });
   });
 
   await act(async () => {
@@ -93,7 +99,7 @@ test("disables send while pending", async () => {
   });
 
   const input = screen.getByPlaceholderText(
-    /Type a message/i
+    /Type a message/i,
   ) as HTMLInputElement;
   act(() => {
     fireEvent.change(input, { target: { value: "pending message" } });

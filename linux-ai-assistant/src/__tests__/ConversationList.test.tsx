@@ -6,12 +6,14 @@ import { vi, afterEach } from "vitest";
 
 afterEach(() => {
   // Reset store state to a clean baseline after each test
-  useChatStore.setState({
-    currentConversation: null,
-    conversations: [],
-    messages: [],
-    isLoading: false,
-    error: null,
+  act(() => {
+    useChatStore.setState({
+      currentConversation: null,
+      conversations: [],
+      messages: [],
+      isLoading: false,
+      error: null,
+    });
   });
 });
 
@@ -24,19 +26,23 @@ test("renders empty state and calls createConversation when New clicked", async 
       provider,
       created_at: Date.now(),
       updated_at: Date.now(),
-    })
+    }),
   );
 
-  useChatStore.setState({
-    conversations: [],
-    isLoading: false,
-    createConversation: createMock,
+  act(() => {
+    useChatStore.setState({
+      conversations: [],
+      isLoading: false,
+      createConversation: createMock,
+    });
   });
   // Prevent the component's useEffect from triggering the real loader which sets isLoading
-  useChatStore.setState({
-    loadConversations: async () => {
-      /* noop for test */
-    },
+  act(() => {
+    useChatStore.setState({
+      loadConversations: async () => {
+        /* noop for test */
+      },
+    });
   });
 
   await act(async () => {
@@ -47,7 +53,9 @@ test("renders empty state and calls createConversation when New clicked", async 
   expect(screen.getByText(/No conversations yet/i)).toBeTruthy();
 
   const newBtn = screen.getByRole("button", { name: /New/i });
-  fireEvent.click(newBtn);
+  await act(async () => {
+    fireEvent.click(newBtn);
+  });
 
   await waitFor(() => expect(createMock).toHaveBeenCalled());
 });
@@ -64,10 +72,12 @@ test("lists conversations and selecting one calls selectConversation", async () 
     updated_at: Date.now(),
   };
 
-  useChatStore.setState({
-    conversations: [conv],
-    isLoading: false,
-    selectConversation: selectMock,
+  act(() => {
+    useChatStore.setState({
+      conversations: [conv],
+      isLoading: false,
+      selectConversation: selectMock,
+    });
   });
 
   await act(async () => {
@@ -76,7 +86,9 @@ test("lists conversations and selecting one calls selectConversation", async () 
 
   expect(screen.getByText(/Test convo/i)).toBeTruthy();
 
-  fireEvent.click(screen.getByText(/Test convo/i));
+  await act(async () => {
+    fireEvent.click(screen.getByText(/Test convo/i));
+  });
 
   await waitFor(() => expect(selectMock).toHaveBeenCalledWith("c2"));
 });

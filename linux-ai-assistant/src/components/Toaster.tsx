@@ -12,8 +12,8 @@ export default function Toaster() {
             t.type === "error"
               ? "bg-red-600 text-white"
               : t.type === "success"
-              ? "bg-green-600 text-white"
-              : "bg-gray-800 text-white"
+                ? "bg-green-600 text-white"
+                : "bg-gray-800 text-white"
           }`}
           role="status"
           aria-live="polite"
