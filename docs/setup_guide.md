@@ -1,17 +1,17 @@
 # !/bin/bash
 
-# Linux AI Assistant - Setup Guide
+## Linux AI Assistant - Setup Guide
 
-# This script contains helper steps to bootstrap the development environment
+This script contains helper steps to bootstrap the development environment
 
-# for the Linux AI Assistant project on Debian/Ubuntu-based systems
+for the Linux AI Assistant project on Debian/Ubuntu-based systems
 
 set -euo pipefail
 
 echo "🚀 Starting Linux AI Assistant Development Setup..."
 echo ""
 
-# Colors for output
+## Colors for output
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -30,7 +30,7 @@ print_error() {
 echo -e "${RED}✗${NC} $1"
 }
 
-# Step 1: Check and install system dependencies
+## Step 1: Check and install system dependencies
 
 print_step "Installing system dependencies..."
 
@@ -51,7 +51,7 @@ sudo apt install -y \
 
 print_success "System dependencies installed"
 
-# Step 2: Install Rust if not present
+## Step 2: Install Rust if not present
 
 print_step "Checking for Rust installation..."
 
@@ -59,7 +59,7 @@ if ! command -v rustc >/dev/null 2>&1; then
 print_step "Installing Rust..."
 curl --proto '=https' --tlsv1.2 -sSf <https://sh.rustup.rs> | sh -s -- -y
 
-# shellcheck disable=SC1090
+shellcheck disable=SC1090
 
 source "$HOME/.cargo/env"
   print_success "Rust installed successfully"
@@ -67,11 +67,11 @@ else
   print_success "Rust is already installed ($(rustc --version))"
 fi
 
-# Ensure cargo is in PATH
+Ensure cargo is in PATH
 
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Step 3: Install Node.js via nvm
+## Step 3: Install Node.js via nvm
 
 print_step "Checking for Node.js installation..."
 
@@ -88,13 +88,13 @@ else
 print_success "Node.js is already installed ($(node --version))"
 fi
 
-# Step 4: Install Tauri CLI
+## Step 4: Install Tauri CLI
 
 print_step "Installing Tauri CLI..."
 cargo install tauri-cli --version "2.9.1" || true
 print_success "Tauri CLI installed (or already present)"
 
-# Additional notes
+Additional notes
 
 print_step "Quick start notes"
 echo "- Use 'pnpm install' at the repo root to install workspace dependencies (preferred)."
@@ -118,7 +118,7 @@ EOF
 
 print_success "React components created"
 
-# Step 16: Initialize Tauri
+## Step 16: Initialize Tauri
 
 print_step "Initializing Tauri backend..."
 
@@ -132,7 +132,7 @@ cargo tauri init --app-name "linux-ai-assistant" \
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
 > > > > > > > --before-dev-command "npm run dev" \
 
-# --before-build-command "npm run build" || true
+--before-build-command "npm run build" || true
 
 --window-title "Linux AI Assistant" \
  --dist-dir "../dist" \
@@ -142,7 +142,7 @@ cargo tauri init --app-name "linux-ai-assistant" \
 
 > > > > > > > f5e45eb (chore: format repo with Prettier (auto-fix))
 
-# Step 17: Update Tauri config
+## Step 17: Update Tauri config
 
 print_step "Configuring Tauri..."
 
@@ -185,7 +185,7 @@ cat > src-tauri/tauri.conf.json << 'EOF'
 }
 EOF
 
-# Step 18: Create Cargo.toml for Tauri
+## Step 18: Create Cargo.toml for Tauri
 
 cat > src-tauri/Cargo.toml << 'EOF'
 [package]
@@ -214,16 +214,16 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 EOF
 
-# Step 19: Create basic Tauri main.rs
+## Step 19: Create basic Tauri main.rs
 
 cat > src-tauri/src/main.rs << 'EOF'
 // Prevents additional console window on Windows in release
 
-# #[tauri::command]
+#[tauri::command]
 
-# ![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-# [tauri::command]
+[tauri::command]
 
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
 > > > > > > > fn greet(name: &str) -> String {
@@ -242,7 +242,7 @@ EOF
 
 print_success "Tauri backend configured"
 
-# Step 20: Create CLI tool structure
+## Step 20: Create CLI tool structure
 
 print_step "Creating CLI companion tool structure..."
 
@@ -264,13 +264,13 @@ EOF
 cat > cli/src/main.rs << 'EOF'
 use clap::{Parser, Subcommand};
 
-# <<<<<<< HEAD #[derive(Parser)] #[command(name = "lai")] #[command(about = "Linux AI Assistant CLI", long_about = None)]
+<<<<<<< HEAD #[derive(Parser)] #[command(name = "lai")] #[command(about = "Linux AI Assistant CLI", long_about = None)]
 
-# [derive(Parser)]
+[derive(Parser)]
 
-# [command(name = "lai")]
+[command(name = "lai")]
 
-# [command(about = "Linux AI Assistant CLI", long_about = None)]
+[command(about = "Linux AI Assistant CLI", long_about = None)]
 
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
 > > > > > > > struct Cli {
@@ -284,9 +284,9 @@ command: Commands,
 > > > > > > > f5e45eb (chore: format repo with Prettier (auto-fix))
 > > > > > > > }
 
-# <<<<<<< HEAD #[derive(Subcommand)]
+<<<<<<< HEAD #[derive(Subcommand)]
 
-# [derive(Subcommand)]
+[derive(Subcommand)]
 
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
 > > > > > > > enum Commands {
@@ -318,11 +318,11 @@ EOF
 
 print_success "CLI tool structure created"
 
-# Step 21: Create README
+## Step 21: Create README
 
 cat > README.md << 'EOF'
 
-# Linux AI Assistant
+Linux AI Assistant
 
 A native desktop AI assistant built specifically for Linux users.
 
@@ -354,55 +354,53 @@ npm run tauri build
 
 ### Project Structure
 
-```
 linux-ai-assistant/
-├── src/               # React frontend
-├── src-tauri/         # Rust backend
-├── cli/               # CLI companion tool
-└── docs/              # Documentation
-```
+├── src/ # React frontend
+├── src-tauri/ # Rust backend
+├── cli/ # CLI companion tool
+└── docs/ # Documentation
 
 ## Contributing
 
-Contributions welcome! Please read CONTRIBUTING.md first.
+Contributions welcome! Please# read CONTRIBUTING.md first.
 
 ## License
 
 MIT
 EOF
 
-# Step 22: Create .gitignore
+## Step 22: Create .gitignore
 
 cat > .gitignore << 'EOF'
 
-# Dependencies
+Dependencies
 
 node_modules/
 target/
 
-# Build outputs
+Build outputs
 
 dist/
 src-tauri/target/
 
-# Environment variables
+Environment variables
 
 .env
 .env.local
 
-# IDE
+IDE
 
 .vscode/
 .idea/
 _.swp
 _.swo
 
-# OS
+OS
 
 .DS_Store
 Thumbs.db
 
-# Logs
+Logs
 
 _.log
 npm-debug.log_
@@ -415,7 +413,7 @@ npm-debug.log_
 
 print_success "Project files created"
 
-# Final step
+Final step
 
 echo ""
 echo "================================================================"

@@ -10,7 +10,12 @@ pub async fn create_conversation(
     system_prompt: Option<String>,
 ) -> Result<Conversation, String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    let new_conv = NewConversation { title, model, provider, system_prompt };
+    let new_conv = NewConversation {
+        title,
+        model,
+        provider,
+        system_prompt,
+    };
     Conversation::create(&conn, new_conv).map_err(|e| e.to_string())
 }
 
@@ -43,19 +48,13 @@ pub async fn update_conversation_title(
 }
 
 #[tauri::command]
-pub async fn delete_conversation(
-    db: State<'_, Database>,
-    id: String,
-) -> Result<(), String> {
+pub async fn delete_conversation(db: State<'_, Database>, id: String) -> Result<(), String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
     Conversation::delete(&conn, &id).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub async fn restore_conversation(
-    db: State<'_, Database>,
-    id: String,
-) -> Result<(), String> {
+pub async fn restore_conversation(db: State<'_, Database>, id: String) -> Result<(), String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
     Conversation::restore(&conn, &id).map_err(|e| e.to_string())
 }

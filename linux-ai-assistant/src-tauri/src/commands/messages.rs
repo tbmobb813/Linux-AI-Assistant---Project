@@ -10,7 +10,12 @@ pub async fn create_message(
     tokens_used: Option<i64>,
 ) -> Result<Message, String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    let new_msg = NewMessage { conversation_id, role, content, tokens_used };
+    let new_msg = NewMessage {
+        conversation_id,
+        role,
+        content,
+        tokens_used,
+    };
     // Create the user message
     let created = Message::create(&conn, new_msg).map_err(|e| e.to_string())?;
 
@@ -62,10 +67,7 @@ pub async fn search_messages(
 }
 
 #[tauri::command]
-pub async fn delete_message(
-    db: State<'_, Database>,
-    id: String,
-) -> Result<(), String> {
+pub async fn delete_message(db: State<'_, Database>, id: String) -> Result<(), String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
     Message::delete(&conn, &id).map_err(|e| e.to_string())
 }

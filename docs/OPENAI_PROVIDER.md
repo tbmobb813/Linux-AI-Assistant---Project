@@ -1,4 +1,4 @@
-OpenAI provider (Tauri backend)
+# OpenAI provider (Tauri backend)
 
 Overview
 
