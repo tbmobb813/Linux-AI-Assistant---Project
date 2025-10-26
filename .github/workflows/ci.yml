@@ -64,8 +64,9 @@ jobs:
         if: ${{ steps.fe.outputs.dir != '' && hashFiles(format('{0}/tsconfig.json', steps.fe.outputs.dir)) != '' }}
         working-directory: ${{ steps.fe.outputs.dir }}
         run: |
-          npx typescript --version >/dev/null 2>&1 || npm i -D typescript
-          npx tsc --noEmit
+          corepack enable
+          corepack prepare pnpm@10.19.0 --activate
+          pnpm -C "${{ steps.fe.outputs.dir }}" exec tsc --noEmit
 
       - name: Run frontend tests (coverage)
         if: ${{ steps.fe.outputs.dir != '' }}
