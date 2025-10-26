@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "run-dev": "../dev/run-dev.sh",
-  "prepare": "git rev-parse --is-inside-work-tree > /dev/null 2>&1 && (ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && if [ -n \"$ROOT\" ]; then if [ -x \"$ROOT/node_modules/.bin/husky\" ]; then (cd \"$ROOT\" && \"$ROOT/node_modules/.bin/husky\" install); elif command -v husky >/dev/null 2>&1; then (cd \"$ROOT\" && husky install); fi; fi) || true",
+    "prepare": "git rev-parse --is-inside-work-tree > /dev/null 2>&1 && (ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && if [ -n \"$ROOT\" ]; then if [ -x \"$ROOT/node_modules/.bin/husky\" ]; then (cd \"$ROOT\" && \"$ROOT/node_modules/.bin/husky\" install); elif command -v husky >/dev/null 2>&1; then (cd \"$ROOT\" && husky install); fi; fi) || true",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest --run --reporter dot",
-  "test:watch": "vitest",
+    "test:watch": "vitest",
     "test:e2e": "playwright test --config=playwright-e2e/playwright.config.ts --project=chromium",
     "test:coverage": "vitest --coverage --run"
   },
