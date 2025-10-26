@@ -66,7 +66,21 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@10.19.0 --activate
-          pnpm -C "${{ steps.fe.outputs.dir }}" exec tsc --noEmit
+          echo "--- environment ---"
+          node -v
+          pnpm -v
+          echo "--- tsc version ---"
+          pnpm -C "${{ steps.fe.outputs.dir }}" exec -- tsc -v || true
+
+          echo "--- running tsc --noEmit (capture output) ---"
+          # Run without pnpm's silent wrapper and capture stdout/stderr so CI shows the real error
+          pnpm -C "${{ steps.fe.outputs.dir }}" exec -- tsc --noEmit
+
+          status=$?
+          if [ $status -ne 0 ]; then
+            echo "tsc exited with code $status"
+            exit $status
+          fi
 
       - name: Run frontend tests (coverage)
         if: ${{ steps.fe.outputs.dir != '' }}
