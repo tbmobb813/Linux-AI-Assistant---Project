@@ -123,12 +123,9 @@ print_success "React components created"
 print_step "Initializing Tauri backend..."
 
 cargo tauri init --app-name "linux-ai-assistant" \
-<<<<<<< HEAD
 --window-title "Linux AI Assistant" \
  --dist-dir "../dist" \
-<<<<<<< HEAD
 --dev-path "<http://localhost:1420>" \
-=======
 
 --dev-path <http://localhost:1420> \
 
@@ -221,7 +218,6 @@ EOF
 
 cat > src-tauri/src/main.rs << 'EOF'
 // Prevents additional console window on Windows in release
-<<<<<<< HEAD #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 # #[tauri::command]
 
@@ -276,15 +272,12 @@ use clap::{Parser, Subcommand};
 
 # [command(about = "Linux AI Assistant CLI", long_about = None)]
 
-<<<<<<< HEAD
-
 > > > > > > > a5222fa (chore: add pnpm workspace configuration for linux-ai-assistant package)
 > > > > > > > struct Cli {
 
     #[command(subcommand)]
     command: Commands,
 
-=======
 struct Cli { #[command(subcommand)]
 command: Commands,
 
@@ -411,10 +404,8 @@ Thumbs.db
 
 # Logs
 
-<<<<<<< HEAD
 _.log
 npm-debug.log_
-=======
 
 _.log
 npm-debug.log_
@@ -450,9 +441,7 @@ echo " npm run tauri build # Build for production"
 echo " cd cli && cargo run # Test CLI tool"
 echo ""
 echo "Documentation: See README.md and docs/ folder"
-<<<<<<< HEAD
 echo ""
-=======
 
 echo ""
 echo ""
