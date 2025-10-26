@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "run-dev": "../dev/run-dev.sh",
-    "prepare": "git rev-parse --is-inside-work-tree > /dev/null 2>&1 && husky install || true",
+  "prepare": "git rev-parse --is-inside-work-tree > /dev/null 2>&1 && command -v husky >/dev/null 2>&1 && husky install || true",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
