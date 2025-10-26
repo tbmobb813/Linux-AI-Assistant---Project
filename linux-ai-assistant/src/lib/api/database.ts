@@ -1,7 +1,7 @@
 // src/lib/api/database.ts
 // Frontend API wrapper for Tauri commands
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../tauri-shim";
 import type {
   NewConversation,
   NewMessage,
