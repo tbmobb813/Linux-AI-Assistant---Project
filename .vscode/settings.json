@@ -1,3 +1,18 @@
+{
+  // Silence CSS/SCSS/LESS unknown at-rule warnings (e.g. @tailwind)
+  "css.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+
+  // Tailwind IntelliSense: point to the workspace package Tailwind config
+  // (helps the extension locate the config when working from a multi-package repo)
+  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
+
+  // Optional: ensure the extension recognizes HTML in plain text files if needed
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  }
+}
 // .vscode/settings.json
 {
   // ----- Global editor behavior -----

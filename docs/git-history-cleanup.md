@@ -1,14 +1,17 @@
 # Git history cleanup (non-destructive plan)
 
-## Goal
+Goal
+----
 
 Provide a safe, preview-first approach to removing large historical files (for example: `node_modules/`, `dist/`, `src-tauri/target/`) from Git history without accidentally losing data.
 
-## Overview
+Overview
+--------
 
-We will prepare commands that _simulate_ the removal and present the results so maintainers can review. Only after explicit approval will any destructive history rewrite (which requires force-push) be executed.
+We will prepare commands that *simulate* the removal and present the results so maintainers can review. Only after explicit approval will any destructive history rewrite (which requires force-push) be executed.
 
-## Plan (preview-only)
+Plan (preview-only)
+--------------------
 
 1. Inspect the largest files in history:
 
@@ -49,8 +52,8 @@ git push --force --all
 git push --force --tags
 ```
 
-## Notes & warnings
-
+Notes & warnings
+---------------
 - This is destructive to history: all collaborators must re-clone or rebase carefully.
 - Coordinate with the team and set a maintenance window.
 - Backup your repository before rewrites.
