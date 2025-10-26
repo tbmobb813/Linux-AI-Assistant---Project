@@ -10,7 +10,7 @@
     "build": "npm run -w linux-ai-assistant build",
     "preview": "npm run -w linux-ai-assistant preview",
     "tauri": "npm run -w linux-ai-assistant tauri",
-    "prepare": "( [ -x \"./node_modules/.bin/husky\" ] && ./node_modules/.bin/husky install ) || ( command -v husky >/dev/null 2>&1 && husky install ) || true",
+    "prepare": "git rev-parse --git-dir > /dev/null 2>&1 && husky install || true",
     "tauri-dev": "bash ./dev/tauri-dev.sh"
   },
   "devDependencies": {
