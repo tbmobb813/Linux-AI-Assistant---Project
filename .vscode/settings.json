@@ -1,86 +1,68 @@
-{
-  "rust-analyzer.linkedProjects": [
-    "linux-ai-assistant/src-tauri/Cargo.toml"
-  ],
-  "editor.formatOnSave": true,
-  "files.exclude": {
-    "**/target": true,
-    "**/node_modules": true
-  }
-}
-{
-  // Silence CSS/SCSS/LESS unknown at-rule warnings (e.g. @tailwind)
-  "css.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore",
-  "scss.lint.unknownAtRules": "ignore",
-  // Tailwind IntelliSense: point to the workspace package Tailwind config
-  // (helps the extension locate the config when working from a multi-package repo)
-  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-  // Optional: ensure the extension recognizes HTML in plain text files if needed
-  "tailwindCSS.includeLanguages": {
-    "plaintext": "html"
-  }
-}
 // .vscode/settings.json
-// VS Code workspace settings for the project
 {
+  // ----- Global editor behavior -----
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": null,
+  "editor.defaultFormatter": null, // leave null if you only want ESLint fixes (no Prettier)
+
+  // Only run ESLint fixes on explicit save (ESLint v3 recommended)
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+
+  // ----- Language-specific -----
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": null // set to "esbenp.prettier-vscode" if you want Prettier
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": null
-  {
-      // VS Code workspace settings (merged). Keep comments — settings.json supports JSONC.
-      "rust-analyzer.linkedProjects": [
-        "linux-ai-assistant/src-tauri/Cargo.toml"
-      ],
-      "editor.formatOnSave": true,
-      "editor.defaultFormatter": null,
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-      },
-      "[rust]": {
-        "editor.defaultFormatter": "rust-lang.rust-analyzer",
-        "editor.formatOnSave": true
-      },
-      "[typescript]": {
-        "editor.defaultFormatter": null
-      },
-      "[typescriptreact]": {
-        "editor.defaultFormatter": null
-      },
-      "rust-analyzer.checkOnSave.command": "clippy",
-      "rust-analyzer.cargo.features": "all",
-      "typescript.tsdk": "node_modules/typescript/lib",
-      "typescript.enablePromptUseWorkspaceTsdk": true,
-      "files.associations": {
-        "*.rs": "rust"
-      },
-      "files.exclude": {
-        "**/target": true,
-        "**/node_modules": true
-      },
-      "search.exclude": {
-        "**/node_modules": true,
-        "**/target": true,
-        "**/dist": true
-      },
-      "files.watcherExclude": {
-        "**/target/**": true,
-        "**/node_modules/**": true
-      },
-      // Tailwind IntelliSense: help the extension find the config in this multi-package repo
-      "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-      "tailwindCSS.includeLanguages": {
-        "plaintext": "html"
-      }
-    }
+    "editor.defaultFormatter": null // set to "esbenp.prettier-vscode" if you want Prettier
+  },
+
+  // ----- Rust Analyzer -----
+  "rust-analyzer.linkedProjects": [
+    "linux-ai-assistant/src-tauri/Cargo.toml"
+  ],
+  "rust-analyzer.checkOnSave.command": "clippy",
+  "rust-analyzer.cargo.allFeatures": true,        // was: cargo.features = "all" (invalid)
+  "rust-analyzer.cargo.noDefaultFeatures": false, // adjust if needed
+
+  // ----- TypeScript -----
+  // If TypeScript is installed in the monorepo root:
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // ----- File associations / excludes -----
+  "files.associations": {
+    "*.rs": "rust"
+  },
+  "files.exclude": {
+    "**/target": true,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/target": true,
+    "**/dist": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/target/**": true
+  },
+
+  // ----- CSS/Tailwind -----
+  // Silence unknown @rule warnings for frameworks like Tailwind
+  "css.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+
+  // Help Tailwind IntelliSense find the config in a multi-package repo
+  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
+
+  // Optional: treat plaintext as HTML for Tailwind class scanning (use sparingly)
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  }
+}
