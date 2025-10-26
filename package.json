@@ -33,12 +33,10 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.rs": [
-      "cargo fmt --",
-      "git add"
+      "cargo fmt --"
     ]
   }
 }
