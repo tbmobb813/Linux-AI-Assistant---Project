@@ -126,6 +126,22 @@ jobs:
             echo "dir=" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install system dependencies for native builds
+        if: ${{ steps.tauri.outputs.dir != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            cmake \
+            libglib2.0-dev \
+            libgirepository1.0-dev \
+            libdbus-1-dev \
+            libssl-dev \
+            libsecret-1-dev \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev
+
       - name: Cargo fmt (check)
         if: ${{ steps.tauri.outputs.dir != '' }}
         working-directory: ${{ steps.tauri.outputs.dir }}
