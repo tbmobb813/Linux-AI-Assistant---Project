@@ -21,17 +21,15 @@ pub async fn create_message(
 
     // Dev helper: if DEV_ECHO_RESPONSES=1 is set, automatically create an assistant reply
     // This is handy for local development to test end-to-end flow without an LLM provider.
-    if std::env::var("DEV_ECHO_RESPONSES").is_ok() {
-        if created.role == "user" {
-            let assistant = NewMessage {
-                conversation_id: created.conversation_id.clone(),
-                role: "assistant".to_string(),
-                content: format!("Echo: {}", created.content),
-                tokens_used: None,
-            };
-            // ignore result; if it errors we still return the original created message
-            let _ = Message::create(&conn, assistant);
-        }
+    if std::env::var("DEV_ECHO_RESPONSES").is_ok() && created.role == "user" {
+        let assistant = NewMessage {
+            conversation_id: created.conversation_id.clone(),
+            role: "assistant".to_string(),
+            content: format!("Echo: {}", created.content),
+            tokens_used: None,
+        };
+        // ignore result; if it errors we still return the original created message
+        let _ = Message::create(&conn, assistant);
     }
 
     Ok(created)
