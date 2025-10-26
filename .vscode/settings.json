@@ -1,23 +1,7 @@
 {
-  // Silence CSS/SCSS/LESS unknown at-rule warnings (e.g. @tailwind)
-  "css.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore",
-  "scss.lint.unknownAtRules": "ignore",
-
-  // Tailwind IntelliSense: point to the workspace package Tailwind config
-  // (helps the extension locate the config when working from a multi-package repo)
-  "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
-
-  // Optional: ensure the extension recognizes HTML in plain text files if needed
-  "tailwindCSS.includeLanguages": {
-    "plaintext": "html"
-  }
-}
-// .vscode/settings.json
-{
   // ----- Global editor behavior -----
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": null, // leave null if you only want ESLint fixes (no Prettier)
+  "editor.defaultFormatter": null,
 
   // Only run ESLint fixes on explicit save (ESLint v3 recommended)
   "editor.codeActionsOnSave": {
@@ -30,20 +14,19 @@
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    "editor.defaultFormatter": null // set to "esbenp.prettier-vscode" if you want Prettier
+    "editor.defaultFormatter": null
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": null // set to "esbenp.prettier-vscode" if you want Prettier
+    "editor.defaultFormatter": null
   },
 
   // ----- Rust Analyzer -----
   "rust-analyzer.linkedProjects": ["linux-ai-assistant/src-tauri/Cargo.toml"],
   "rust-analyzer.checkOnSave.command": "clippy",
-  "rust-analyzer.cargo.allFeatures": true, // was: cargo.features = "all" (invalid)
-  "rust-analyzer.cargo.noDefaultFeatures": false, // adjust if needed
+  "rust-analyzer.cargo.allFeatures": true,
+  "rust-analyzer.cargo.noDefaultFeatures": false,
 
   // ----- TypeScript -----
-  // If TypeScript is installed in the monorepo root:
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
@@ -66,15 +49,12 @@
   },
 
   // ----- CSS/Tailwind -----
-  // Silence unknown @rule warnings for frameworks like Tailwind
   "css.lint.unknownAtRules": "ignore",
   "less.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
 
-  // Help Tailwind IntelliSense find the config in a multi-package repo
   "tailwindCSS.experimental.configFile": "linux-ai-assistant/tailwind.config.cjs",
 
-  // Optional: treat plaintext as HTML for Tailwind class scanning (use sparingly)
   "tailwindCSS.includeLanguages": {
     "plaintext": "html"
   }
