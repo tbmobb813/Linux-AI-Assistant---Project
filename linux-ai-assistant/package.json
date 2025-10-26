@@ -47,7 +47,7 @@
     "@vitest/coverage-v8": "^1.6.1",
     "@playwright/test": "^1.56.1",
     "husky": "^8.0.3",
-    "prettier": "^2.8.8"
+    "prettier": "^3.6.2"
   },
   "vitest": {
     "exclude": [
