@@ -32,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22" # use '20' if your project requires LTS 20
-          cache: "pnpm"
 
       - name: Detect frontend directory
         id: fe
