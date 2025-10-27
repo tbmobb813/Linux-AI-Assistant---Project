@@ -23,16 +23,6 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    // Re-register when shortcut changes
-    (async () => {
-      try {
-        await registerGlobalShortcut(globalShortcut);
-      } catch (e) {
-        console.error("rebind shortcut failed", e);
-      }
-    })();
-  }, [globalShortcut, registerGlobalShortcut]);
   const [showSettings, setShowSettings] = useState(false);
   return (
     <div className="flex h-screen bg-gray-900 text-white">
