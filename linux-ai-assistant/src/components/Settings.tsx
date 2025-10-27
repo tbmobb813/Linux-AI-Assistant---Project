@@ -9,6 +9,7 @@ type Props = {
 export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
+  const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -99,6 +100,26 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <p className="text-[11px] text-gray-600 dark:text-gray-400">
           When set to System, the app follows your OS dark mode.
         </p>
+      </div>
+
+      <div className="space-y-1 pt-2">
+        <label className="text-xs text-gray-700 dark:text-gray-300">
+          Code execution
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            id="allow-code-exec"
+            type="checkbox"
+            checked={allowCodeExecution}
+            onChange={(e) => setAllowCodeExecution(e.target.checked)}
+          />
+          <label
+            htmlFor="allow-code-exec"
+            className="text-xs text-gray-600 dark:text-gray-400"
+          >
+            Allow running code snippets (use with caution)
+          </label>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-1">

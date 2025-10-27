@@ -100,11 +100,26 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
     }
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
     const confirmRun = window.confirm(
       `Run this ${language || "code"} snippet?\n\nThis will execute:\n${codeString.substring(0, 100)}${codeString.length > 100 ? "..." : ""}\n\nOnly run trusted code!`,
     );
     if (!confirmRun) return;
+    // Check settings
+    try {
+      const settings = (await import("../lib/stores/settingsStore")) as any;
+      const allow = settings.useSettingsStore.getState().allowCodeExecution;
+      if (!allow) {
+        addToast({
+          message: "Code execution is disabled in Settings",
+          type: "error",
+          ttl: 3000,
+        });
+        return;
+      }
+    } catch (e) {
+      // fail open
+    }
     (async () => {
       addToast({ message: "Running snippet...", type: "info", ttl: 1500 });
       try {
@@ -122,25 +137,18 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
           return;
         }
         const { stdout, stderr, timed_out } = res as any;
-        if (timed_out) {
-          addToast({
-            message: "Execution timed out",
-            type: "error",
-            ttl: 3000,
+        const { exit_code } = res as any;
+        // Show full output in modal
+        // Use uiStore directly to set modal
+        const ui = (await import("../lib/stores/uiStore")) as any;
+        ui.useUiStore
+          .getState()
+          .showRunResult({
+            stdout: stdout || "",
+            stderr: stderr || "",
+            exit_code: exit_code ?? null,
+            timed_out: !!timed_out,
           });
-        } else if (stderr && stderr.length > 0) {
-          addToast({
-            message: `Error: ${String(stderr).slice(0, 200)}`,
-            type: "error",
-            ttl: 6000,
-          });
-        } else {
-          addToast({
-            message: `Output: ${String(stdout).slice(0, 200)}`,
-            type: "success",
-            ttl: 6000,
-          });
-        }
       } catch (e) {
         console.error("run snippet failed", e);
         addToast({ message: "Run failed", type: "error", ttl: 3000 });

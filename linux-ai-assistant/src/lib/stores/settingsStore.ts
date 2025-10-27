@@ -16,6 +16,7 @@ interface SettingsState {
   defaultModel: string;
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
+  allowCodeExecution: boolean;
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -24,6 +25,7 @@ interface SettingsState {
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
+  setAllowCodeExecution: (allow: boolean) => Promise<void>;
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
 }
 
@@ -33,6 +35,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   defaultModel: "gpt-4",
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
+  allowCodeExecution: false,
 
   loadSettings: async () => {
     try {
@@ -43,6 +46,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
+      const allowRaw = await db.settings.get("allowCodeExecution");
+      const allowCodeExecution = allowRaw === "true";
 
       set({
         theme: (theme as any) || "system",
@@ -50,6 +55,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
+        allowCodeExecution,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -91,6 +97,15 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ globalShortcut: shortcut });
     // Attempt to re-register immediately
     await useSettingsStore.getState().registerGlobalShortcut(shortcut);
+  },
+
+  setAllowCodeExecution: async (allow) => {
+    try {
+      await db.settings.set("allowCodeExecution", String(allow));
+    } catch (e) {
+      console.error("Failed to persist allowCodeExecution", e);
+    }
+    set({ allowCodeExecution: allow });
   },
 
   registerGlobalShortcut: async (shortcutOptional) => {

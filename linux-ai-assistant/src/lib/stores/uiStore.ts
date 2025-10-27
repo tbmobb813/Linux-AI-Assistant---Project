@@ -17,6 +17,21 @@ interface UiState {
   toasts: Toast[];
   addToast: (t: Omit<Toast, "id">) => string;
   removeToast: (id: string) => void;
+  // Run output modal
+  runModal: {
+    open: boolean;
+    stdout: string;
+    stderr: string;
+    exit_code?: number | null;
+    timed_out?: boolean;
+  };
+  showRunResult: (r: {
+    stdout: string;
+    stderr: string;
+    exit_code?: number | null;
+    timed_out?: boolean;
+  }) => void;
+  closeRunResult: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -35,4 +50,31 @@ export const useUiStore = create<UiState>((set) => ({
   },
   removeToast: (id) =>
     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  runModal: {
+    open: false,
+    stdout: "",
+    stderr: "",
+    exit_code: null,
+    timed_out: false,
+  },
+  showRunResult: (r) =>
+    set(() => ({
+      runModal: {
+        open: true,
+        stdout: r.stdout || "",
+        stderr: r.stderr || "",
+        exit_code: r.exit_code ?? null,
+        timed_out: r.timed_out ?? false,
+      },
+    })),
+  closeRunResult: () =>
+    set(() => ({
+      runModal: {
+        open: false,
+        stdout: "",
+        stderr: "",
+        exit_code: null,
+        timed_out: false,
+      },
+    })),
 }));
