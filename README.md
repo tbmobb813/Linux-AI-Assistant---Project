@@ -62,6 +62,34 @@ The desktop application registers a system-wide keyboard shortcut (default: `Com
 
 The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.
 
+## Multi-Provider AI Support
+
+The assistant supports multiple AI providers with secure API key storage and easy switching:
+
+- **OpenAI**: GPT-4, GPT-4 Turbo, GPT-3.5 Turbo (with streaming support)
+- **Anthropic**: Claude Opus, Claude Sonnet models
+- **Google Gemini**: Gemini Pro and other models
+- **Local Models**: Ollama integration (coming in Phase 5)
+
+**Configuration**:
+
+1. Open Settings → select your preferred provider from the dropdown
+2. Enter your model name (e.g., `gpt-4`, `claude-sonnet-4.5`, `gemini-pro`)
+3. Save your API key securely (stored in system keyring)
+4. Start chatting with your chosen provider
+
+API keys are stored securely using your system's keyring (GNOME Keyring, KWallet, etc.) and fall back to environment variables if needed.
+
+## Project-Aware Context
+
+The assistant automatically tracks file changes in your workspace and injects relevant context into conversations:
+
+- **File Watcher**: Monitors your project for modifications, creations, and deletions
+- **Smart Context**: Recent file changes (last 2 minutes, up to 8 files) are included in chat messages
+- **Terminal Suggestions**: Click the "Suggest" button to get AI-powered shell command recommendations based on your last message and project context
+
+This helps the AI provide more relevant, context-aware assistance for your specific project.
+
 ## Application Launcher Integration
 
 A `.desktop` file is included at `linux-ai-assistant/linux-ai-assistant.desktop` for integration with your system's application launcher.
@@ -222,33 +250,51 @@ Keyring: keyring-rs
   ├── tsconfig.json
   ├── tailwind.config.js
   └── README.md
-  Development Roadmap
-  Phase 1: Foundation (Weeks 1-3)
-  Goal: Basic application structure and chat interface
+
+Development Roadmap
+
+Phase 1: Foundation (Weeks 1-3)
+Goal: Basic application structure and chat interface
 
 Milestones:
 
-[ ] Set up Tauri project with React frontend
-[ ] Implement basic window management and system tray
-[ ] Create chat interface UI components
-[ ] Set up SQLite database with schema
-[ ] Implement conversation storage and retrieval
-[ ] Basic settings panel for configuration
-Deliverable: Functional desktop app with local conversation storage
+[x] Set up Tauri project with React frontend
+[x] Implement basic window management and system tray
+[x] Create chat interface UI components
+[x] Set up SQLite database with schema
+[x] Implement conversation storage and retrieval
+[x] Basic settings panel for configuration
+Deliverable: Functional desktop app with local conversation storage ✅
+
+Nice-to-haves (Phase 1):
+
+- Conversation search improvements: fuzzy search, filter by date/model
+- Export conversations in multiple formats (JSON, Markdown, PDF)
+- Conversation branching: fork conversations at any message
+- Bulk conversation management: archive, tag, organize folders
+- Database optimization: indexing, vacuum, query performance tuning
 
 Phase 2: AI Integration (Weeks 4-6)
 Goal: Connect to multiple AI providers
 
 Milestones:
 
-[ ] Implement OpenAI API adapter with streaming support
-[ ] Add Anthropic Claude integration
-[ ] Add Google Gemini support
-[ ] Create provider abstraction layer
-[ ] Implement API key management with keyring storage
-[ ] Add model selection UI
-[ ] Error handling and retry logic
-Deliverable: Working AI chat with multiple provider options
+[x] Implement OpenAI API adapter with streaming support
+[x] Add Anthropic Claude integration
+[x] Add Google Gemini support
+[x] Create provider abstraction layer
+[x] Implement API key management with keyring storage
+[x] Add model selection UI
+[x] Error handling and retry logic
+Deliverable: Working AI chat with multiple provider options ✅
+
+Nice-to-haves (Phase 2):
+
+- Streaming support for Anthropic and Gemini providers
+- Token usage tracking and cost estimation per conversation
+- Retry with different provider/model on failure
+- Custom system prompts per conversation or provider
+- Response quality feedback and model comparison tools
 
 Phase 3: System Integration (Weeks 7-9)
 Goal: Native Linux desktop features
@@ -261,20 +307,37 @@ Milestones:
 [x] System tray menu with quick actions
 [x] Theme integration (detect system theme)
 [x] App launcher integration (.desktop file)
-Deliverable: Truly native Linux desktop experience
+Deliverable: Truly native Linux desktop experience ✅
+
+Nice-to-haves (Phase 3):
+
+- Multiple configurable global shortcuts for different actions
+- Customizable system tray menu with user-defined actions
+- Notification preferences: sound, position, duration, do-not-disturb
+- Window position memory: restore last size/position on launch
+- Multi-monitor support: remember which display to show on
 
 Phase 4: Developer Features (Weeks 10-12)
 Goal: Workflow optimization for developers
 
 Milestones:
 
-[ ] CLI companion tool with IPC communication
-[ ] File system watcher for project context
-[ ] Git integration (detect repo, branch, changes)
-[ ] Code block enhancements (copy, run, save)
-[ ] Terminal command suggestions
-[ ] Project-aware context injection
-Deliverable: Developer-optimized workflow integration
+[x] CLI companion tool with IPC communication
+[x] File system watcher for project context
+[x] Git integration (detect repo, branch, changes)
+[x] Code block enhancements (copy, run, save)
+[x] Terminal command suggestions with AI-powered generation
+[x] Project-aware context injection (recent file changes)
+Deliverable: Developer-optimized workflow integration ✅
+
+Nice-to-haves (Phase 4):
+
+- CLI: implement `lai last` to print the latest assistant reply.
+- CLI: distribution packaging and install instructions.
+- Watcher: tray toggle and ignore patterns; debounce noisy events.
+- Project context panel: surface recent changes and summaries in chat UI.
+- Execution hardening: runner profiles, resource limits, and optional sandboxing.
+- Integration tests: end-to-end checks for IPC events and watcher signals.
 
 Phase 5: Local AI & Privacy (Weeks 13-15)
 Goal: Privacy-respecting local processing options

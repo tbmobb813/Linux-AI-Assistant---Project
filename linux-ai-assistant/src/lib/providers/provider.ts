@@ -5,6 +5,7 @@ import {
   getInvoke as getTauriInvoke,
   getListen as getTauriListen,
 } from "../tauri-shim";
+import { useSettingsStore } from "../stores/settingsStore";
 
 export type ProviderMessage = {
   role: "user" | "assistant" | "system";
@@ -23,81 +24,102 @@ export interface Provider {
 }
 
 export function getProvider(): Provider {
-  try {
-    const isDev =
-      typeof import.meta !== "undefined" &&
-      (import.meta as any).env &&
-      (import.meta as any).env.DEV;
-    const openaiEnabled =
-      (typeof import.meta !== "undefined" &&
-        (import.meta as any).env &&
-        (import.meta as any).env.VITE_OPENAI_ENABLED) === "true";
+  return {
+    async generateResponse(conversationId, messages, onChunk?) {
+      try {
+        const invokeFn = await getTauriInvoke();
+        const listenFn = await getTauriListen();
+        const { defaultProvider, defaultModel } = useSettingsStore.getState();
+        const provider = defaultProvider || "openai";
+        const model = defaultModel || null;
 
-    if (!isDev && openaiEnabled) {
-      return {
-        async generateResponse(conversationId: string, messages, onChunk?) {
-          try {
-            // Prefer the shim helpers. The shim does dynamic imports internally
-            // so bundlers won't try to resolve '@tauri-apps/api' at build time.
-            const invokeFn = await getTauriInvoke();
-            const listenFn = await getTauriListen();
+        if (!invokeFn) {
+          // Non-tauri environment fallback
+          return mockProvider.generateResponse(
+            conversationId,
+            messages,
+            onChunk,
+          );
+        }
 
-            if (onChunk && invokeFn && listenFn) {
-              const sessionId: string = await invokeFn(
-                "provider_openai_stream",
-                {
-                  conversation_id: conversationId,
-                  messages,
-                  model: (import.meta as any).env?.VITE_OPENAI_MODEL || null,
-                },
-              );
+        const listenAvailable =
+          listenFn !== undefined && typeof listenFn === "function";
 
-              let buffer = "";
-
-              const unlistenChunkP = listenFn(
-                "provider-stream-chunk",
-                (e: any) => {
-                  const payload: any = e.payload;
-                  if (payload?.session_id === sessionId) {
-                    const chunk = payload.chunk as string;
-                    buffer += chunk;
-                    try {
-                      onChunk(chunk);
-                    } catch (_) {}
-                  }
-                },
-              );
-
-              const unlistenEndP = listenFn("provider-stream-end", (e: any) => {
-                const payload: any = e.payload;
-                if (payload?.session_id === sessionId) {
-                  Promise.all([unlistenChunkP, unlistenEndP]).then(
-                    (fns: any[]) => fns.forEach((fn) => fn && fn()),
-                  );
-                }
-              });
-
-              await new Promise((r) => setTimeout(r, 200));
-              return buffer;
-            }
-
-            if (!invokeFn) throw new Error("Tauri `invoke` not available");
-
-            const resp = await invokeFn("provider_openai_generate", {
+        if (provider === "openai") {
+          if (onChunk && listenAvailable) {
+            const sessionId: string = await invokeFn("provider_openai_stream", {
               conversation_id: conversationId,
               messages,
-              model: (import.meta as any).env?.VITE_OPENAI_MODEL || null,
+              model,
             });
-            return resp;
-          } catch (e: any) {
-            throw new Error(e?.message || String(e));
+            let buffer = "";
+            const unlistenChunkP = listenFn(
+              "provider-stream-chunk",
+              (e: any) => {
+                const payload: any = e.payload;
+                if (payload?.session_id === sessionId) {
+                  const chunk = payload.chunk as string;
+                  buffer += chunk;
+                  try {
+                    onChunk(chunk);
+                  } catch (_) {}
+                }
+              },
+            );
+            const unlistenEndP = listenFn("provider-stream-end", (e: any) => {
+              const payload: any = e.payload;
+              if (payload?.session_id === sessionId) {
+                Promise.all([unlistenChunkP, unlistenEndP]).then((fns: any[]) =>
+                  fns.forEach((fn) => fn && fn()),
+                );
+              }
+            });
+            await new Promise((r) => setTimeout(r, 200));
+            return buffer;
           }
-        },
-      };
-    }
-  } catch (e) {
-    // fallthrough to mock provider
-  }
-
-  return mockProvider;
+          // fallback to non-streaming if listen unavailable
+          return await invokeFn("provider_openai_generate", {
+            conversation_id: conversationId,
+            messages,
+            model,
+          });
+        } else if (provider === "anthropic") {
+          const res: string = await invokeFn("provider_anthropic_generate", {
+            conversation_id: conversationId,
+            messages,
+            model,
+          });
+          // Simulate streaming if requested
+          if (onChunk) {
+            for (const tok of res.split(/(\s+)/).filter(Boolean)) {
+              onChunk(tok);
+              await new Promise((r) => setTimeout(r, 10));
+            }
+          }
+          return res;
+        } else if (provider === "gemini") {
+          const res: string = await invokeFn("provider_gemini_generate", {
+            conversation_id: conversationId,
+            messages,
+            model,
+          });
+          if (onChunk) {
+            for (const tok of res.split(/(\s+)/).filter(Boolean)) {
+              onChunk(tok);
+              await new Promise((r) => setTimeout(r, 10));
+            }
+          }
+          return res;
+        } else {
+          return mockProvider.generateResponse(
+            conversationId,
+            messages,
+            onChunk,
+          );
+        }
+      } catch (e: any) {
+        throw new Error(e?.message || String(e));
+      }
+    },
+  };
 }

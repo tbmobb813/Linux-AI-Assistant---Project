@@ -40,6 +40,13 @@ interface UiState {
   };
   showAudit: (content: string) => void;
   closeAudit: () => void;
+  // Command suggestions modal
+  suggestionsModal: {
+    open: boolean;
+    items: string[];
+  };
+  showSuggestions: (items: string[]) => void;
+  closeSuggestions: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -77,6 +84,14 @@ export const useUiStore = create<UiState>((set) => ({
     })),
   closeAudit: () =>
     set(() => ({ auditModal: { open: false, content: "", loading: false } })),
+  suggestionsModal: {
+    open: false,
+    items: [],
+  },
+  showSuggestions: (items: string[]) =>
+    set(() => ({ suggestionsModal: { open: true, items } })),
+  closeSuggestions: () =>
+    set(() => ({ suggestionsModal: { open: false, items: [] } })),
   showRunResult: (r) =>
     set(() => ({
       runModal: {

@@ -2,6 +2,7 @@
 // This is the authoritative run() that `src/main.rs` calls.
 pub mod commands;
 pub mod database;
+mod ipc;
 
 use std::path::PathBuf;
 use tauri::{Emitter, Manager};
@@ -174,6 +175,9 @@ pub fn run() {
             }
 
             println!("Database initialized successfully!");
+
+            // Start CLI IPC server
+            crate::ipc::start_ipc_server(app.handle().clone());
             Ok(())
         })
         // Register Tauri commands implemented in `src-tauri/src/commands`
@@ -205,12 +209,19 @@ pub fn run() {
             // provider
             commands::provider::provider_openai_generate,
             commands::provider::provider_openai_stream,
+            commands::provider::provider_anthropic_generate,
+            commands::provider::provider_gemini_generate,
+            commands::provider::set_api_key,
+            commands::provider::get_api_key,
             // git
             commands::git::get_git_context,
             // run code snippets
             commands::run::run_code,
             commands::run::read_audit,
             commands::run::rotate_audit,
+            // project watcher
+            commands::project::set_project_root,
+            commands::project::stop_project_watch,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

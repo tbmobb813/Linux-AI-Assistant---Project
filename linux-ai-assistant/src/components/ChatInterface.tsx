@@ -5,6 +5,9 @@ import MessageBubble from "./MessageBubble";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
+import { getProvider } from "../lib/providers/provider";
+import { useProjectStore } from "../lib/stores/projectStore";
+import CommandSuggestionsModal from "./CommandSuggestionsModal";
 
 export default function ChatInterface(): JSX.Element {
   const { currentConversation, messages, sendMessage, isLoading } =
@@ -196,6 +199,44 @@ export default function ChatInterface(): JSX.Element {
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
               </svg>
             </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const lastUser = [...messages]
+                  .reverse()
+                  .find((m) => m.role === "user");
+                const base = lastUser?.content || value.trim();
+                if (!base) return;
+                const provider = getProvider();
+                const project = useProjectStore.getState();
+                const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
+                const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
+                try {
+                  const resp = await provider.generateResponse(
+                    currentConversation?.id || "suggestions",
+                    [{ role: "user", content: prompt }],
+                  );
+                  const items = resp
+                    .split(/\r?\n/)
+                    .map((s) => s.replace(/^[-•]\s*/, "").trim())
+                    .filter(Boolean)
+                    .slice(0, 5);
+                  useUiStore.getState().showSuggestions(items);
+                } catch (e) {
+                  addToast({
+                    message: "Failed to get suggestions",
+                    type: "error",
+                    ttl: 1600,
+                  });
+                }
+              }}
+              className="px-3 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+              disabled={isLoading}
+              title="Suggest terminal commands"
+              aria-label="Suggest terminal commands"
+            >
+              Suggest
+            </button>
             <input
               ref={inputRef}
               className="flex-1 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
@@ -239,6 +280,7 @@ export default function ChatInterface(): JSX.Element {
           </div>
         </form>
       </div>
+      <CommandSuggestionsModal />
     </div>
   );
 }
