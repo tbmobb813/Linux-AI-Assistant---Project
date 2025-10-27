@@ -120,6 +120,11 @@ export default function Settings({ onClose }: Props): JSX.Element {
             Allow running code snippets (use with caution)
           </label>
         </div>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 pt-1">
+          Warning: Enabling code execution allows the app to run commands with
+          your user permissions. Only enable this if you trust the source of
+          snippets. You can leave it disabled to prevent accidental execution.
+        </p>
       </div>
 
       <div className="flex justify-end gap-2 pt-1">

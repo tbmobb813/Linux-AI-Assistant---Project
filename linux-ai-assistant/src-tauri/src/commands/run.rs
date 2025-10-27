@@ -1,8 +1,9 @@
 use serde::Serialize;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize)]
 pub struct RunResult {
@@ -91,6 +92,8 @@ pub async fn run_code(
                     let _ = err.read_to_string(&mut stderr);
                 }
                 let code = status.code();
+                // Audit log
+                let _ = append_audit(&language, cwd.as_deref(), code, false, &stdout, &stderr);
                 return Ok(RunResult {
                     stdout,
                     stderr,
@@ -124,10 +127,63 @@ pub async fn run_code(
         let _ = err.read_to_string(&mut stderr);
     }
 
+    // Audit log for timeout
+    let _ = append_audit(&language, cwd.as_deref(), None, timed_out, &stdout, &stderr);
     Ok(RunResult {
         stdout,
         stderr,
         exit_code: None,
         timed_out,
     })
+}
+
+fn append_audit(
+    language: &str,
+    cwd: Option<&str>,
+    exit_code: Option<i32>,
+    timed_out: bool,
+    stdout: &str,
+    stderr: &str,
+) -> Result<(), String> {
+    // Try to determine an appropriate app data directory
+    let mut log_path = PathBuf::from(".");
+    if let Some(dir) = tauri::api::path::app_dir() {
+        log_path = dir;
+    }
+    log_path.push("executions.log");
+
+    let ts = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+
+    let mut entry = format!(
+        "{} | lang={} | exit={:?} | timed_out={} | cwd={:?}\n",
+        ts, language, exit_code, timed_out, cwd
+    );
+    // Truncate outputs to avoid massive logs
+    let take = |s: &str, n: usize| {
+        if s.len() > n {
+            format!("{}...", &s[..n])
+        } else {
+            s.to_string()
+        }
+    };
+    entry.push_str(&format!("STDOUT: {}\n", take(stdout, 1000)));
+    entry.push_str(&format!("STDERR: {}\n", take(stderr, 1000)));
+    entry.push_str("---\n");
+
+    // Append to file
+    match OpenOptions::new().create(true).append(true).open(&log_path) {
+        Ok(mut f) => {
+            if let Err(e) = f.write_all(entry.as_bytes()) {
+                eprintln!("failed to write audit log: {}", e);
+            }
+        }
+        Err(e) => {
+            eprintln!("failed to open audit log {:?}: {}", log_path, e);
+        }
+    }
+
+    Ok(())
 }
