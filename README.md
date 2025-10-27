@@ -52,6 +52,16 @@ State Management: Zustand
 
 This repository's history was rewritten on 2025-10-23 to remove historical build artifacts and vendor files (for example: `node_modules/`, `linux-ai-assistant/dist/`, and Rust `target/` directories). Please see `docs/post-rewrite-notice.md` for details and re-clone instructions.
 
+## Global Shortcut
+
+The desktop application registers a system-wide keyboard shortcut (default: `CommandOrControl+Space`) to quickly invoke the assistant from anywhere. You can customize this shortcut in the app's Settings panel.
+
+- **Default shortcut**: `CommandOrControl+Space` (Ctrl+Space on Linux, Cmd+Space on macOS)
+- **How to change**: Open the app → click Settings (top-right) → edit "Global shortcut" → Save
+- **Format examples**: `Ctrl+Shift+K`, `Super+Space`, `Alt+A`
+
+The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.
+
 Markdown Rendering: react-markdown + rehype plugins
 
 - Code syntax highlighting with highlight.js

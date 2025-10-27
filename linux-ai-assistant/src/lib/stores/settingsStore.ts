@@ -3,8 +3,11 @@
 
 import { create } from "zustand";
 import { database as db } from "../api/database";
-import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { useUiStore } from "./uiStore";
+import {
+  registerGlobalShortcutSafe,
+  unregisterAllShortcutsSafe,
+} from "../utils/tauri";
 
 interface SettingsState {
   theme: "light" | "dark" | "system";
@@ -88,23 +91,25 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       shortcutOptional || useSettingsStore.getState().globalShortcut;
     // Unregister all first to avoid duplicate binds
     try {
-      await unregisterAll();
+      await unregisterAllShortcutsSafe();
     } catch (e) {
       // ignore
     }
     try {
-      await register(shortcut, async () => {
+      const success = await registerGlobalShortcutSafe(shortcut, async () => {
         try {
           await db.window.toggle();
         } catch (err) {
           console.error("Failed to toggle window from shortcut:", err);
         }
       });
-      useUiStore.getState().addToast({
-        message: `Global shortcut set to ${shortcut}`,
-        type: "success",
-        ttl: 2500,
-      });
+      if (success) {
+        useUiStore.getState().addToast({
+          message: `Global shortcut set to ${shortcut}`,
+          type: "success",
+          ttl: 2500,
+        });
+      }
     } catch (e) {
       console.error("Failed to register global shortcut:", e);
       useUiStore.getState().addToast({
