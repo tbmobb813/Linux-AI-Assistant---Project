@@ -5,7 +5,7 @@
 export type InvokeFn = <T = any>(cmd: string, args?: any) => Promise<T>;
 export type ListenFn = (
   event: string,
-  cb: (e: any) => void
+  cb: (e: any) => void,
 ) => Promise<() => void>;
 
 /**
@@ -44,7 +44,7 @@ export async function invoke<T = any>(cmd: string, args?: any): Promise<T> {
 
 export async function listen(
   event: string,
-  cb: (e: any) => void
+  cb: (e: any) => void,
 ): Promise<() => void> {
   const fn = await getListen();
   if (!fn) throw new Error("Tauri `listen` is not available in this runtime");

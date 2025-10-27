@@ -219,7 +219,7 @@ EOF
 cat > src-tauri/src/main.rs << 'EOF'
 // Prevents additional console window on Windows in release
 
-#[tauri::command]
+[tauri::command]
 
 ![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
