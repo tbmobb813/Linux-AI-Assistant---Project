@@ -10,12 +10,8 @@ const uiStoreSelector = (s: ReturnType<typeof useUiStore>) => ({
 });
 
 export default function CommandSuggestionsModal() {
-  const {
-    suggestionsModal,
-    closeSuggestions,
-    addToast,
-    showRunResult,
-  } = useUiStore(uiStoreSelector);
+  const { suggestionsModal, closeSuggestions, addToast, showRunResult } =
+    useUiStore(uiStoreSelector);
   if (!suggestionsModal.open) return null;
   const items: string[] = suggestionsModal.items || [];
 
