@@ -10,8 +10,6 @@ A native desktop AI assistant built specifically for Linux users.
 - Privacy-respecting local processing options
 - CLI companion tool
 
-<<<<<<< HEAD
-=======
 ### CLI usage
 
 The optional CLI lets you send prompts into the running app from a terminal and can bring the app window to front automatically.
@@ -53,7 +51,6 @@ Notes:
 - The watcher runs locally and does not send paths or file contents anywhere.
 - This is an early feature; future versions may surface summaries or context in chat.
 
->>>>>>> 09cd2b1 (chore(react): upgrade to React 19 (#35))
 ### Global Shortcut
 
 The app registers a global shortcut to toggle the window. By default this is:
@@ -96,13 +93,13 @@ MIT
 
 Snap vs system terminal (important)
 
-- If you run the development workflow from a terminal provided by a snap-packaged app (for example the VS Code snap), the Snap runtime can inject its own shared libraries (under `/snap/core20/...`) into processes. That can cause symbol lookup errors when running native binaries built against the system libraries (for example: "undefined symbol: \_\_libc_pthread_init, version GLIBC_PRIVATE").
+- If you run the development workflow from a terminal provided by a snap-packaged app (for example the VS Code snap), the Snap runtime can inject its own shared libraries (under `/snap/core20/...`) into processes. That can cause symbol lookup errors when running native binaries built against the system libraries (for example: "undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE").
 - Workaround: run `npm run tauri dev` or execute the built binary from a normal system terminal (gnome-terminal, xterm, konsole) — not from a snap-wrapped terminal. This ensures the system loader uses your distribution's libraries.
 
 Quick commands (system terminal):
 
 ```zsh
-cd '/media/nixstation-remote/Dev Storage/Projects/Linux AI Assistant - Project/linux-ai-assistant'
+cd '$(pwd)'
 # Start dev server + Tauri
 npm run tauri dev
 ```
@@ -116,3 +113,4 @@ env -i HOME="$HOME" PATH="/usr/bin:/bin" DISPLAY="$DISPLAY" XDG_RUNTIME_DIR="$XD
 ```
 
 Note: the most reliable approach is to use a non-snap terminal for building and running native desktop apps.
+

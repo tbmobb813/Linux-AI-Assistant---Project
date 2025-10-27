@@ -23,7 +23,6 @@ export default function App(): JSX.Element {
   } = useSettingsStore();
 
   useEffect(() => {
-    // Load settings on startup and register the global shortcut
     (async () => {
       try {
         await loadSettings();
@@ -36,7 +35,6 @@ export default function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    // Re-register when shortcut changes
     (async () => {
       try {
         await registerGlobalShortcut(globalShortcut);
@@ -45,6 +43,7 @@ export default function App(): JSX.Element {
       }
     })();
   }, [globalShortcut, registerGlobalShortcut]);
+
   const [showSettings, setShowSettings] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
@@ -179,6 +178,7 @@ export default function App(): JSX.Element {
         unlistenProject && unlistenProject();
       } catch { }
     };
+
   }, []);
   // Watch system theme if preference is 'system'
   useEffect(() => {
@@ -188,7 +188,7 @@ export default function App(): JSX.Element {
     // Ensure we apply immediately in case system changed while app was closed
     try {
       applyTheme("system");
-    } catch { }
+    } catch {}
     const unwatch = watchSystemTheme(() => {
       applyTheme("system");
       // Avoid toasting on initial mount
@@ -208,7 +208,7 @@ export default function App(): JSX.Element {
     return () => {
       try {
         unwatch && unwatch();
-      } catch { }
+      } catch {}
     };
   }, [theme]);
 
@@ -224,7 +224,7 @@ export default function App(): JSX.Element {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   return (
-    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+    <div className="flex h-screen bg-gray-900 text-white">
       <ConversationList />
       <main className="flex-1 flex flex-col relative">
         {/* Small toggle button to demonstrate invoking the window toggle command */}
@@ -242,7 +242,7 @@ export default function App(): JSX.Element {
           Toggle
         </button>
 
-        {/* Settings button and panel */}
+  {/* Settings button and panel */}
         <button
           onClick={() => setShowSettings((s) => !s)}
           className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
@@ -270,7 +270,6 @@ export default function App(): JSX.Element {
             </button>
           </div>
         )}
-
         {showSettings && (
           <div className="absolute right-4 top-12 z-50">
             <Settings onClose={() => setShowSettings(false)} />

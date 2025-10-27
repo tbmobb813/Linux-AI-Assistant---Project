@@ -30,7 +30,7 @@ describe("Settings (global shortcut)", () => {
     act(() => {
       fireEvent.change(input, { target: { value: "JustAKey" } });
     });
-    const save = screen.getByRole("button", { name: /^save$/i });
+    const save = screen.getByRole("button", { name: /save/i });
     act(() => {
       fireEvent.click(save);
     });
@@ -79,7 +79,7 @@ describe("Settings (global shortcut)", () => {
     act(() => {
       fireEvent.change(input, { target: { value: "OnlyKey" } });
     });
-    const saveBtn = screen.getByRole("button", { name: /^save$/i });
+    const saveBtn = screen.getByRole("button", { name: /save/i });
     act(() => {
       fireEvent.click(saveBtn);
     });
@@ -107,3 +107,4 @@ describe("Settings (global shortcut)", () => {
     });
   });
 });
+
