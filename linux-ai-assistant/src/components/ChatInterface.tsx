@@ -62,7 +62,7 @@ export default function ChatInterface() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [value]);
+  }, []);
   const handlePasteFromClipboard = async () => {
     try {
       let clipText = "";
