@@ -2,7 +2,7 @@ import { vi } from "vitest";
 import "@testing-library/jest-dom";
 
 // Mock the Tauri core invoke API used in the frontend database wrapper so tests run in Node/jsdom
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@tauri-apps/api/tauri", () => ({
   invoke: vi.fn(async (cmd: string, args?: any) => {
     // Basic noop mock that returns reasonable defaults for commands used by tests
     if (cmd === "get_all_conversations") return [];
