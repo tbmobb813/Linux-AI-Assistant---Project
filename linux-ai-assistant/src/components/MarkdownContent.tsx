@@ -140,8 +140,7 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         const { exit_code } = res as any;
         // Show full output in modal
         // Use uiStore directly to set modal
-        const ui = (await import("../lib/stores/uiStore")) as any;
-        ui.useUiStore
+        useUiStore
           .getState()
           .showRunResult({
             stdout: stdout || "",
