@@ -10,6 +10,18 @@ A native desktop AI assistant built specifically for Linux users.
 - Privacy-respecting local processing options
 - CLI companion tool
 
+### Global Shortcut
+
+The app registers a global shortcut to toggle the window. By default this is:
+
+- CommandOrControl+Space
+
+You can change this at runtime:
+
+- Open the app and click Settings (top-right), then edit the Global shortcut and Save.
+- Use formats like CommandOrControl+Space or Ctrl+Shift+K.
+- If the chosen shortcut is unavailable on your system, you'll see a toast error and the previous shortcut remains active.
+
 ## Development
 
 ### Prerequisites
