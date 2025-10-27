@@ -33,7 +33,6 @@ export default function App(): JSX.Element {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
     (async () => {
       try {
@@ -43,7 +42,6 @@ export default function App(): JSX.Element {
       }
     })();
   }, [globalShortcut, registerGlobalShortcut]);
-
   const [showSettings, setShowSettings] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
