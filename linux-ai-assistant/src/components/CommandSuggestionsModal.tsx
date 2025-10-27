@@ -1,29 +1,21 @@
 import { useUiStore } from "../lib/stores/uiStore";
 import { invokeSafe } from "../lib/utils/tauri";
 
-export default function CommandSuggestionsModal() {
-  // Define the type for the UI store state if not already imported
-  type UiStoreState = {
-    suggestionsModal: {
-      open: boolean;
-      items?: string[];
-    };
-    closeSuggestions: () => void;
-    addToast: (opts: { message: string; type: string; ttl: number }) => void;
-    showRunResult: (result: any) => void;
-  };
+// Extract selector to stable reference outside the component
+const uiStoreSelector = (s: ReturnType<typeof useUiStore>) => ({
+  suggestionsModal: s.suggestionsModal,
+  closeSuggestions: s.closeSuggestions,
+  addToast: s.addToast,
+  showRunResult: s.showRunResult,
+});
 
+export default function CommandSuggestionsModal() {
   const {
     suggestionsModal,
     closeSuggestions,
     addToast,
     showRunResult,
-  } = useUiStore((s: UiStoreState) => ({
-    suggestionsModal: s.suggestionsModal,
-    closeSuggestions: s.closeSuggestions,
-    addToast: s.addToast,
-    showRunResult: s.showRunResult,
-  }));
+  } = useUiStore(uiStoreSelector);
   if (!suggestionsModal.open) return null;
   const items: string[] = suggestionsModal.items || [];
 
