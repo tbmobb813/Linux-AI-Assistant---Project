@@ -4,7 +4,7 @@ pub mod commands;
 pub mod database;
 
 use std::path::PathBuf;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -131,8 +131,8 @@ pub fn run() {
                                     let rgba = img.to_rgba8();
                                     let (w, h) = rgba.dimensions();
                                     let data = rgba.into_raw();
-                                    // Tauri v2: from_rgba8(width, height, bytes)
-                                    let tauri_image = tauri::image::Image::from_rgba8(w, h, data);
+                                    // Tauri v2: new_owned(data, width, height)
+                                    let tauri_image = tauri::image::Image::new_owned(data, w, h);
                                     tray_builder = tray_builder.icon(tauri_image);
                                 }
                                 Err(e) => {
@@ -156,7 +156,7 @@ pub fn run() {
                                     let rgba = img.to_rgba8();
                                     let (w, h) = rgba.dimensions();
                                     let data = rgba.into_raw();
-                                    let tauri_image = tauri::image::Image::from_rgba8(w, h, data);
+                                    let tauri_image = tauri::image::Image::new_owned(data, w, h);
                                     tray_builder = tray_builder.icon(tauri_image);
                                 }
                                 Err(e) => eprintln!(
@@ -209,6 +209,8 @@ pub fn run() {
             commands::git::get_git_context,
             // run code snippets
             commands::run::run_code,
+            commands::run::read_audit,
+            commands::run::rotate_audit,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

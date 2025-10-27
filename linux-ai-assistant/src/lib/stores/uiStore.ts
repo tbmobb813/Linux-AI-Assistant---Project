@@ -32,6 +32,14 @@ interface UiState {
     timed_out?: boolean;
   }) => void;
   closeRunResult: () => void;
+  // Execution audit modal
+  auditModal: {
+    open: boolean;
+    content: string;
+    loading: boolean;
+  };
+  showAudit: (content: string) => void;
+  closeAudit: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -57,6 +65,18 @@ export const useUiStore = create<UiState>((set) => ({
     exit_code: null,
     timed_out: false,
   },
+  // Execution audit modal
+  auditModal: {
+    open: false,
+    content: "",
+    loading: false,
+  },
+  showAudit: (content: string) =>
+    set(() => ({
+      auditModal: { open: true, content, loading: false },
+    })),
+  closeAudit: () =>
+    set(() => ({ auditModal: { open: false, content: "", loading: false } })),
   showRunResult: (r) =>
     set(() => ({
       runModal: {

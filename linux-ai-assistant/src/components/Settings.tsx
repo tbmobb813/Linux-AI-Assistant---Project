@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
+import { invokeSafe } from "../lib/utils/tauri";
+import { useUiStore } from "../lib/stores/uiStore";
 
 type Props = {
   onClose?: () => void;
@@ -10,6 +12,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
   const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
+  const { showAudit } = useUiStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -125,6 +128,24 @@ export default function Settings({ onClose }: Props): JSX.Element {
           your user permissions. Only enable this if you trust the source of
           snippets. You can leave it disabled to prevent accidental execution.
         </p>
+        <div className="pt-2">
+          <button
+            onClick={async () => {
+              // fetch last ~200 lines of audit and show modal
+              try {
+                const content =
+                  (await invokeSafe<string>("read_audit", { lines: 200 })) ||
+                  "";
+                showAudit(content);
+              } catch (e) {
+                console.error("failed to load audit log", e);
+              }
+            }}
+            className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
+          >
+            View execution audit
+          </button>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-1">

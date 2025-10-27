@@ -1,11 +1,11 @@
 use serde::Serialize;
-use std::fs::{File, OpenOptions};
+use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct RunResult {
     pub stdout: String,
     pub stderr: String,
@@ -67,7 +67,7 @@ pub async fn run_code(
         c
     };
 
-    if let Some(dir) = cwd {
+    if let Some(ref dir) = cwd {
         cmd.current_dir(dir);
     }
 
@@ -76,7 +76,6 @@ pub async fn run_code(
     let mut child = cmd.spawn().map_err(|e| format!("failed to spawn: {}", e))?;
 
     let start = Instant::now();
-    let mut timed_out = false;
     // Poll for completion with timeout
     loop {
         match child.try_wait() {
@@ -105,7 +104,6 @@ pub async fn run_code(
                 if start.elapsed() > timeout {
                     // kill
                     let _ = child.kill();
-                    timed_out = true;
                     break;
                 }
                 std::thread::sleep(Duration::from_millis(50));
@@ -128,13 +126,51 @@ pub async fn run_code(
     }
 
     // Audit log for timeout
-    let _ = append_audit(&language, cwd.as_deref(), None, timed_out, &stdout, &stderr);
+    let _ = append_audit(&language, cwd.as_deref(), None, true, &stdout, &stderr);
     Ok(RunResult {
         stdout,
         stderr,
         exit_code: None,
-        timed_out,
+        timed_out: true,
     })
+}
+
+/// Read the audit log and return the last `lines` lines joined as a string.
+#[tauri::command]
+pub fn read_audit(lines: Option<usize>) -> Result<String, String> {
+    let log_path = get_audit_log_path();
+
+    let content = match std::fs::read_to_string(&log_path) {
+        Ok(s) => s,
+        Err(e) => return Err(format!("failed to read audit log: {}", e)),
+    };
+
+    let l = lines.unwrap_or(200);
+    let v: Vec<&str> = content.lines().collect();
+    let start = if v.len() > l { v.len() - l } else { 0 };
+    let slice = &v[start..];
+    Ok(slice.join("\n"))
+}
+
+/// Rotate the audit log immediately (move executions.log -> executions.log.1).
+#[tauri::command]
+pub fn rotate_audit() -> Result<(), String> {
+    let log_path = get_audit_log_path();
+    let mut rot = log_path.clone();
+    rot.set_extension("log.1");
+
+    // Remove old rotation
+    let _ = std::fs::remove_file(&rot);
+    fs::rename(&log_path, &rot).map_err(|e| format!("failed to rotate audit log: {}", e))?;
+    Ok(())
+}
+
+fn get_audit_log_path() -> PathBuf {
+    // In a real Tauri app context, this would use app.path().app_data_dir()
+    // For now, use current directory as fallback (works in tests and when no app handle)
+    let mut log_path = PathBuf::from(".");
+    log_path.push("executions.log");
+    log_path
 }
 
 fn append_audit(
@@ -145,12 +181,7 @@ fn append_audit(
     stdout: &str,
     stderr: &str,
 ) -> Result<(), String> {
-    // Try to determine an appropriate app data directory
-    let mut log_path = PathBuf::from(".");
-    if let Some(dir) = tauri::api::path::app_dir() {
-        log_path = dir;
-    }
-    log_path.push("executions.log");
+    let log_path = get_audit_log_path();
 
     let ts = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -174,6 +205,20 @@ fn append_audit(
     entry.push_str("---\n");
 
     // Append to file
+    // Rotate if too large (1 MB)
+    const MAX_LOG_BYTES: u64 = 1_048_576;
+    if let Ok(meta) = fs::metadata(&log_path) {
+        if meta.len() > MAX_LOG_BYTES {
+            let mut rot = log_path.clone();
+            rot.set_extension("log.1");
+            // Remove previous rotation if exists
+            let _ = fs::remove_file(&rot);
+            if let Err(e) = fs::rename(&log_path, &rot) {
+                eprintln!("failed to rotate audit log: {}", e);
+            }
+        }
+    }
+
     match OpenOptions::new().create(true).append(true).open(&log_path) {
         Ok(mut f) => {
             if let Err(e) = f.write_all(entry.as_bytes()) {
@@ -186,4 +231,62 @@ fn append_audit(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Basic test: run a simple echo in sh and ensure output is captured.
+    #[tokio::test]
+    async fn test_run_code_echo_sh() {
+        let r = run_code("sh".into(), "echo test-run".into(), Some(2000), None)
+            .await
+            .expect("run_code failed");
+        assert!(r.stdout.contains("test-run"));
+        assert!(!r.timed_out);
+    }
+
+    // Test python execution
+    #[tokio::test]
+    async fn test_run_code_python() {
+        let code = "print('hello from python')";
+        let r = run_code("python".into(), code.into(), Some(2000), None)
+            .await
+            .expect("run_code failed");
+        assert!(r.stdout.contains("hello from python"));
+        assert_eq!(r.exit_code, Some(0));
+        assert!(!r.timed_out);
+    }
+
+    // Test node/javascript execution
+    #[tokio::test]
+    async fn test_run_code_node() {
+        let code = "console.log('hello from node');";
+        let r = run_code("node".into(), code.into(), Some(2000), None)
+            .await
+            .expect("run_code failed");
+        assert!(r.stdout.contains("hello from node"));
+        assert_eq!(r.exit_code, Some(0));
+        assert!(!r.timed_out);
+    }
+
+    // Test timeout behavior
+    #[tokio::test]
+    async fn test_run_code_timeout() {
+        let code = "sleep 10"; // sleep longer than timeout
+        let r = run_code("sh".into(), code.into(), Some(500), None)
+            .await
+            .expect("run_code failed");
+        assert!(r.timed_out, "Expected timeout but got timed_out=false");
+        assert_eq!(r.exit_code, None);
+    }
+
+    // Test unsupported language rejection
+    #[tokio::test]
+    async fn test_run_code_unsupported_language() {
+        let r = run_code("ruby".into(), "puts 'test'".into(), Some(2000), None).await;
+        assert!(r.is_err());
+        assert!(r.unwrap_err().contains("Unsupported language"));
+    }
 }
