@@ -107,7 +107,7 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
     if (!confirmRun) return;
     // Check settings
     try {
-      const settings = (await import("../lib/stores/settingsStore")) as any;
+      const settings = (await import("../lib/stores/settingsStore")) as typeof import("../lib/stores/settingsStore");
       const allow = settings.useSettingsStore.getState().allowCodeExecution;
       if (!allow) {
         addToast({
