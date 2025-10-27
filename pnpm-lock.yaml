@@ -65,6 +65,12 @@ importers:
       '@tauri-apps/plugin-notification':
         specifier: 2.3.1
         version: 2.3.1
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
+      katex:
+        specifier: ^0.16.25
+        version: 0.16.25
       lucide-react:
         specifier: ^0.263.1
         version: 0.263.1(react@18.3.1)

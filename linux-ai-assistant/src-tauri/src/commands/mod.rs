@@ -3,6 +3,7 @@
 // own file (conversations.rs, messages.rs, settings.rs).
 
 pub mod conversations;
+pub mod git;
 pub mod health;
 pub mod messages;
 pub mod provider;
