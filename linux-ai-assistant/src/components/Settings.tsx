@@ -68,7 +68,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <input
           id="global-shortcut-input"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setError(null);
+          }}
           placeholder="CommandOrControl+Space"
           className="w-full px-2 py-1 rounded bg-gray-800 border border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
         />
