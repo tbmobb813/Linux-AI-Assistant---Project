@@ -62,6 +62,145 @@ pub fn provider_openai_generate(
     Ok(content)
 }
 
+fn get_keyring_secret(service: &str) -> Option<String> {
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+    {
+        if let Ok(entry) = keyring::Entry::new("linux-ai-assistant", service) {
+            if let Ok(secret) = entry.get_password() {
+                if !secret.is_empty() {
+                    return Some(secret);
+                }
+            }
+        }
+    }
+    None
+}
+
+fn prefer_keyring_or_env(service: &str, env_name: &str) -> Result<String, String> {
+    if let Some(s) = get_keyring_secret(service) {
+        return Ok(s);
+    }
+    std::env::var(env_name).map_err(|_| format!("{} not set", env_name))
+}
+
+#[tauri::command]
+pub fn set_api_key(provider: String, key: String) -> Result<(), String> {
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+    {
+        let entry = keyring::Entry::new("linux-ai-assistant", &provider)
+            .map_err(|e| format!("keyring entry error: {}", e))?;
+        entry
+            .set_password(&key)
+            .map_err(|e| format!("keyring set failed: {}", e))?;
+        return Ok(());
+    }
+    #[allow(unreachable_code)]
+    Err("keyring unsupported on this platform".into())
+}
+
+#[tauri::command]
+pub fn get_api_key(provider: String) -> Result<String, String> {
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+    {
+        let entry = keyring::Entry::new("linux-ai-assistant", &provider)
+            .map_err(|e| format!("keyring entry error: {}", e))?;
+        let val = entry
+            .get_password()
+            .map_err(|e| format!("keyring get failed: {}", e))?;
+        return Ok(val);
+    }
+    #[allow(unreachable_code)]
+    Err("keyring unsupported on this platform".into())
+}
+
+#[tauri::command]
+pub fn provider_anthropic_generate(
+    _conversation_id: String,
+    messages: Vec<ProviderMessage>,
+    model: Option<String>,
+) -> Result<String, String> {
+    let api_key = prefer_keyring_or_env("anthropic", "ANTHROPIC_API_KEY")?;
+    let client = reqwest::blocking::Client::new();
+    let api_url = "https://api.anthropic.com/v1/messages";
+    // Collapse messages into a single user prompt for simplicity
+    let prompt = messages
+        .into_iter()
+        .map(|m| format!("{}: {}", m.role, m.content))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let body = serde_json::json!({
+        "model": model.unwrap_or_else(|| "claude-3-5-sonnet-20240620".to_string()),
+        "max_tokens": 1024,
+        "messages": [ { "role": "user", "content": prompt } ]
+    });
+    let resp = client
+        .post(api_url)
+        .header("x-api-key", api_key)
+        .header("anthropic-version", "2023-06-01")
+        .json(&body)
+        .send()
+        .map_err(|e| format!("request error: {}", e))?;
+    let status = resp.status();
+    let json: serde_json::Value = resp
+        .json()
+        .map_err(|e| format!("json parse error: {}", e))?;
+    if !status.is_success() {
+        return Err(format!("Anthropic API returned {}: {}", status, json));
+    }
+    let content = json["content"]
+        .get(0)
+        .and_then(|c| c.get("text"))
+        .and_then(|t| t.as_str())
+        .unwrap_or("")
+        .to_string();
+    Ok(content)
+}
+
+#[tauri::command]
+pub fn provider_gemini_generate(
+    _conversation_id: String,
+    messages: Vec<ProviderMessage>,
+    model: Option<String>,
+) -> Result<String, String> {
+    let api_key = prefer_keyring_or_env("gemini", "GEMINI_API_KEY")?;
+    let model_name = model.unwrap_or_else(|| "gemini-1.5-flash".to_string());
+    let url = format!(
+        "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
+        model_name
+    );
+    let client = reqwest::blocking::Client::new();
+    let text = messages
+        .into_iter()
+        .map(|m| format!("{}: {}", m.role, m.content))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    let body = serde_json::json!({
+        "contents": [ { "parts": [ { "text": text } ] } ]
+    });
+    let resp = client
+        .post(&url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .json(&body)
+        .send()
+        .map_err(|e| format!("request error: {}", e))?;
+    let status = resp.status();
+    let json: serde_json::Value = resp
+        .json()
+        .map_err(|e| format!("json parse error: {}", e))?;
+    if !status.is_success() {
+        return Err(format!("Gemini API returned {}: {}", status, json));
+    }
+    let content = json["candidates"]
+        .get(0)
+        .and_then(|c| c.get("content"))
+        .and_then(|ct| ct.get("parts"))
+        .and_then(|p| p.get(0))
+        .and_then(|p| p.get("text"))
+        .and_then(|t| t.as_str())
+        .unwrap_or("")
+        .to_string();
+    Ok(content)
+}
 #[tauri::command]
 pub fn provider_openai_stream(
     app: tauri::AppHandle,
