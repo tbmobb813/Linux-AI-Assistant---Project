@@ -13,7 +13,7 @@ export default function Toaster() {
               ? "bg-red-600 text-white"
               : t.type === "success"
                 ? "bg-green-600 text-white"
-                : "bg-gray-800 text-white"
+                : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
           }`}
           role="status"
           aria-live="polite"
@@ -23,7 +23,7 @@ export default function Toaster() {
             <div className="flex items-center gap-2">
               {t.action && (
                 <button
-                  className="text-xs px-2 py-1 bg-blue-600 rounded"
+                  className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-500"
                   onClick={() => {
                     try {
                       t.action?.onClick();
@@ -37,7 +37,7 @@ export default function Toaster() {
                 </button>
               )}
               <button
-                className="ml-2 text-xs opacity-75"
+                className="ml-2 text-xs opacity-75 hover:opacity-100"
                 onClick={() => removeToast(t.id)}
                 aria-label="Dismiss"
               >
