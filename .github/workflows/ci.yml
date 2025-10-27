@@ -100,7 +100,7 @@ jobs:
 
       - name: Upload frontend coverage
         if: ${{ steps.fe.outputs.dir != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: frontend-coverage
           path: ${{ steps.fe.outputs.dir }}/coverage
