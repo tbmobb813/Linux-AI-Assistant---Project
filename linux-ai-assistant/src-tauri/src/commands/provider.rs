@@ -94,6 +94,7 @@ pub fn set_api_key(provider: String, key: String) -> Result<(), String> {
             .map_err(|e| format!("keyring set failed: {}", e))?;
         return Ok(());
     }
+    #[allow(unreachable_code)]
     Err("keyring unsupported on this platform".into())
 }
 
@@ -108,6 +109,7 @@ pub fn get_api_key(provider: String) -> Result<String, String> {
             .map_err(|e| format!("keyring get failed: {}", e))?;
         return Ok(val);
     }
+    #[allow(unreachable_code)]
     Err("keyring unsupported on this platform".into())
 }
 
