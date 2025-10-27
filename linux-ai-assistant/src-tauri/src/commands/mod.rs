@@ -7,6 +7,7 @@ pub mod git;
 pub mod health;
 pub mod messages;
 pub mod provider;
+pub mod run;
 pub mod settings;
 pub mod window;
 

@@ -207,6 +207,8 @@ pub fn run() {
             commands::provider::provider_openai_stream,
             // git
             commands::git::get_git_context,
+            // run code snippets
+            commands::run::run_code,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

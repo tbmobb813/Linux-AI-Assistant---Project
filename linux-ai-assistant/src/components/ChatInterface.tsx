@@ -4,7 +4,7 @@ import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
-import { isTauriEnvironment } from "../lib/utils/tauri";
+import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 
 export default function ChatInterface(): JSX.Element {
   const { currentConversation, messages, sendMessage, isLoading } =
@@ -20,6 +20,25 @@ export default function ChatInterface(): JSX.Element {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [currentConversation]);
+
+  // Git context for current workspace (populates header)
+  const [gitContext, setGitContext] = useState<{
+    is_repo: boolean;
+    branch?: string | null;
+    dirty?: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!isTauriEnvironment()) return;
+      try {
+        const res = await invokeSafe("get_git_context", {});
+        if (res) setGitContext(res as any);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     // keyboard shortcut: Ctrl+K focuses the message input
@@ -86,8 +105,20 @@ export default function ChatInterface(): JSX.Element {
           <h3 className="text-lg font-semibold">
             {currentConversation.title || "Untitled"}
           </h3>
-          <div className="text-xs text-gray-600 dark:text-gray-400">
-            {currentConversation.model} • {currentConversation.provider}
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              {currentConversation.model} • {currentConversation.provider}
+            </div>
+            {gitContext && gitContext.is_repo && (
+              <div className="text-xs text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
+                <strong className="mr-1">{gitContext.branch || "HEAD"}</strong>
+                {gitContext.dirty ? (
+                  <span className="text-red-400">●</span>
+                ) : (
+                  <span className="text-green-400">●</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div>

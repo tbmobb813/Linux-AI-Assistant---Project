@@ -6,7 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import { useState } from "react";
 import { useUiStore } from "../lib/stores/uiStore";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { isTauriEnvironment } from "../lib/utils/tauri";
+import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github-dark.css";
 
@@ -105,14 +105,47 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
       `Run this ${language || "code"} snippet?\n\nThis will execute:\n${codeString.substring(0, 100)}${codeString.length > 100 ? "..." : ""}\n\nOnly run trusted code!`,
     );
     if (!confirmRun) return;
-
-    addToast({
-      message:
-        "Code execution not yet implemented. This is a safety placeholder.",
-      type: "info",
-      ttl: 3000,
-    });
-    // TODO: Implement safe code execution via Tauri command
+    (async () => {
+      addToast({ message: "Running snippet...", type: "info", ttl: 1500 });
+      try {
+        const res = await invokeSafe("run_code", {
+          language,
+          code: codeString,
+          timeout_ms: 15000,
+        });
+        if (!res) {
+          addToast({
+            message: "Execution unavailable (not in Tauri)",
+            type: "error",
+            ttl: 3000,
+          });
+          return;
+        }
+        const { stdout, stderr, timed_out } = res as any;
+        if (timed_out) {
+          addToast({
+            message: "Execution timed out",
+            type: "error",
+            ttl: 3000,
+          });
+        } else if (stderr && stderr.length > 0) {
+          addToast({
+            message: `Error: ${String(stderr).slice(0, 200)}`,
+            type: "error",
+            ttl: 6000,
+          });
+        } else {
+          addToast({
+            message: `Output: ${String(stdout).slice(0, 200)}`,
+            type: "success",
+            ttl: 6000,
+          });
+        }
+      } catch (e) {
+        console.error("run snippet failed", e);
+        addToast({ message: "Run failed", type: "error", ttl: 3000 });
+      }
+    })();
   };
 
   // Determine if code is runnable (common shell/script languages)
