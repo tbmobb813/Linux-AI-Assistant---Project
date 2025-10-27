@@ -9,6 +9,7 @@ import {
   unregisterAllShortcutsSafe,
 } from "../utils/tauri";
 import { applyTheme } from "../utils/theme";
+import { applyTheme } from "../utils/theme";
 
 interface SettingsState {
   theme: "light" | "dark" | "system";
@@ -60,21 +61,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
-        allowCodeExecution,
-        projectRoot,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
       } catch {}
-      // If a project root is set, attempt to start the watcher on launch (best-effort)
-      if (projectRoot) {
-        try {
-          const { invokeSafe } = await import("../utils/tauri");
-          await invokeSafe("set_project_root", { path: projectRoot });
-        } catch (e) {
-          // non-fatal
-        }
-      }
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -83,6 +73,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setTheme: async (theme) => {
     await db.settings.set("theme", theme);
     set({ theme });
+    try {
+      applyTheme(theme);
+    } catch {}
     try {
       applyTheme(theme);
     } catch {}

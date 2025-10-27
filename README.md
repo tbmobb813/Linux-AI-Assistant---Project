@@ -64,34 +64,6 @@ The desktop application registers a system-wide keyboard shortcut (default: `Com
 
 The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.
 
-## Multi-Provider AI Support
-
-The assistant supports multiple AI providers with secure API key storage and easy switching:
-
-- **OpenAI**: GPT-4, GPT-4 Turbo, GPT-3.5 Turbo (with streaming support)
-- **Anthropic**: Claude Opus, Claude Sonnet models
-- **Google Gemini**: Gemini Pro and other models
-- **Local Models**: Ollama integration (coming in Phase 5)
-
-**Configuration**:
-
-1. Open Settings → select your preferred provider from the dropdown
-2. Enter your model name (e.g., `gpt-4`, `claude-sonnet-4.5`, `gemini-pro`)
-3. Save your API key securely (stored in system keyring)
-4. Start chatting with your chosen provider
-
-API keys are stored securely using your system's keyring (GNOME Keyring, KWallet, etc.) and fall back to environment variables if needed.
-
-## Project-Aware Context
-
-The assistant automatically tracks file changes in your workspace and injects relevant context into conversations:
-
-- **File Watcher**: Monitors your project for modifications, creations, and deletions
-- **Smart Context**: Recent file changes (last 2 minutes, up to 8 files) are included in chat messages
-- **Terminal Suggestions**: Click the "Suggest" button to get AI-powered shell command recommendations based on your last message and project context
-
-This helps the AI provide more relevant, context-aware assistance for your specific project.
-
 ## Application Launcher Integration
 
 A `.desktop` file is included at `linux-ai-assistant/linux-ai-assistant.desktop` for integration with your system's application launcher.
@@ -309,15 +281,7 @@ Milestones:
 [x] System tray menu with quick actions
 [x] Theme integration (detect system theme)
 [x] App launcher integration (.desktop file)
-Deliverable: Truly native Linux desktop experience ✅
-
-Nice-to-haves (Phase 3):
-
-- Multiple configurable global shortcuts for different actions
-- Customizable system tray menu with user-defined actions
-- Notification preferences: sound, position, duration, do-not-disturb
-- Window position memory: restore last size/position on launch
-- Multi-monitor support: remember which display to show on
+Deliverable: Truly native Linux desktop experience
 
 Phase 4: Developer Features (Weeks 10-12)
 Goal: Workflow optimization for developers

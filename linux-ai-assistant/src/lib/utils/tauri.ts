@@ -88,22 +88,3 @@ export async function notifySafe(title: string, body?: string): Promise<void> {
     console.warn("notifySafe failed:", e);
   }
 }
-
-/**
- * Invoke a Tauri command safely; returns the result or null if unavailable.
- */
-export async function invokeSafe<T = unknown>(
-  cmd: string,
-  args?: Record<string, unknown>,
-): Promise<T | null> {
-  if (!isTauriEnvironment()) return null;
-  try {
-    const { invoke } = await import("@tauri-apps/api/core");
-    // @ts-ignore - dynamic import typing
-    const res = await invoke(cmd, args || {});
-    return res as T;
-  } catch (e) {
-    console.warn("invokeSafe failed:", e);
-    return null;
-  }
-}
