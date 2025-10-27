@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
+import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import { database } from "../lib/api/database";
+import { readText } from "@tauri-apps/plugin-clipboard-manager";
+import { isTauriEnvironment } from "../lib/utils/tauri";
 
 export default function ChatInterface(): JSX.Element {
   const { currentConversation, messages, sendMessage, isLoading } =
     useChatStore();
+  const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -24,10 +28,42 @@ export default function ChatInterface(): JSX.Element {
         e.preventDefault();
         inputRef.current?.focus();
       }
+      // Ctrl+Shift+V to paste from clipboard
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        e.key.toLowerCase() === "v"
+      ) {
+        e.preventDefault();
+        handlePasteFromClipboard();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [value]);
+  const handlePasteFromClipboard = async () => {
+    try {
+      let clipText = "";
+      if (isTauriEnvironment()) {
+        clipText = await readText();
+      } else {
+        clipText = await navigator.clipboard.readText();
+      }
+      if (clipText) {
+        setValue((prev) => (prev ? prev + "\n\n" + clipText : clipText));
+        addToast({
+          message: "Pasted from clipboard",
+          type: "success",
+          ttl: 1500,
+        });
+      } else {
+        addToast({ message: "Clipboard is empty", type: "info", ttl: 1500 });
+      }
+    } catch (e) {
+      console.error("Failed to paste:", e);
+      addToast({ message: "Failed to paste", type: "error", ttl: 2000 });
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,12 +81,12 @@ export default function ChatInterface(): JSX.Element {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="border-b border-gray-800 p-4 flex items-center justify-between">
+      <div className="border-b border-gray-300 dark:border-gray-800 p-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">
             {currentConversation.title || "Untitled"}
           </h3>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-gray-600 dark:text-gray-400">
             {currentConversation.model} • {currentConversation.provider}
           </div>
         </div>
@@ -63,8 +99,9 @@ export default function ChatInterface(): JSX.Element {
                 console.error("failed to toggle window", e);
               }
             }}
-            className="text-sm px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded"
+            className="text-sm px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
             title="Toggle window"
+            aria-label="Toggle window"
           >
             Toggle Window
           </button>
@@ -77,7 +114,7 @@ export default function ChatInterface(): JSX.Element {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`max-w-[60%] px-4 py-3 rounded-lg bg-gray-800 animate-pulse`}
+                className={`max-w-[60%] px-4 py-3 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse`}
               />
             ))}
           </div>
@@ -95,7 +132,7 @@ export default function ChatInterface(): JSX.Element {
           messages.map((m) => <MessageBubble key={m.id} message={m} />)}
       </div>
 
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-gray-300 dark:border-gray-800">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -105,9 +142,32 @@ export default function ChatInterface(): JSX.Element {
           }}
         >
           <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handlePasteFromClipboard}
+              className="px-3 py-2 rounded-md flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+              disabled={isLoading}
+              title="Paste from clipboard (Ctrl+Shift+V)"
+              aria-label="Paste from clipboard"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              </svg>
+            </button>
             <input
               ref={inputRef}
-              className="flex-1 px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="Type a message..."

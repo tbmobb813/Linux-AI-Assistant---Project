@@ -57,10 +57,33 @@ This repository's history was rewritten on 2025-10-23 to remove historical build
 The desktop application registers a system-wide keyboard shortcut (default: `CommandOrControl+Space`) to quickly invoke the assistant from anywhere. You can customize this shortcut in the app's Settings panel.
 
 - **Default shortcut**: `CommandOrControl+Space` (Ctrl+Space on Linux, Cmd+Space on macOS)
-- **How to change**: Open the app → click Settings (top-right) → edit "Global shortcut" → Save
+- **How to change**: Open the app → click Settings (top-right or Ctrl+,) → edit "Global shortcut" → Save
 - **Format examples**: `Ctrl+Shift+K`, `Super+Space`, `Alt+A`
 
 The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.
+
+## Application Launcher Integration
+
+A `.desktop` file is included at `linux-ai-assistant/linux-ai-assistant.desktop` for integration with your system's application launcher.
+
+**Manual Installation:**
+
+```bash
+# Copy the .desktop file to your local applications directory
+cp linux-ai-assistant/linux-ai-assistant.desktop ~/.local/share/applications/
+
+# Update the Exec path to point to your built binary
+# Edit ~/.local/share/applications/linux-ai-assistant.desktop and set:
+# Exec=/path/to/your/linux-ai-assistant
+
+# Optionally set an absolute icon path if needed
+# Icon=/path/to/icon.png
+
+# Update the desktop database
+update-desktop-database ~/.local/share/applications/
+```
+
+After installation, the app will appear in your system's application menu and launcher.
 
 Markdown Rendering: react-markdown + rehype plugins
 
@@ -232,12 +255,12 @@ Goal: Native Linux desktop features
 
 Milestones:
 
-[ ] Global hotkey registration and handler
-[ ] Clipboard integration (copy responses, paste context)
-[ ] Desktop notifications for completed responses
-[ ] System tray menu with quick actions
-[ ] Theme integration (detect system theme)
-[ ] App launcher integration (.desktop file)
+[x] Global hotkey registration and handler
+[x] Clipboard integration (copy responses, paste context)
+[x] Desktop notifications for completed responses
+[x] System tray menu with quick actions
+[x] Theme integration (detect system theme)
+[x] App launcher integration (.desktop file)
 Deliverable: Truly native Linux desktop experience
 
 Phase 4: Developer Features (Weeks 10-12)

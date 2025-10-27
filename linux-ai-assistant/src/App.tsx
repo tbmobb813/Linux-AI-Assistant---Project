@@ -5,9 +5,12 @@ import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import Settings from "./components/Settings";
+import { useChatStore } from "./lib/stores/chatStore";
+import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
+import { useUiStore } from "./lib/stores/uiStore";
 
 export default function App(): JSX.Element {
-  const { loadSettings, registerGlobalShortcut, globalShortcut } =
+  const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
     useSettingsStore();
 
   useEffect(() => {
@@ -34,8 +37,83 @@ export default function App(): JSX.Element {
     })();
   }, [globalShortcut, registerGlobalShortcut]);
   const [showSettings, setShowSettings] = useState(false);
+  // Wire tray menu events: open settings and new conversation
+  useEffect(() => {
+    let unlistenSettings: (() => void) | undefined;
+    let unlistenNew: (() => void) | undefined;
+    (async () => {
+      try {
+        const mod = await import("@tauri-apps/api/event");
+        // open settings
+        unlistenSettings = await mod.listen("tray://open-settings", () => {
+          setShowSettings(true);
+        });
+        // new conversation
+        const createConversation = useChatStore.getState().createConversation;
+        unlistenNew = await mod.listen("tray://new-conversation", async () => {
+          try {
+            await createConversation("New conversation", "gpt-4", "local");
+          } catch (e) {
+            console.error("failed to create conversation from tray", e);
+          }
+        });
+      } catch (e) {
+        // running in web preview or tests where tauri event API isn't available
+      }
+    })();
+    return () => {
+      try {
+        unlistenSettings && unlistenSettings();
+        unlistenNew && unlistenNew();
+      } catch {}
+    };
+  }, []);
+  // Watch system theme if preference is 'system'
+  useEffect(() => {
+    if (theme !== "system") return;
+    const addToast = useUiStore.getState().addToast;
+    let mounted = false;
+    // Ensure we apply immediately in case system changed while app was closed
+    try {
+      applyTheme("system");
+    } catch {}
+    const unwatch = watchSystemTheme(() => {
+      applyTheme("system");
+      // Avoid toasting on initial mount
+      if (mounted) {
+        addToast({
+          message: "Theme updated from system",
+          type: "info",
+          ttl: 1500,
+        });
+      }
+      mounted = true;
+    });
+    // Mark mounted after initial microtask
+    Promise.resolve().then(() => {
+      mounted = true;
+    });
+    return () => {
+      try {
+        unwatch && unwatch();
+      } catch {}
+    };
+  }, [theme]);
+
+  // Keyboard shortcut: Ctrl+, toggles Settings panel
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === ",") {
+        e.preventDefault();
+        setShowSettings((s) => !s);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       <ConversationList />
       <main className="flex-1 flex flex-col relative">
         {/* Small toggle button to demonstrate invoking the window toggle command */}

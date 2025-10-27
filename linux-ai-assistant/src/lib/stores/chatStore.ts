@@ -8,6 +8,7 @@ import type {
   ApiMessage as Message,
 } from "../api/types";
 import { getProvider } from "../providers/provider";
+import { notifySafe } from "../utils/tauri";
 
 interface ChatState {
   // Current state
@@ -231,6 +232,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ),
           isLoading: false,
         }));
+
+        // Fire a desktop notification to inform the user the response is ready
+        try {
+          const title = get().currentConversation?.title || "Assistant";
+          const preview = finalContent?.slice(0, 100) || "Response ready";
+          await notifySafe(title, preview);
+        } catch {}
       } catch (err) {
         // mark assistant message as failed
         set((state) => ({
@@ -342,6 +350,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ),
           isLoading: false,
         }));
+
+        // Notify on successful retry completion
+        try {
+          const title = get().currentConversation?.title || "Assistant";
+          const preview = finalContent?.slice(0, 100) || "Response ready";
+          await notifySafe(title, preview);
+        } catch {}
       } catch (err) {
         set((state) => ({
           messages: state.messages.map((m) =>

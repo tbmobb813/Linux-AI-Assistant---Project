@@ -36,3 +36,40 @@ vi.mock("@tauri-apps/plugin-global-shortcut", () => ({
     // no-op in tests
   }),
 }));
+
+// Provide a basic matchMedia mock for theme tests and components that rely on it
+if (typeof window !== "undefined" && !window.matchMedia) {
+  // @ts-ignore
+  window.matchMedia = (query: string) => {
+    const mql: MediaQueryList = {
+      media: query,
+      matches: false,
+      onchange: null,
+      addEventListener: function (
+        _type: string,
+        _listener: (this: MediaQueryList, ev: MediaQueryListEvent) => any,
+      ) {
+        // no-op
+      },
+      removeEventListener: function (
+        _type: string,
+        _listener: (this: MediaQueryList, ev: MediaQueryListEvent) => any,
+      ) {
+        // no-op
+      },
+      dispatchEvent: () => false,
+      // legacy
+      addListener: function (
+        _listener: (this: MediaQueryList, ev: MediaQueryListEvent) => any,
+      ) {
+        // no-op
+      },
+      removeListener: function (
+        _listener: (this: MediaQueryList, ev: MediaQueryListEvent) => any,
+      ) {
+        // no-op
+      },
+    } as unknown as MediaQueryList;
+    return mql;
+  };
+}

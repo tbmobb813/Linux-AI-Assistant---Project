@@ -8,6 +8,7 @@ import {
   registerGlobalShortcutSafe,
   unregisterAllShortcutsSafe,
 } from "../utils/tauri";
+import { applyTheme } from "../utils/theme";
 
 interface SettingsState {
   theme: "light" | "dark" | "system";
@@ -50,6 +51,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         apiKeys: apiKeys || {},
         globalShortcut,
       });
+      try {
+        applyTheme(((theme as any) || "system") as any);
+      } catch {}
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -58,6 +62,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setTheme: async (theme) => {
     await db.settings.set("theme", theme);
     set({ theme });
+    try {
+      applyTheme(theme);
+    } catch {}
   },
 
   setDefaultProvider: async (provider) => {

@@ -51,3 +51,40 @@ export async function unregisterAllShortcutsSafe(): Promise<void> {
     // ignore
   }
 }
+
+/**
+ * Send a desktop notification in a safe, environment-aware way.
+ * - In Tauri: uses @tauri-apps/plugin-notification (requests permission if needed)
+ * - In web preview: uses the browser Notification API if available and permitted
+ */
+export async function notifySafe(title: string, body?: string): Promise<void> {
+  try {
+    if (isTauriEnvironment()) {
+      const { isPermissionGranted, requestPermission, sendNotification } =
+        await import("@tauri-apps/plugin-notification");
+
+      let granted = await isPermissionGranted();
+      if (!granted) {
+        const perm = await requestPermission();
+        granted = perm === "granted";
+      }
+      if (granted) {
+        await sendNotification({ title, body });
+      }
+      return;
+    }
+
+    // Fallback for web preview
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      } else if (Notification.permission !== "denied") {
+        const perm = await Notification.requestPermission();
+        if (perm === "granted") new Notification(title, { body });
+      }
+    }
+  } catch (e) {
+    // Non-fatal
+    console.warn("notifySafe failed:", e);
+  }
+}
