@@ -56,8 +56,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0
       "@tauri-apps/plugin-notification":
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       lucide-react:
         specifier: ^0.263.1
         version: 0.263.1(react@18.3.1)
@@ -991,10 +991,10 @@ packages:
         integrity: sha512-WbAz0ElhpP+0kzQZRScdCC7UQ7OPH8PAn//fsBNu7+ywihsnVSVOg1L9YhieAtLNtAlnmFI69Yl5AGaA3ge5IQ==,
       }
 
-  "@tauri-apps/plugin-notification@2.3.1":
+  "@tauri-apps/plugin-notification@2.3.2":
     resolution:
       {
-        integrity: sha512-7gqgfANSREKhh35fY1L4j3TUjUdePmU735FYDqRGeIf8nMXWpcx6j4FhN9/4nYz+m0mv79DCTPLqIPTySggGgg==,
+        integrity: sha512-xJV7NxBYFD65nnFzYiR9gloT1yFIyGYQav5z7od2+JRlJF968ZYbVFHPkyy6h9yYjvGh2FQKsn45E5xlXTJl7A==,
       }
 
   "@testing-library/dom@9.3.4":
@@ -4421,7 +4421,7 @@ snapshots:
     dependencies:
       "@tauri-apps/api": 2.9.0
 
-  "@tauri-apps/plugin-notification@2.3.1":
+  "@tauri-apps/plugin-notification@2.3.2":
     dependencies:
       "@tauri-apps/api": 2.9.0
 
