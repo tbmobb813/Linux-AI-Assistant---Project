@@ -52,7 +52,6 @@ export async function unregisterAllShortcutsSafe(): Promise<void> {
   }
 }
 
-
 /**
  * Send a desktop notification in a safe, environment-aware way.
  * - In Tauri: uses @tauri-apps/plugin-notification (requests permission if needed)
@@ -89,7 +88,6 @@ export async function notifySafe(title: string, body?: string): Promise<void> {
     console.warn("notifySafe failed:", e);
   }
 }
-
 /**
  * Invoke a Tauri command safely; returns the result or null if unavailable.
  */
@@ -108,3 +106,4 @@ export async function invokeSafe<T = unknown>(
     return null;
   }
 }
+
