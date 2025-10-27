@@ -7,8 +7,9 @@ type Props = {
   onClose?: () => void;
 };
 
-// Minimal settings panel focused on the global shortcut
-export default function Settings({ onClose }: Props) {
+// Full settings panel used in-app. Tests only exercise the global shortcut
+// portion — keep the UI complete so runtime and E2E behavior are preserved.
+export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
   const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
@@ -23,7 +24,6 @@ export default function Settings({ onClose }: Props) {
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
-    // very light validation: must contain a modifier and a key
     const hasModifier =
       /(Command|Control|Ctrl|Cmd|Alt|Option|Shift|Super|Meta)/i.test(s);
     const hasKey = /\+\s*[^+\s]+$/i.test(s);
@@ -196,7 +196,6 @@ export default function Settings({ onClose }: Props) {
         <div className="pt-2">
           <button
             onClick={async () => {
-              // fetch last ~200 lines of audit and show modal
               try {
                 const content =
                   (await invokeSafe<string>("read_audit", { lines: 200 })) ||

@@ -23,7 +23,6 @@ export default function App() {
   } = useSettingsStore();
 
   useEffect(() => {
-    // Load settings on startup and register the global shortcut
     (async () => {
       try {
         await loadSettings();
@@ -36,7 +35,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Re-register when shortcut changes
     (async () => {
       try {
         await registerGlobalShortcut(globalShortcut);
@@ -45,6 +43,7 @@ export default function App() {
       }
     })();
   }, [globalShortcut, registerGlobalShortcut]);
+
   const [showSettings, setShowSettings] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
@@ -179,6 +178,7 @@ export default function App() {
         unlistenProject && unlistenProject();
       } catch {}
     };
+
   }, []);
   // Watch system theme if preference is 'system'
   useEffect(() => {
@@ -225,7 +225,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+    <div className="flex h-screen bg-gray-900 text-white">
       <ConversationList />
       <main className="flex-1 flex flex-col relative">
         {/* Small toggle button to demonstrate invoking the window toggle command */}
