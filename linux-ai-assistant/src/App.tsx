@@ -90,7 +90,7 @@ export default function App(): JSX.Element {
           ttl: 1500,
         });
       }
-      mounted = true;
+      // mounted is set after initial microtask, not here
     });
     // Mark mounted after initial microtask
     Promise.resolve().then(() => {
