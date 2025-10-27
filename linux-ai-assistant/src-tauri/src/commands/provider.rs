@@ -163,8 +163,8 @@ pub fn provider_gemini_generate(
     let api_key = prefer_keyring_or_env("gemini", "GEMINI_API_KEY")?;
     let model_name = model.unwrap_or_else(|| "gemini-1.5-flash".to_string());
     let url = format!(
-        "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent?key={}",
-        model_name, api_key
+        "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
+        model_name
     );
     let client = reqwest::blocking::Client::new();
     let text = messages
@@ -177,6 +177,7 @@ pub fn provider_gemini_generate(
     });
     let resp = client
         .post(&url)
+        .header("Authorization", format!("Bearer {}", api_key))
         .json(&body)
         .send()
         .map_err(|e| format!("request error: {}", e))?;
