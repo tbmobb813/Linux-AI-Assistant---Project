@@ -149,21 +149,17 @@ export default function Settings({ onClose }: Props): JSX.Element {
                 if (!k) return;
                 try {
                   await invokeSafe("set_api_key", { provider: p.id, key: k });
-                  useUiStore
-                    .getState()
-                    .addToast({
-                      message: `${p.id} key saved to keyring`,
-                      type: "success",
-                      ttl: 1400,
-                    });
+                  useUiStore.getState().addToast({
+                    message: `${p.id} key saved to keyring`,
+                    type: "success",
+                    ttl: 1400,
+                  });
                 } catch (e) {
-                  useUiStore
-                    .getState()
-                    .addToast({
-                      message: `Failed to save ${p.id} key`,
-                      type: "error",
-                      ttl: 1600,
-                    });
+                  useUiStore.getState().addToast({
+                    message: `Failed to save ${p.id} key`,
+                    type: "error",
+                    ttl: 1600,
+                  });
                 }
               }}
               className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"

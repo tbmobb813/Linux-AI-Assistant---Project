@@ -141,14 +141,12 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         // Show full output in modal
         // Use uiStore directly to set modal
         const ui = (await import("../lib/stores/uiStore")) as any;
-        ui.useUiStore
-          .getState()
-          .showRunResult({
-            stdout: stdout || "",
-            stderr: stderr || "",
-            exit_code: exit_code ?? null,
-            timed_out: !!timed_out,
-          });
+        ui.useUiStore.getState().showRunResult({
+          stdout: stdout || "",
+          stderr: stderr || "",
+          exit_code: exit_code ?? null,
+          timed_out: !!timed_out,
+        });
       } catch (e) {
         console.error("run snippet failed", e);
         addToast({ message: "Run failed", type: "error", ttl: 3000 });
