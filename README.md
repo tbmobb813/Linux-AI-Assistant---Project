@@ -1,9 +1,11 @@
+# Linux AI Desktop Assistant - Project Documentation
+
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
-Linux AI Desktop Assistant - Project Documentation
-Project Overview
+## Project Overview
+
 Mission Statement
 Build a native Linux desktop AI assistant that provides first-class support for Linux users, addressing the platform neglect from major AI providers while delivering superior system integration, developer workflow optimization, and privacy-respecting architecture.
 
