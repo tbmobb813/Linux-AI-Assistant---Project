@@ -52,6 +52,9 @@ importers:
       "@tauri-apps/api":
         specifier: 2.9.0
         version: 2.9.0
+      "@tauri-apps/plugin-clipboard-manager":
+        specifier: 2.3.0
+        version: 2.3.0
       "@tauri-apps/plugin-global-shortcut":
         specifier: 2.3.0
         version: 2.3.0
@@ -62,8 +65,8 @@ importers:
         specifier: ^0.16.11
         version: 0.16.25
       lucide-react:
-        specifier: ^0.263.1
-        version: 0.263.1(react@18.3.1)
+        specifier: ^0.548.0
+        version: 0.548.0(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -144,7 +147,7 @@ importers:
         specifier: ^7.1.12
         version: 7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1)
       vitest:
-        specifier: ^4.0.3
+        specifier: ^4.0.4
         version: 4.0.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.1)
 
 packages:
@@ -1126,6 +1129,12 @@ packages:
       }
     engines: { node: ">= 10" }
     hasBin: true
+
+  "@tauri-apps/plugin-clipboard-manager@2.3.0":
+    resolution:
+      {
+        integrity: sha512-81NOBA2P+OTY8RLkBwyl9ZR/0CeggLub4F6zxcxUIfFOAqtky7J61+K/MkH2SC1FMxNBxrX0swDuKvkjkHadlA==,
+      }
 
   "@tauri-apps/plugin-global-shortcut@2.3.0":
     resolution:
@@ -2760,13 +2769,13 @@ packages:
         integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==,
       }
 
-  lucide-react@0.263.1:
+  lucide-react@0.548.0:
     resolution:
       {
-        integrity: sha512-keqxAx97PlaEN89PXZ6ki1N8nRjGWtDa4021GFYLNj0RgruM5odbpl8GHTExj0hhPq3sF6Up0gnxt6TSHu+ovw==,
+        integrity: sha512-63b16z63jM9yc1MwxajHeuu0FRZFsDtljtDjYm26Kd86UQ5HQzu9ksEtoUUw4RBuewodw/tGFmvipePvRsKeDA==,
       }
     peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   lz-string@1.5.0:
     resolution:
@@ -4789,6 +4798,10 @@ snapshots:
       "@tauri-apps/cli-win32-ia32-msvc": 2.9.1
       "@tauri-apps/cli-win32-x64-msvc": 2.9.1
 
+  "@tauri-apps/plugin-clipboard-manager@2.3.0":
+    dependencies:
+      "@tauri-apps/api": 2.9.0
+
   "@tauri-apps/plugin-global-shortcut@2.3.0":
     dependencies:
       "@tauri-apps/api": 2.9.0
@@ -5825,7 +5838,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.263.1(react@18.3.1):
+  lucide-react@0.548.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
