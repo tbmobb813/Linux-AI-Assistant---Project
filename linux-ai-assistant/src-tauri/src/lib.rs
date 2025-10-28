@@ -211,6 +211,11 @@ pub fn run() {
             commands::provider::provider_openai_stream,
             commands::provider::provider_anthropic_generate,
             commands::provider::provider_gemini_generate,
+            commands::provider::provider_ollama_generate,
+            commands::provider::provider_ollama_stream,
+            commands::provider::ollama_list_models,
+            commands::provider::ollama_pull_model,
+            commands::provider::ollama_check_connection,
             commands::provider::set_api_key,
             commands::provider::get_api_key,
             // git

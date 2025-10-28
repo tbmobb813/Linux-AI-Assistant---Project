@@ -17,6 +17,11 @@ export default function ChatInterface() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Helper to determine if provider is local for privacy indicators
+  const isLocalProvider = (provider: string) => {
+    return provider === "ollama" || provider === "local";
+  };
+
   useEffect(() => {
     if (currentConversation && currentConversation.id) {
       // focus the message input when conversation changes
@@ -109,8 +114,19 @@ export default function ChatInterface() {
             {currentConversation.title || "Untitled"}
           </h3>
           <div className="flex items-center gap-3">
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {currentConversation.model} • {currentConversation.provider}
+            <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+              <span>
+                {currentConversation.model} • {currentConversation.provider}
+              </span>
+              {isLocalProvider(currentConversation.provider) ? (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                  🔒 Local
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                  ☁️ Cloud
+                </span>
+              )}
             </div>
             {gitContext && gitContext.is_repo && (
               <div className="text-xs text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">

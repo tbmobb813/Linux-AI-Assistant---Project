@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
 import { invokeSafe } from "../lib/utils/tauri";
 import { useUiStore } from "../lib/stores/uiStore";
+import OllamaModelManager from "./OllamaModelManager";
 
 type Props = {
   onClose?: () => void;
@@ -15,11 +16,13 @@ export default function Settings({ onClose }: Props) {
   const { projectRoot, setProjectRoot, stopProjectWatch } = useSettingsStore();
   const { defaultProvider, setDefaultProvider, defaultModel, setDefaultModel } =
     useSettingsStore();
+  const { ollamaEndpoint, setOllamaEndpoint } = useSettingsStore();
   const { showAudit } = useUiStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [projectPath, setProjectPath] = useState<string>(projectRoot || "");
+  const [showOllamaManager, setShowOllamaManager] = useState(false);
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -121,6 +124,7 @@ export default function Settings({ onClose }: Props) {
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic</option>
           <option value="gemini">Gemini</option>
+          <option value="ollama">Ollama (Local)</option>
           <option value="local">Local (mock)</option>
         </select>
         <label className="text-xs text-gray-700 dark:text-gray-300">
@@ -136,6 +140,32 @@ export default function Settings({ onClose }: Props) {
           Provider-specific models are supported; leave blank to use provider
           defaults.
         </div>
+
+        {defaultProvider === "ollama" && (
+          <>
+            <label className="text-xs text-gray-700 dark:text-gray-300 pt-2 block">
+              Ollama endpoint
+            </label>
+            <input
+              value={ollamaEndpoint}
+              onChange={(e) => setOllamaEndpoint(e.target.value)}
+              placeholder="http://localhost:11434"
+              className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="text-[11px] text-gray-600 dark:text-gray-400">
+              URL of your Ollama server. Make sure Ollama is running.
+            </div>
+            <div className="pt-2">
+              <button
+                onClick={() => setShowOllamaManager(true)}
+                className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white"
+              >
+                Manage Models
+              </button>
+            </div>
+          </>
+        )}
+
         <div className="pt-1 flex flex-wrap gap-2">
           {[
             { id: "openai", label: "Save OpenAI API key" },
@@ -273,6 +303,13 @@ export default function Settings({ onClose }: Props) {
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
+
+      {/* Ollama Model Manager Modal */}
+      {showOllamaManager && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <OllamaModelManager onClose={() => setShowOllamaManager(false)} />
+        </div>
+      )}
     </div>
   );
 }

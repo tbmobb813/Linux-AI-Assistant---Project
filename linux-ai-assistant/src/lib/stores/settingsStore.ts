@@ -18,6 +18,7 @@ interface SettingsState {
   globalShortcut: string; // e.g., "CommandOrControl+Space"
   allowCodeExecution: boolean;
   projectRoot?: string | null;
+  ollamaEndpoint: string; // Ollama server endpoint
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -30,6 +31,7 @@ interface SettingsState {
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
+  setOllamaEndpoint: (endpoint: string) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -40,6 +42,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   globalShortcut: "CommandOrControl+Space",
   allowCodeExecution: false,
   projectRoot: null,
+  ollamaEndpoint: "http://localhost:11434",
 
   loadSettings: async () => {
     try {
@@ -53,6 +56,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const allowRaw = await db.settings.get("allowCodeExecution");
       const allowCodeExecution = allowRaw === "true";
       const projectRoot = (await db.settings.get("projectRoot")) || null;
+      const ollamaEndpoint =
+        (await db.settings.get("ollamaEndpoint")) || "http://localhost:11434";
 
       set({
         theme: (theme as any) || "system",
@@ -62,6 +67,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         globalShortcut,
         allowCodeExecution,
         projectRoot,
+        ollamaEndpoint,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -195,5 +201,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         ttl: 1600,
       });
     }
+  },
+
+  setOllamaEndpoint: async (endpoint: string) => {
+    await db.settings.set("ollamaEndpoint", endpoint);
+    set({ ollamaEndpoint: endpoint });
   },
 }));
