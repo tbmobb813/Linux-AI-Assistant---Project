@@ -8,6 +8,7 @@ import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
+import { withErrorHandling } from "../lib/utils/errorHandler";
 
 export default function ChatInterface() {
   const { currentConversation, messages, sendMessage, isLoading } =
@@ -69,27 +70,33 @@ export default function ChatInterface() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   const handlePasteFromClipboard = async () => {
-    try {
-      let clipText = "";
-      if (isTauriEnvironment()) {
-        clipText = await readText();
-      } else {
-        clipText = await navigator.clipboard.readText();
-      }
-      if (clipText) {
-        setValue((prev) => (prev ? prev + "\n\n" + clipText : clipText));
-        addToast({
-          message: "Pasted from clipboard",
-          type: "success",
-          ttl: 1500,
-        });
-      } else {
-        addToast({ message: "Clipboard is empty", type: "info", ttl: 1500 });
-      }
-    } catch (e) {
-      console.error("Failed to paste:", e);
-      addToast({ message: "Failed to paste", type: "error", ttl: 2000 });
-    }
+    await withErrorHandling(
+      async () => {
+        let clipText = "";
+        if (isTauriEnvironment()) {
+          clipText = await readText();
+        } else {
+          clipText = await navigator.clipboard.readText();
+        }
+
+        if (clipText) {
+          setValue((prev) => (prev ? prev + "\n\n" + clipText : clipText));
+          addToast({
+            message: "Pasted from clipboard",
+            type: "success",
+            ttl: 1500,
+          });
+        } else {
+          addToast({
+            message: "Clipboard is empty",
+            type: "info",
+            ttl: 1500,
+          });
+        }
+      },
+      "ChatInterface.handlePasteFromClipboard",
+      "Failed to paste from clipboard",
+    );
   };
 
   useEffect(() => {
@@ -190,7 +197,18 @@ export default function ChatInterface() {
             const toSend = value.trim();
             // Clear input immediately for snappier UX and to satisfy tests
             setValue("");
-            await sendMessage(toSend);
+
+            // Enhanced error handling for message sending
+            const result = await withErrorHandling(
+              () => sendMessage(toSend),
+              "ChatInterface.sendMessage",
+              "Failed to send message. Please try again.",
+            );
+
+            // If message failed, restore the input value
+            if (result === null) {
+              setValue(toSend);
+            }
           }}
         >
           <div className="flex gap-2">

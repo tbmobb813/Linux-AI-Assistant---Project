@@ -3,6 +3,7 @@ import { useSettingsStore } from "../lib/stores/settingsStore";
 import { invokeSafe } from "../lib/utils/tauri";
 import { useUiStore } from "../lib/stores/uiStore";
 import OllamaModelManager from "./OllamaModelManager";
+import { withErrorHandling } from "../lib/utils/errorHandler";
 
 type Props = {
   onClose?: () => void;
@@ -23,6 +24,7 @@ export default function Settings({ onClose }: Props) {
     preferLocal,
     setPreferLocal,
   } = useSettingsStore();
+  const { addToast } = useUiStore();
   const {
     autoCleanupEnabled,
     setAutoCleanupEnabled,
@@ -61,50 +63,94 @@ export default function Settings({ onClose }: Props) {
       return;
     }
     setSaving(true);
-    try {
-      await setGlobalShortcut(v);
-      setError(null);
-      onClose?.();
-    } catch (e) {
+
+    const result = await withErrorHandling(
+      async () => {
+        await setGlobalShortcut(v);
+        setError(null);
+        onClose?.();
+      },
+      "Settings.onSave",
+      "Failed to save settings. Please try again.",
+    );
+
+    if (result !== null) {
+      // Success - settings were saved
+      addToast({
+        message: "Settings saved successfully",
+        type: "success",
+        ttl: 2000,
+      });
+    } else {
+      // Error occurred - handled by withErrorHandling
       setError("Failed to save shortcut");
-    } finally {
-      setSaving(false);
     }
+
+    setSaving(false);
   };
 
   const handleExportConversations = async () => {
     setExportProgress("Exporting conversations...");
-    try {
-      const jsonData = await invokeSafe("export_conversations_json", {});
 
-      const filename = `ai_conversations_${new Date().toISOString().split("T")[0]}.json`;
-      const result = await invokeSafe("save_export_file", {
-        content: jsonData,
-        filename: filename,
-      });
+    const result = await withErrorHandling(
+      async () => {
+        const jsonData = await invokeSafe("export_conversations_json", {});
+        const filename = `ai_conversations_${new Date().toISOString().split("T")[0]}.json`;
+        const result = await invokeSafe("save_export_file", {
+          content: jsonData,
+          filename: filename,
+        });
 
-      setExportProgress(`Conversations exported to: ${result}`);
-      setTimeout(() => setExportProgress(null), 3000);
-    } catch (error) {
-      setExportProgress(`Export failed: ${error}`);
+        setExportProgress(`Conversations exported to: ${result}`);
+        setTimeout(() => setExportProgress(null), 3000);
+
+        addToast({
+          message: "Conversations exported successfully",
+          type: "success",
+          ttl: 3000,
+        });
+
+        return result;
+      },
+      "Settings.handleExportConversations",
+      "Failed to export conversations",
+    );
+
+    if (result === null) {
+      setExportProgress("Export failed");
       setTimeout(() => setExportProgress(null), 3000);
     }
   };
 
   const handleImportConversations = async () => {
     setImportProgress("Loading file...");
-    try {
-      const fileContent = await invokeSafe("load_import_file", {});
 
-      setImportProgress("Importing conversations...");
-      const result = await invokeSafe("import_conversations_json", {
-        json_content: fileContent,
-      });
+    const result = await withErrorHandling(
+      async () => {
+        const fileContent = await invokeSafe("load_import_file", {});
 
-      setImportProgress(String(result));
-      setTimeout(() => setImportProgress(null), 3000);
-    } catch (error) {
-      setImportProgress(`Import failed: ${error}`);
+        setImportProgress("Importing conversations...");
+        const result = await invokeSafe("import_conversations_json", {
+          json_content: fileContent,
+        });
+
+        setImportProgress(String(result));
+        setTimeout(() => setImportProgress(null), 3000);
+
+        addToast({
+          message: "Conversations imported successfully",
+          type: "success",
+          ttl: 3000,
+        });
+
+        return result;
+      },
+      "Settings.handleImportConversations",
+      "Failed to import conversations",
+    );
+
+    if (result === null) {
+      setImportProgress("Import failed");
       setTimeout(() => setImportProgress(null), 3000);
     }
   };

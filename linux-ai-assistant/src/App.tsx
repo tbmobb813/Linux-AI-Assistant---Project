@@ -3,6 +3,7 @@ import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
 
 // Lazy load heavy components to improve startup performance
 const RunOutputModal = lazy(() => import("./components/RunOutputModal"));
@@ -18,6 +19,7 @@ import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
+import { withErrorHandling } from "./lib/utils/errorHandler";
 
 export default function App() {
   const {
@@ -30,14 +32,16 @@ export default function App() {
   } = useSettingsStore();
 
   useEffect(() => {
-    // Load settings on startup and register the global shortcut
+    // Load settings on startup and register the global shortcut with error handling
     (async () => {
-      try {
-        await loadSettings();
-        await registerGlobalShortcut();
-      } catch (e) {
-        console.error("init settings/shortcut failed", e);
-      }
+      await withErrorHandling(
+        async () => {
+          await loadSettings();
+          await registerGlobalShortcut();
+        },
+        "App.initialization",
+        "Failed to initialize application settings",
+      );
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -232,71 +236,73 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
-      <ConversationList />
-      <main className="flex-1 flex flex-col relative">
-        {/* Small toggle button to demonstrate invoking the window toggle command */}
-        <button
-          onClick={async () => {
-            try {
-              await database.window.toggle();
-            } catch (e) {
-              console.error("failed to toggle window", e);
-            }
-          }}
-          className="absolute right-4 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-          title="Toggle window"
-        >
-          Toggle
-        </button>
-
-        {/* Settings button and panel */}
-        <button
-          onClick={() => setShowSettings((s) => !s)}
-          className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-          title="Settings"
-        >
-          Settings
-        </button>
-        {/* Project watcher badge */}
-        {projectRoot && (
-          <div className="absolute left-4 top-4 flex items-center gap-2 bg-gray-800/80 text-xs px-2 py-1 rounded border border-gray-700">
-            <span className="truncate max-w-[36ch]" title={projectRoot}>
-              Watching: {projectRoot}
-            </span>
-            <button
-              onClick={async () => {
-                try {
-                  await stopProjectWatch();
-                } catch {}
-              }}
-              className="ml-1 px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600"
-              title="Stop watching"
-            >
-              Stop
-            </button>
-          </div>
-        )}
-        {showSettings && (
-          <div className="absolute right-4 top-12 z-50">
-            <Suspense
-              fallback={
-                <div className="bg-gray-800 p-4 rounded">Loading...</div>
+    <AppErrorBoundary>
+      <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+        <ConversationList />
+        <main className="flex-1 flex flex-col relative">
+          {/* Small toggle button to demonstrate invoking the window toggle command */}
+          <button
+            onClick={async () => {
+              try {
+                await database.window.toggle();
+              } catch (e) {
+                console.error("failed to toggle window", e);
               }
-            >
-              <Settings onClose={() => setShowSettings(false)} />
-            </Suspense>
-          </div>
-        )}
+            }}
+            className="absolute right-4 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
+            title="Toggle window"
+          >
+            Toggle
+          </button>
 
-        <ChatInterface />
-      </main>
+          {/* Settings button and panel */}
+          <button
+            onClick={() => setShowSettings((s) => !s)}
+            className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
+            title="Settings"
+          >
+            Settings
+          </button>
+          {/* Project watcher badge */}
+          {projectRoot && (
+            <div className="absolute left-4 top-4 flex items-center gap-2 bg-gray-800/80 text-xs px-2 py-1 rounded border border-gray-700">
+              <span className="truncate max-w-[36ch]" title={projectRoot}>
+                Watching: {projectRoot}
+              </span>
+              <button
+                onClick={async () => {
+                  try {
+                    await stopProjectWatch();
+                  } catch {}
+                }}
+                className="ml-1 px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600"
+                title="Stop watching"
+              >
+                Stop
+              </button>
+            </div>
+          )}
+          {showSettings && (
+            <div className="absolute right-4 top-12 z-50">
+              <Suspense
+                fallback={
+                  <div className="bg-gray-800 p-4 rounded">Loading...</div>
+                }
+              >
+                <Settings onClose={() => setShowSettings(false)} />
+              </Suspense>
+            </div>
+          )}
+
+          <ChatInterface />
+        </main>
+      </div>
       <Toaster />
       <Suspense fallback={null}>
         <RunOutputModal />
         <ExecutionAuditModal />
         <CommandSuggestionsModal />
       </Suspense>
-    </div>
+    </AppErrorBoundary>
   );
 }

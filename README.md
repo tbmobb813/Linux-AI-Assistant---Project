@@ -396,41 +396,52 @@ Nice-to-haves (Phase 4):
 - Execution hardening: runner profiles, resource limits, and optional sandboxing.
 - Integration tests: end-to-end checks for IPC events and watcher signals.
 
-Phase 5: Local AI & Privacy (Weeks 13-15) ✅ **COMPLETED**
+Phase 5: Local AI & Privacy (Weeks 13-15)
 Goal: Privacy-respecting local processing options
 
 Milestones:
 
-[x] Ollama integration for local models ✅
-[x] Model download and management UI ✅
-[x] Hybrid routing (local vs cloud) ✅
-[x] Privacy indicators (local/cloud visual cues) ✅
-[x] Conversation export/import ✅
-[x] Data retention controls ✅
-
-**Enhanced Features Delivered:**
-
-- Individual conversation export (JSON/Markdown formats)
-- Smart hybrid routing with user preferences
-- Comprehensive data retention policies
-- Native file dialog integration
-- Settings persistence and validation
-
+[x] Ollama integration for local models
+[x] Model download and management UI
+[x] Hybrid routing (local vs cloud)
+[x] Privacy indicators (local/cloud visual cues)
+[x] Conversation export/import
+[x] Data retention controls
 Deliverable: Complete privacy control for users ✅
+
+Nice-to-haves (Phase 5):
+
+- Model statistics and performance comparison dashboard
+- Automatic model optimization and cleanup
+- Encrypted conversation storage for sensitive topics
+- Privacy audit logging (what data is sent where)
+- Scheduled data purging with customizable retention policies
+- Model benchmarking against cloud providers
+- Advanced search across conversations with privacy modes
 
 Phase 6: Polish & Distribution (Weeks 16-18)
 Goal: Production-ready application
 
 Milestones:
 
-[ ] Performance optimization and profiling
-[ ] Comprehensive error handling
-[ ] User documentation and help system
-[ ] Package for Snap, Flatpak, AppImage
+[x] Performance optimization and profiling ✅
+[x] Comprehensive error handling ✅
+[x] User documentation and help system ✅
+[x] Package for Snap, Flatpak, AppImage ✅
 [ ] Create DEB and RPM packages
 [ ] Set up automatic updates
 [ ] Beta testing with Linux community
 Deliverable: Distributable packages on multiple channels
+
+Nice-to-haves (Phase 6):
+
+- Advanced performance monitoring dashboard with metrics export
+- Multi-language support (i18n) for international users
+- Accessibility improvements (keyboard navigation, screen reader support)
+- Analytics opt-in system for usage insights
+- A/B testing framework for feature evaluation
+- Plugin system for third-party extensions
+- Dark mode theme with customizable color schemes
 
 Technical Specifications
 Database Schema

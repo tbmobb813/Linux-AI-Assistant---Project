@@ -9,19 +9,45 @@ import type {
   ApiMessage,
   Setting,
 } from "./types";
+import { handleDatabaseError } from "../utils/errorHandler";
 
-// Centralized invoke wrapper to normalize errors and provide a single place to
-// add timeouts, logging, or other cross-cutting behaviors for Tauri calls.
+// Enhanced invoke wrapper with better error handling and recovery
 async function callInvoke<T>(
   cmd: string,
   args?: Record<string, unknown>,
 ): Promise<T> {
+  const startTime = Date.now();
+
   try {
-    return await invoke<T>(cmd as any, args as any);
+    const result = await invoke<T>(cmd as any, args as any);
+
+    // Log slow queries in development
+    const duration = Date.now() - startTime;
+    if (
+      duration > 1000 &&
+      typeof window !== "undefined" &&
+      window.location.hostname === "localhost"
+    ) {
+      console.warn(`Slow database operation: ${cmd} took ${duration}ms`);
+    }
+
+    return result;
   } catch (e: any) {
-    // Normalize the error shape: tauri may return an object; prefer a string message.
+    // Enhanced error normalization and context
     const msg = e?.message || (typeof e === "string" ? e : JSON.stringify(e));
-    throw new Error(msg);
+    const error = new Error(`Database operation failed: ${cmd} - ${msg}`);
+
+    // Add context about the operation
+    (error as any).operation = cmd;
+    (error as any).args = args;
+    (error as any).duration = Date.now() - startTime;
+
+    // Handle critical database errors
+    if (msg.includes("database is locked") || msg.includes("disk I/O error")) {
+      handleDatabaseError(error, `Database.${cmd}`);
+    }
+
+    throw error;
   }
 }
 
