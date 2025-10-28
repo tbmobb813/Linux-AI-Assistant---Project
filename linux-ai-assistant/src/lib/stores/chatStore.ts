@@ -8,6 +8,8 @@ import type {
   ApiMessage as Message,
 } from "../api/types";
 import { getProvider } from "../providers/provider";
+import { notifySafe } from "../utils/tauri";
+import { useProjectStore } from "./projectStore";
 
 interface ChatState {
   // Current state
@@ -181,6 +183,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // include the just persisted user message as last
       messagesForProvider.push({ role: "user", content });
 
+      // project-aware context: prepend a brief summary of recent file changes if available
+      try {
+        const summary = useProjectStore
+          .getState()
+          .getRecentSummary(8, 2 * 60 * 1000);
+        if (summary) {
+          messagesForProvider.unshift({
+            role: "system",
+            content: `Recent project file changes (last 2 minutes):\n${summary}`,
+          });
+        }
+      } catch {}
+
       // Add an optimistic assistant message which we will stream into
       const optimisticAssistantId = `optimistic-assistant-${Date.now()}`;
       const optimisticAssistant = {
@@ -231,6 +246,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ),
           isLoading: false,
         }));
+
+        // Fire a desktop notification to inform the user the response is ready
+        try {
+          const title = get().currentConversation?.title || "Assistant";
+          const preview = finalContent?.slice(0, 100) || "Response ready";
+          await notifySafe(title, preview);
+        } catch {}
       } catch (err) {
         // mark assistant message as failed
         set((state) => ({
@@ -295,6 +317,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
         content: m.content,
       }));
       messagesForProvider.push({ role: "user", content: msg.content });
+      try {
+        const summary = useProjectStore
+          .getState()
+          .getRecentSummary(8, 2 * 60 * 1000);
+        if (summary) {
+          messagesForProvider.unshift({
+            role: "system",
+            content: `Recent project file changes (last 2 minutes):\n${summary}`,
+          });
+        }
+      } catch {}
 
       const optimisticAssistantId = `optimistic-assistant-${Date.now()}`;
       const optimisticAssistant = {
@@ -342,6 +375,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ),
           isLoading: false,
         }));
+
+        // Notify on successful retry completion
+        try {
+          const title = get().currentConversation?.title || "Assistant";
+          const preview = finalContent?.slice(0, 100) || "Response ready";
+          await notifySafe(title, preview);
+        } catch {}
       } catch (err) {
         set((state) => ({
           messages: state.messages.map((m) =>
