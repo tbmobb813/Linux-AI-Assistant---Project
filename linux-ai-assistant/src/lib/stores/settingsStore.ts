@@ -7,6 +7,7 @@ import { useUiStore } from "./uiStore";
 import {
   registerGlobalShortcutSafe,
   unregisterAllShortcutsSafe,
+  invokeSafe,
 } from "../utils/tauri";
 import { applyTheme } from "../utils/theme";
 
@@ -19,6 +20,13 @@ interface SettingsState {
   allowCodeExecution: boolean;
   projectRoot?: string | null;
   ollamaEndpoint: string; // Ollama server endpoint
+  enableHybridRouting: boolean; // Auto-fallback between local and cloud
+  preferLocal: boolean; // Prefer local models when available
+
+  // Data retention settings
+  autoCleanupEnabled: boolean; // Enable automatic cleanup
+  maxConversationAge: number; // Max age in days (0 = disabled)
+  maxConversationCount: number; // Max number of conversations (0 = unlimited)
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -32,6 +40,12 @@ interface SettingsState {
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
   setOllamaEndpoint: (endpoint: string) => Promise<void>;
+  setEnableHybridRouting: (enable: boolean) => Promise<void>;
+  setPreferLocal: (prefer: boolean) => Promise<void>;
+  setAutoCleanupEnabled: (enabled: boolean) => Promise<void>;
+  setMaxConversationAge: (days: number) => Promise<void>;
+  setMaxConversationCount: (count: number) => Promise<void>;
+  performManualCleanup: () => Promise<string>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -43,6 +57,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   allowCodeExecution: false,
   projectRoot: null,
   ollamaEndpoint: "http://localhost:11434",
+  enableHybridRouting: false,
+  preferLocal: true,
+  autoCleanupEnabled: false,
+  maxConversationAge: 90, // 90 days
+  maxConversationCount: 1000, // 1000 conversations
 
   loadSettings: async () => {
     try {
@@ -58,6 +77,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const projectRoot = (await db.settings.get("projectRoot")) || null;
       const ollamaEndpoint =
         (await db.settings.get("ollamaEndpoint")) || "http://localhost:11434";
+      const enableHybridRoutingRaw = await db.settings.get(
+        "enableHybridRouting",
+      );
+      const enableHybridRouting = enableHybridRoutingRaw === "true";
+      const preferLocalRaw = await db.settings.get("preferLocal");
+      const preferLocal = preferLocalRaw !== "false"; // Default to true
+      const autoCleanupEnabledRaw = await db.settings.get("autoCleanupEnabled");
+      const autoCleanupEnabled = autoCleanupEnabledRaw === "true";
+      const maxConversationAge = parseInt(
+        (await db.settings.get("maxConversationAge")) || "90",
+      );
+      const maxConversationCount = parseInt(
+        (await db.settings.get("maxConversationCount")) || "1000",
+      );
 
       set({
         theme: (theme as any) || "system",
@@ -68,6 +101,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         allowCodeExecution,
         projectRoot,
         ollamaEndpoint,
+        enableHybridRouting,
+        preferLocal,
+        autoCleanupEnabled,
+        maxConversationAge,
+        maxConversationCount,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -206,5 +244,51 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setOllamaEndpoint: async (endpoint: string) => {
     await db.settings.set("ollamaEndpoint", endpoint);
     set({ ollamaEndpoint: endpoint });
+  },
+
+  setEnableHybridRouting: async (enable: boolean) => {
+    await db.settings.set("enableHybridRouting", String(enable));
+    set({ enableHybridRouting: enable });
+  },
+
+  setPreferLocal: async (prefer: boolean) => {
+    await db.settings.set("preferLocal", String(prefer));
+    set({ preferLocal: prefer });
+  },
+
+  setAutoCleanupEnabled: async (enabled: boolean) => {
+    await db.settings.set("autoCleanupEnabled", String(enabled));
+    set({ autoCleanupEnabled: enabled });
+  },
+
+  setMaxConversationAge: async (days: number) => {
+    await db.settings.set("maxConversationAge", String(days));
+    set({ maxConversationAge: days });
+  },
+
+  setMaxConversationCount: async (count: number) => {
+    await db.settings.set("maxConversationCount", String(count));
+    set({ maxConversationCount: count });
+  },
+
+  performManualCleanup: async (): Promise<string> => {
+    try {
+      const result = await invokeSafe("cleanup_conversations", {});
+      const resultMsg = String(result);
+      useUiStore.getState().addToast({
+        message: resultMsg,
+        type: "success",
+        ttl: 3000,
+      });
+      return resultMsg;
+    } catch (e) {
+      const errorMsg = String(e);
+      useUiStore.getState().addToast({
+        message: `Cleanup failed: ${errorMsg}`,
+        type: "error",
+        ttl: 3000,
+      });
+      throw e;
+    }
   },
 }));

@@ -17,12 +17,30 @@ export default function Settings({ onClose }: Props) {
   const { defaultProvider, setDefaultProvider, defaultModel, setDefaultModel } =
     useSettingsStore();
   const { ollamaEndpoint, setOllamaEndpoint } = useSettingsStore();
+  const {
+    enableHybridRouting,
+    setEnableHybridRouting,
+    preferLocal,
+    setPreferLocal,
+  } = useSettingsStore();
+  const {
+    autoCleanupEnabled,
+    setAutoCleanupEnabled,
+    maxConversationAge,
+    setMaxConversationAge,
+    maxConversationCount,
+    setMaxConversationCount,
+    performManualCleanup,
+  } = useSettingsStore();
   const { showAudit } = useUiStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [projectPath, setProjectPath] = useState<string>(projectRoot || "");
   const [showOllamaManager, setShowOllamaManager] = useState(false);
+  const [exportProgress, setExportProgress] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState<string | null>(null);
+  const [cleanupProgress, setCleanupProgress] = useState<string | null>(null);
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -51,6 +69,55 @@ export default function Settings({ onClose }: Props) {
       setError("Failed to save shortcut");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleExportConversations = async () => {
+    setExportProgress("Exporting conversations...");
+    try {
+      const jsonData = await invokeSafe("export_conversations_json", {});
+
+      const filename = `ai_conversations_${new Date().toISOString().split("T")[0]}.json`;
+      const result = await invokeSafe("save_export_file", {
+        content: jsonData,
+        filename: filename,
+      });
+
+      setExportProgress(`Conversations exported to: ${result}`);
+      setTimeout(() => setExportProgress(null), 3000);
+    } catch (error) {
+      setExportProgress(`Export failed: ${error}`);
+      setTimeout(() => setExportProgress(null), 3000);
+    }
+  };
+
+  const handleImportConversations = async () => {
+    setImportProgress("Loading file...");
+    try {
+      const fileContent = await invokeSafe("load_import_file", {});
+
+      setImportProgress("Importing conversations...");
+      const result = await invokeSafe("import_conversations_json", {
+        json_content: fileContent,
+      });
+
+      setImportProgress(String(result));
+      setTimeout(() => setImportProgress(null), 3000);
+    } catch (error) {
+      setImportProgress(`Import failed: ${error}`);
+      setTimeout(() => setImportProgress(null), 3000);
+    }
+  };
+
+  const handleManualCleanup = async () => {
+    setCleanupProgress("Cleaning up conversations...");
+    try {
+      const result = await performManualCleanup();
+      setCleanupProgress(result);
+      setTimeout(() => setCleanupProgress(null), 3000);
+    } catch (error) {
+      setCleanupProgress(`Cleanup failed: ${error}`);
+      setTimeout(() => setCleanupProgress(null), 3000);
     }
   };
 
@@ -165,6 +232,44 @@ export default function Settings({ onClose }: Props) {
             </div>
           </>
         )}
+
+        {/* Hybrid Routing Settings */}
+        <div className="space-y-1 pt-2">
+          <label className="text-xs text-gray-700 dark:text-gray-300">
+            Smart Routing
+          </label>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-xs">
+              <input
+                type="checkbox"
+                checked={enableHybridRouting}
+                onChange={(e) => setEnableHybridRouting(e.target.checked)}
+                className="rounded"
+              />
+              Enable hybrid routing (auto-choose between local/cloud)
+            </label>
+
+            {enableHybridRouting && (
+              <label className="flex items-center gap-2 text-xs ml-4">
+                <input
+                  type="checkbox"
+                  checked={preferLocal}
+                  onChange={(e) => setPreferLocal(e.target.checked)}
+                  className="rounded"
+                />
+                Prefer local models when available
+              </label>
+            )}
+          </div>
+
+          {enableHybridRouting && (
+            <div className="text-[11px] text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+              💡 With hybrid routing enabled, the system will automatically
+              choose the best available provider based on your preferences and
+              model availability.
+            </div>
+          )}
+        </div>
 
         <div className="pt-1 flex flex-wrap gap-2">
           {[
@@ -284,6 +389,134 @@ export default function Settings({ onClose }: Props) {
             Currently watching: {projectRoot}
           </p>
         )}
+      </div>
+
+      {/* Data Management */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          Data Management
+        </h3>
+
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportConversations}
+              disabled={!!exportProgress}
+              className="flex-1 text-xs px-2 py-1 rounded bg-green-100 hover:bg-green-200 text-green-800 border border-green-300 disabled:opacity-60 dark:bg-green-900 dark:text-green-100 dark:border-green-700 dark:hover:bg-green-800"
+            >
+              {exportProgress ? "Exporting..." : "Export Conversations"}
+            </button>
+
+            <button
+              onClick={handleImportConversations}
+              disabled={!!importProgress}
+              className="flex-1 text-xs px-2 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-800 border border-blue-300 disabled:opacity-60 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-700 dark:hover:bg-blue-800"
+            >
+              {importProgress ? "Importing..." : "Import Conversations"}
+            </button>
+          </div>
+
+          {exportProgress && (
+            <p className="text-[11px] text-green-600 dark:text-green-400">
+              {exportProgress}
+            </p>
+          )}
+
+          {importProgress && (
+            <p className="text-[11px] text-blue-600 dark:text-blue-400">
+              {importProgress}
+            </p>
+          )}
+        </div>
+
+        <p className="text-[11px] text-gray-600 dark:text-gray-400">
+          Export conversations as JSON or import from a previous backup.
+          Individual conversations can be exported using the 📄 (JSON) or 📝
+          (Markdown) buttons. Imported conversations will preserve their
+          original timestamps and IDs.
+        </p>
+      </div>
+
+      {/* Data Retention Controls */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          Data Retention
+        </h3>
+
+        <div className="space-y-2">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={autoCleanupEnabled}
+              onChange={(e) => setAutoCleanupEnabled(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span className="text-xs text-gray-700 dark:text-gray-300">
+              Enable automatic cleanup
+            </span>
+          </label>
+
+          {autoCleanupEnabled && (
+            <div className="space-y-2 ml-5">
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600 dark:text-gray-400 w-24">
+                  Max Age (days):
+                </label>
+                <input
+                  type="number"
+                  value={maxConversationAge}
+                  onChange={(e) =>
+                    setMaxConversationAge(parseInt(e.target.value) || 0)
+                  }
+                  min="0"
+                  className="w-16 px-1 py-0.5 text-xs border border-gray-300 rounded dark:border-gray-600 dark:bg-gray-800"
+                />
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  (0 = disabled)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600 dark:text-gray-400 w-24">
+                  Max Count:
+                </label>
+                <input
+                  type="number"
+                  value={maxConversationCount}
+                  onChange={(e) =>
+                    setMaxConversationCount(parseInt(e.target.value) || 0)
+                  }
+                  min="0"
+                  className="w-16 px-1 py-0.5 text-xs border border-gray-300 rounded dark:border-gray-600 dark:bg-gray-800"
+                />
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  (0 = unlimited)
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleManualCleanup}
+              disabled={!!cleanupProgress}
+              className="flex-1 text-xs px-2 py-1 rounded bg-red-100 hover:bg-red-200 text-red-800 border border-red-300 disabled:opacity-60 dark:bg-red-900 dark:text-red-100 dark:border-red-700 dark:hover:bg-red-800"
+            >
+              {cleanupProgress ? "Cleaning..." : "Manual Cleanup (All)"}
+            </button>
+          </div>
+
+          {cleanupProgress && (
+            <p className="text-[11px] text-red-600 dark:text-red-400">
+              {cleanupProgress}
+            </p>
+          )}
+        </div>
+
+        <p className="text-[11px] text-gray-600 dark:text-gray-400">
+          Automatic cleanup removes old conversations based on age or count.
+          Manual cleanup will remove ALL conversations permanently.
+        </p>
       </div>
 
       <div className="flex justify-end gap-2 pt-1">

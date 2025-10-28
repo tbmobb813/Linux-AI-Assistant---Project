@@ -35,8 +35,8 @@
     "*.{js,jsx,ts,tsx,json,css,md}": [
       "prettier --write"
     ],
-    "*.rs": [
-      "cargo fmt --"
+    "linux-ai-assistant/src-tauri/**/*.rs": [
+      "sh -c 'cd linux-ai-assistant/src-tauri && cargo fmt'"
     ]
   }
 }

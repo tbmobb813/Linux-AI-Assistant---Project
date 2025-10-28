@@ -14,8 +14,8 @@ export type ListenFn = (
  */
 export async function getInvoke(): Promise<InvokeFn | undefined> {
   try {
-    // build the specifier at runtime to avoid static analysis
-    const mod = await import("@tauri-apps/api" + "/tauri");
+    // In Tauri v2, invoke is directly from @tauri-apps/api
+    const mod = await import("@tauri-apps/api");
     return mod.invoke as InvokeFn;
   } catch (e) {
     return undefined;
@@ -28,7 +28,8 @@ export async function getInvoke(): Promise<InvokeFn | undefined> {
  */
 export async function getListen(): Promise<ListenFn | undefined> {
   try {
-    const mod = await import("@tauri-apps/api" + "/event");
+    // In Tauri v2, event functions are from @tauri-apps/api/event
+    const mod = await import("@tauri-apps/api/event");
     return mod.listen as ListenFn;
   } catch (e) {
     return undefined;

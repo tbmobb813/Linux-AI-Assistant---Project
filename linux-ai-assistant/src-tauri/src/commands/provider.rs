@@ -299,7 +299,7 @@ pub fn provider_ollama_generate(
 #[tauri::command]
 pub fn provider_ollama_stream(
     app: tauri::AppHandle,
-    conversation_id: String,
+    _conversation_id: String,
     messages: Vec<ProviderMessage>,
     model: Option<String>,
 ) -> Result<String, String> {

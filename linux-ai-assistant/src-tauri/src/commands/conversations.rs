@@ -68,3 +68,22 @@ pub async fn search_conversations(
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
     Conversation::search(&conn, &query, limit).map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub async fn cleanup_conversations(db: State<'_, Database>) -> Result<String, String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+
+    // Get all conversations and count them
+    let all_conversations = Conversation::get_all(&conn, 10000) // Get up to 10k conversations for cleanup
+        .map_err(|e| e.to_string())?;
+
+    let mut deleted_count = 0;
+
+    // Mark all conversations as deleted (soft delete)
+    for conv in &all_conversations {
+        Conversation::delete(&conn, &conv.id).map_err(|e| e.to_string())?;
+        deleted_count += 1;
+    }
+
+    Ok(format!("Deleted {} conversations", deleted_count))
+}

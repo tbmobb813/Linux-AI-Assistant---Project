@@ -22,6 +22,17 @@ pub struct NewConversation {
     pub system_prompt: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewConversationWithId {
+    pub id: String,
+    pub title: String,
+    pub model: String,
+    pub provider: String,
+    pub system_prompt: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
 impl Conversation {
     pub fn create(conn: &Connection, new_conv: NewConversation) -> Result<Self> {
         let now = SystemTime::now()
@@ -40,6 +51,24 @@ impl Conversation {
             title: new_conv.title,
             created_at: now,
             updated_at: now,
+            model: new_conv.model,
+            provider: new_conv.provider,
+            system_prompt: new_conv.system_prompt,
+        })
+    }
+
+    pub fn create_with_id(conn: &Connection, new_conv: NewConversationWithId) -> Result<Self> {
+        conn.execute(
+            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![&new_conv.id, &new_conv.title, new_conv.created_at, new_conv.updated_at, &new_conv.model, &new_conv.provider, &new_conv.system_prompt],
+        )?;
+
+        Ok(Conversation {
+            id: new_conv.id,
+            title: new_conv.title,
+            created_at: new_conv.created_at,
+            updated_at: new_conv.updated_at,
             model: new_conv.model,
             provider: new_conv.provider,
             system_prompt: new_conv.system_prompt,

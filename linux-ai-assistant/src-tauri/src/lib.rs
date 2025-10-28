@@ -13,6 +13,7 @@ pub fn run() {
         // Plugins (register those that don't need extra setup here)
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_dialog::init())
         // Optional: attach a log plugin during debug for easier troubleshooting
         .setup(|app| {
             if cfg!(debug_assertions) {
@@ -190,6 +191,7 @@ pub fn run() {
             commands::conversations::delete_conversation,
             commands::conversations::restore_conversation,
             commands::conversations::search_conversations,
+            commands::conversations::cleanup_conversations,
             // messages
             commands::messages::create_message,
             commands::messages::get_conversation_messages,
@@ -218,6 +220,14 @@ pub fn run() {
             commands::provider::ollama_check_connection,
             commands::provider::set_api_key,
             commands::provider::get_api_key,
+            // export/import
+            commands::export::export_conversations_json,
+            commands::export::export_conversation_markdown,
+            commands::export::save_export_file,
+            commands::export::import_conversations_json,
+            commands::export::load_import_file,
+            commands::export::export_single_conversation_json,
+            commands::export::save_single_conversation_export,
             // git
             commands::git::get_git_context,
             // run code snippets
