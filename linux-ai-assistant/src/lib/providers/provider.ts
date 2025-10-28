@@ -4,6 +4,7 @@ import { mockProvider } from "./mockProvider";
 import {
   getInvoke as getTauriInvoke,
   getListen as getTauriListen,
+  hasTauri,
 } from "../tauri-shim";
 import { useSettingsStore } from "../stores/settingsStore";
 
@@ -29,11 +30,12 @@ export function getProvider(): Provider {
       try {
         const invokeFn = await getTauriInvoke();
         const listenFn = await getTauriListen();
+        const isRuntimeTauri = hasTauri();
         const { defaultProvider, defaultModel } = useSettingsStore.getState();
         const provider = defaultProvider || "openai";
         const model = defaultModel || null;
 
-        if (!invokeFn) {
+        if (!isRuntimeTauri || !invokeFn) {
           // Non-tauri environment fallback
           return mockProvider.generateResponse(
             conversationId,
@@ -43,7 +45,9 @@ export function getProvider(): Provider {
         }
 
         const listenAvailable =
-          listenFn !== undefined && typeof listenFn === "function";
+          isRuntimeTauri &&
+          listenFn !== undefined &&
+          typeof listenFn === "function";
 
         if (provider === "openai") {
           if (onChunk && listenAvailable) {

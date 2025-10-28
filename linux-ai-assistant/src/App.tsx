@@ -12,7 +12,7 @@ import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 
-export default function App(): JSX.Element {
+export default function App() {
   const {
     loadSettings,
     registerGlobalShortcut,

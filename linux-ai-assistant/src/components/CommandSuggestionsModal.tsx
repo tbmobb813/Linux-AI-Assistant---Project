@@ -1,12 +1,11 @@
 import { useUiStore } from "../lib/stores/uiStore";
 import { invokeSafe } from "../lib/utils/tauri";
 
-export default function CommandSuggestionsModal(): JSX.Element | null {
-  const suggestionsModal = useUiStore((s: any) => s.suggestionsModal);
-  const closeSuggestions = useUiStore((s: any) => s.closeSuggestions);
-  const addToast = useUiStore((s: any) => s.addToast);
-  const showRunResult = useUiStore((s: any) => s.showRunResult);
-
+export default function CommandSuggestionsModal() {
+  const suggestionsModal = useUiStore((s) => s.suggestionsModal);
+  const closeSuggestions = useUiStore((s) => s.closeSuggestions);
+  const addToast = useUiStore((s) => s.addToast);
+  const showRunResult = useUiStore((s) => s.showRunResult);
   if (!suggestionsModal.open) return null;
   const items: string[] = suggestionsModal.items || [];
 
