@@ -20,10 +20,8 @@
     "@tauri-apps/plugin-clipboard-manager": "2.3.0",
     "@tauri-apps/plugin-global-shortcut": "2.3.0",
     "@tauri-apps/plugin-notification": "2.3.1",
-    "// katex was downgraded from ^0.16.25 to ^0.16.11 for compatibility reasons. Please see PR description or contact maintainers before upgrading.",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.11",
-    // Downgraded from ^0.548.0 to ^0.263.1 due to React 18 compatibility issues. See PR description for details.
     "lucide-react": "^0.263.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
