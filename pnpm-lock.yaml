@@ -58,18 +58,21 @@ importers:
       "@tauri-apps/plugin-notification":
         specifier: 2.3.1
         version: 2.3.1
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.25
       lucide-react:
         specifier: ^0.263.1
-        version: 0.263.1(react@18.3.1)
+        version: 0.263.1(react@19.2.0)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.0
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.0(react@19.2.0)
       react-markdown:
-        specifier: ^9.0.1
-        version: 9.1.0(@types/react@18.3.26)(react@18.3.1)
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@18.3.26)(react@19.2.0)
       rehype-highlight:
         specifier: ^7.0.0
         version: 7.0.2
@@ -83,8 +86,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       zustand:
-        specifier: ^4.5.2
-        version: 4.5.7(@types/react@18.3.26)(react@18.3.1)
+        specifier: ^5.0.8
+        version: 5.0.8(@types/react@18.3.26)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       "@playwright/test":
         specifier: ^1.56.1
@@ -100,7 +103,7 @@ importers:
         version: 6.9.1
       "@testing-library/react":
         specifier: ^14.0.0
-        version: 14.3.1(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 14.3.1(@types/react@18.3.26)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       "@types/node":
         specifier: ^22.10.0
         version: 22.18.12
@@ -114,7 +117,7 @@ importers:
         specifier: ^4.3.1
         version: 4.7.0(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1))
       "@vitest/coverage-v8":
-        specifier: ^4.0.3
+        specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.1))
       autoprefixer:
         specifier: ^10.4.19
@@ -2725,13 +2728,6 @@ packages:
         integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==,
       }
 
-  loose-envify@1.4.0:
-    resolution:
-      {
-        integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==,
-      }
-    hasBin: true
-
   lowlight@3.3.0:
     resolution:
       {
@@ -3435,13 +3431,13 @@ packages:
         integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==,
       }
 
-  react-dom@18.3.1:
+  react-dom@19.2.0:
     resolution:
       {
-        integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==,
+        integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==,
       }
     peerDependencies:
-      react: ^18.3.1
+      react: ^19.2.0
 
   react-is@17.0.2:
     resolution:
@@ -3449,10 +3445,10 @@ packages:
         integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==,
       }
 
-  react-markdown@9.1.0:
+  react-markdown@10.1.0:
     resolution:
       {
-        integrity: sha512-xaijuJB0kzGiUdG7nc2MOMDUDBWPyGAjZtUrow9XxUeua8IqeP+VlIfAZ3bphpcLTnSZXz6z9jcVC/TCwbfgdw==,
+        integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==,
       }
     peerDependencies:
       "@types/react": ">=18"
@@ -3465,10 +3461,10 @@ packages:
       }
     engines: { node: ">=0.10.0" }
 
-  react@18.3.1:
+  react@19.2.0:
     resolution:
       {
-        integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==,
+        integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==,
       }
     engines: { node: ">=0.10.0" }
 
@@ -3616,10 +3612,10 @@ packages:
       }
     engines: { node: ">=v12.22.7" }
 
-  scheduler@0.23.2:
+  scheduler@0.27.0:
     resolution:
       {
-        integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==,
+        integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==,
       }
 
   semver@6.3.1:
@@ -4283,22 +4279,25 @@ packages:
     engines: { node: ">= 14.6" }
     hasBin: true
 
-  zustand@4.5.7:
+  zustand@5.0.8:
     resolution:
       {
-        integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==,
+        integrity: sha512-gyPKpIaxY9XcO2vSMrLbiER7QMAMGOQZVRdJ6Zi782jkbzZygq5GI9nG8g+sMgitRtndwaBSl7uiqC49o1SSiw==,
       }
-    engines: { node: ">=12.7.0" }
+    engines: { node: ">=12.20.0" }
     peerDependencies:
-      "@types/react": ">=16.8"
+      "@types/react": ">=18.0.0"
       immer: ">=9.0.6"
-      react: ">=16.8"
+      react: ">=18.0.0"
+      use-sync-external-store: ">=1.2.0"
     peerDependenciesMeta:
       "@types/react":
         optional: true
       immer:
         optional: true
       react:
+        optional: true
+      use-sync-external-store:
         optional: true
 
   zwitch@2.0.4:
@@ -4811,13 +4810,13 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  "@testing-library/react@14.3.1(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)":
+  "@testing-library/react@14.3.1(@types/react@18.3.26)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)":
     dependencies:
       "@babel/runtime": 7.28.4
       "@testing-library/dom": 9.3.4
       "@types/react-dom": 18.3.7(@types/react@18.3.26)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
     transitivePeerDependencies:
       - "@types/react"
 
@@ -5801,10 +5800,6 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
-  loose-envify@1.4.0:
-    dependencies:
-      js-tokens: 4.0.0
-
   lowlight@3.3.0:
     dependencies:
       "@types/hast": 3.0.4
@@ -5819,9 +5814,9 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@0.263.1(react@18.3.1):
+  lucide-react@0.263.1(react@19.2.0):
     dependencies:
-      react: 18.3.1
+      react: 19.2.0
 
   lz-string@1.5.0: {}
 
@@ -6377,15 +6372,14 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-dom@18.3.1(react@18.3.1):
+  react-dom@19.2.0(react@19.2.0):
     dependencies:
-      loose-envify: 1.4.0
-      react: 18.3.1
-      scheduler: 0.23.2
+      react: 19.2.0
+      scheduler: 0.27.0
 
   react-is@17.0.2: {}
 
-  react-markdown@9.1.0(@types/react@18.3.26)(react@18.3.1):
+  react-markdown@10.1.0(@types/react@18.3.26)(react@19.2.0):
     dependencies:
       "@types/hast": 3.0.4
       "@types/mdast": 4.0.4
@@ -6394,7 +6388,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.0
-      react: 18.3.1
+      react: 19.2.0
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -6405,9 +6399,7 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react@18.3.1:
-    dependencies:
-      loose-envify: 1.4.0
+  react@19.2.0: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -6555,9 +6547,7 @@ snapshots:
     dependencies:
       xmlchars: 2.2.0
 
-  scheduler@0.23.2:
-    dependencies:
-      loose-envify: 1.4.0
+  scheduler@0.27.0: {}
 
   semver@6.3.1: {}
 
@@ -6831,9 +6821,10 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  use-sync-external-store@1.6.0(react@18.3.1):
+  use-sync-external-store@1.6.0(react@19.2.0):
     dependencies:
-      react: 18.3.1
+      react: 19.2.0
+    optional: true
 
   util-deprecate@1.0.2: {}
 
@@ -7003,11 +6994,10 @@ snapshots:
 
   yaml@2.8.1: {}
 
-  zustand@4.5.7(@types/react@18.3.26)(react@18.3.1):
-    dependencies:
-      use-sync-external-store: 1.6.0(react@18.3.1)
+  zustand@5.0.8(@types/react@18.3.26)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0)):
     optionalDependencies:
       "@types/react": 18.3.26
-      react: 18.3.1
+      react: 19.2.0
+      use-sync-external-store: 1.6.0(react@19.2.0)
 
   zwitch@2.0.4: {}
