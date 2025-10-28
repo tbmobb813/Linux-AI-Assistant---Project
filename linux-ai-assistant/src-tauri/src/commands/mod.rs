@@ -11,6 +11,7 @@ pub mod project;
 pub mod provider;
 pub mod run;
 pub mod settings;
+pub mod updater;
 pub mod window;
 
 // src-tauri/Cargo.toml (Updated dependencies)

@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState, Suspense } from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
-import RunOutputModal from "./components/RunOutputModal";
-import ExecutionAuditModal from "./components/ExecutionAuditModal";
-import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
+
+// Lazy load heavy components to improve startup performance
+const RunOutputModal = lazy(() => import("./components/RunOutputModal"));
+const ExecutionAuditModal = lazy(
+  () => import("./components/ExecutionAuditModal"),
+);
+const CommandSuggestionsModal = lazy(
+  () => import("./components/CommandSuggestionsModal"),
+);
+const Settings = lazy(() => import("./components/Settings"));
+const UpdateManager = lazy(() => import("./components/UpdateManager"));
+
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
-import Settings from "./components/Settings";
-import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { withErrorHandling } from "./lib/utils/errorHandler";
 
 export default function App(): JSX.Element {
@@ -259,9 +267,12 @@ export default function App(): JSX.Element {
         </main>
       </div>
       <Toaster />
-      <RunOutputModal />
-      <ExecutionAuditModal />
-      <CommandSuggestionsModal />
+      <Suspense fallback={null}>
+        <RunOutputModal />
+        <ExecutionAuditModal />
+        <CommandSuggestionsModal />
+        <UpdateManager />
+      </Suspense>
     </AppErrorBoundary>
   );
 }

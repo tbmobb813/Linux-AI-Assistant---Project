@@ -248,6 +248,10 @@ pub fn run() {
             // project watcher
             commands::project::set_project_root,
             commands::project::stop_project_watch,
+            // updater
+            commands::updater::check_for_updates,
+            commands::updater::download_and_install_update,
+            commands::updater::get_current_version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
