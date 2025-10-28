@@ -38,3 +38,11 @@ chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Performance and size optimizations
+[profile.release]
+opt-level = "s"        # Optimize for size
+lto = true            # Enable link-time optimization
+codegen-units = 1     # Better optimization, slower compile
+panic = "abort"       # Smaller binary size
+strip = true          # Remove debug symbols

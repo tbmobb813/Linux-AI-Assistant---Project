@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
-import RunOutputModal from "./components/RunOutputModal";
-import ExecutionAuditModal from "./components/ExecutionAuditModal";
-import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
+
+// Lazy load heavy components to improve startup performance
+const RunOutputModal = lazy(() => import("./components/RunOutputModal"));
+const ExecutionAuditModal = lazy(
+  () => import("./components/ExecutionAuditModal"),
+);
+const CommandSuggestionsModal = lazy(
+  () => import("./components/CommandSuggestionsModal"),
+);
+const Settings = lazy(() => import("./components/Settings"));
+
 import { useSettingsStore } from "./lib/stores/settingsStore";
-import Settings from "./components/Settings";
 import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
@@ -272,16 +279,24 @@ export default function App() {
         )}
         {showSettings && (
           <div className="absolute right-4 top-12 z-50">
-            <Settings onClose={() => setShowSettings(false)} />
+            <Suspense
+              fallback={
+                <div className="bg-gray-800 p-4 rounded">Loading...</div>
+              }
+            >
+              <Settings onClose={() => setShowSettings(false)} />
+            </Suspense>
           </div>
         )}
 
         <ChatInterface />
       </main>
       <Toaster />
-      <RunOutputModal />
-      <ExecutionAuditModal />
-      <CommandSuggestionsModal />
+      <Suspense fallback={null}>
+        <RunOutputModal />
+        <ExecutionAuditModal />
+        <CommandSuggestionsModal />
+      </Suspense>
     </div>
   );
 }
