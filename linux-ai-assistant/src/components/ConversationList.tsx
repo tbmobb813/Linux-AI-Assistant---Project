@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import ConversationItem from "./ConversationItem";
 
-export default function ConversationList(): JSX.Element {
+export default function ConversationList() {
   const {
     conversations,
     currentConversation,
@@ -18,11 +18,11 @@ export default function ConversationList(): JSX.Element {
   }, []);
 
   return (
-    <aside className="w-72 bg-gray-900 border-r border-gray-800 p-3 flex flex-col">
+    <aside className="w-72 p-3 flex flex-col bg-gray-100 border-r border-gray-300 text-gray-900 dark:bg-gray-900 dark:border-gray-800 dark:text-white">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Conversations</h2>
         <button
-          className="text-sm px-2 py-1 bg-blue-600 rounded-md hover:bg-blue-700"
+          className="text-sm px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-700"
           onClick={async () => {
             await createConversation("New conversation", "gpt-4", "local");
           }}
@@ -37,14 +37,14 @@ export default function ConversationList(): JSX.Element {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="px-3 py-2 rounded-md bg-gray-800 animate-pulse h-12"
+                className="px-3 py-2 rounded-md h-12 animate-pulse bg-gray-200 dark:bg-gray-800"
               />
             ))}
           </div>
         )}
 
         {!isLoading && conversations.length === 0 && (
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             No conversations yet — create one.
           </div>
         )}
