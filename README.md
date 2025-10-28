@@ -428,8 +428,9 @@ Milestones:
 [x] Package for Snap, Flatpak, AppImage ✅
 [x] Create DEB and RPM packages ✅
 [x] Set up automatic updates ✅
+[x] APT PPA and Copr repositories ✅
 [ ] Beta testing with Linux community
-Deliverable: Distributable packages on multiple channels with automatic updates
+Deliverable: Distributable packages on multiple channels with automatic updates and system package manager integration
 
 Nice-to-haves (Phase 6):
 
@@ -479,7 +480,7 @@ content_rowid=rowid
 API Provider Interface
 Configuration File Format
 
-# ~/.config/linux-ai-assistant/config.toml
+## ~/.config/linux-ai-assistant/config.toml
 
 [general]
 theme = "system" # system, dark, light

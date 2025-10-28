@@ -99,7 +99,7 @@ That's it! You're ready to use the Linux AI Assistant.
 
 ## 📖 Common Tasks
 
-### I want to...
+### I want to
 
 **Use AI for coding help**
 
@@ -313,4 +313,4 @@ Linux AI Assistant is licensed under [LICENSE FILE]. See repository for details.
 **Documentation Version**: 1.0
 
 For the latest documentation, visit:
-https://github.com/tbmobb813/Linux-AI-Assistant
+<https://github.com/tbmobb813/Linux-AI-Assistant>
