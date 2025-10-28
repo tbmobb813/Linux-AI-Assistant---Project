@@ -2863,10 +2863,6 @@ snapshots:
       '@tauri-apps/cli-win32-ia32-msvc': 2.9.1
       '@tauri-apps/cli-win32-x64-msvc': 2.9.1
 
-  '@tauri-apps/plugin-clipboard-manager@2.3.2':
-    dependencies:
-      '@tauri-apps/api': 2.9.0
-
   "@tauri-apps/plugin-clipboard-manager@2.3.2":
     dependencies:
       "@tauri-apps/api": 2.9.0
@@ -3484,8 +3480,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  husky@9.1.7: {}
 
   husky@9.1.7: {}
 
