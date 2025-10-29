@@ -17,7 +17,12 @@ interface SettingsState {
   defaultModel: string;
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
+<<<<<<< HEAD
   projectRoot?: string | null;
+=======
+  // Compatibility flag used by some components; not managed in phase-2
+  allowCodeExecution: boolean;
+>>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -37,7 +42,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   defaultModel: "gpt-4",
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
+<<<<<<< HEAD
   projectRoot: null,
+=======
+  allowCodeExecution: false,
+>>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
 
   loadSettings: async () => {
     try {
@@ -55,7 +64,12 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
+<<<<<<< HEAD
         projectRoot,
+=======
+        // keep default false to maintain compatibility for non-phase-2 features
+        allowCodeExecution: false,
+>>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
       });
 
       try {
@@ -83,9 +97,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ theme });
     try {
       applyTheme(theme);
+<<<<<<< HEAD
     } catch (e) {
       // ignore
     }
+=======
+    } catch {}
+>>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
   },
 
   setDefaultProvider: async (provider) => {

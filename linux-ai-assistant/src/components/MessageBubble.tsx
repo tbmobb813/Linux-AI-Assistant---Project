@@ -1,8 +1,7 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import type { ApiMessage } from "../lib/api/types";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { isTauriEnvironment } from "../lib/utils/tauri";
+import { writeClipboardText } from "../lib/clipboard";
 import MarkdownContent from "./MarkdownContent";
 
 function formatTime(ts?: number) {
@@ -26,12 +25,7 @@ export default function MessageBubble({ message }: Props) {
 
   const handleCopy = async () => {
     try {
-      if (isTauriEnvironment()) {
-        await writeText(message.content);
-      } else {
-        // Fallback for web preview
-        await navigator.clipboard.writeText(message.content);
-      }
+      await writeClipboardText(message.content);
       addToast({ message: "Copied to clipboard", type: "success", ttl: 1500 });
     } catch (e) {
       console.error("Failed to copy:", e);
