@@ -16,7 +16,7 @@ function isValidTheme(value: string | null): value is ThemePref {
 }
 
 interface SettingsState {
-  theme: "light" | "dark" | "system";
+  theme: ThemePref;
   defaultProvider: string;
   defaultModel: string;
   apiKeys: Record<string, string>;
@@ -26,7 +26,7 @@ interface SettingsState {
 
   // Actions
   loadSettings: () => Promise<void>;
-  setTheme: (theme: "light" | "dark" | "system") => Promise<void>;
+  setTheme: (theme: ThemePref) => Promise<void>;
   setDefaultProvider: (provider: string) => Promise<void>;
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
