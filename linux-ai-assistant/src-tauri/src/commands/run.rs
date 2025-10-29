@@ -51,20 +51,40 @@ pub async fn run_code(
 
     let path = tmp.path().to_owned();
 
-    // Build command
+    // Build command, wrapped in bubblewrap for sandboxing (Linux only)
+    #[cfg(target_os = "linux")]
+    fn sandboxed_command(interpreter: &str, script_path: &PathBuf) -> Command {
+        let mut c = Command::new("bwrap");
+        // Minimal sandbox: restrict filesystem, no network, unshare namespaces
+        c.arg("--unshare-all")
+            .arg("--die-with-parent")
+            .arg("--ro-bind").arg("/usr").arg("/usr")
+            .arg("--ro-bind").arg("/bin").arg("/bin")
+            .arg("--ro-bind").arg("/lib").arg("/lib")
+            .arg("--ro-bind").arg("/lib64").arg("/lib64")
+            .arg("--dev").arg("/dev")
+            .arg("--proc").arg("/proc")
+            .arg("--tmpfs").arg("/tmp")
+            .arg("--chdir").arg("/tmp")
+            .arg("--")
+            .arg(interpreter)
+            .arg(script_path);
+        c
+    }
+    #[cfg(not(target_os = "linux"))]
+    fn sandboxed_command(interpreter: &str, script_path: &PathBuf) -> Command {
+        let mut c = Command::new(interpreter);
+        c.arg(script_path);
+        c
+    }
+
     let mut cmd = if lang == "python" {
-        let mut c = Command::new("python3");
-        c.arg(path.clone());
-        c
+        sandboxed_command("python3", &path)
     } else if lang == "node" || lang == "javascript" {
-        let mut c = Command::new("node");
-        c.arg(path.clone());
-        c
+        sandboxed_command("node", &path)
     } else {
         // shell
-        let mut c = Command::new("sh");
-        c.arg(path.clone());
-        c
+        sandboxed_command("sh", &path)
     };
 
     if let Some(ref dir) = cwd {
