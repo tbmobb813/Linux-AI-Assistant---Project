@@ -10,8 +10,22 @@ type Props = {
 // Full settings panel used in-app. Tests only exercise the global shortcut
 // portion — keep the UI complete so runtime and E2E behavior are preserved.
 export default function Settings({ onClose }: Props): JSX.Element {
-  const { globalShortcut, setGlobalShortcut, theme, setTheme } =
-    useSettingsStore();
+  const {
+    globalShortcut,
+    setGlobalShortcut,
+    theme,
+    setTheme,
+    defaultProvider,
+    setDefaultProvider,
+    defaultModel,
+    setDefaultModel,
+    projectRoot,
+    setProjectRoot,
+    stopProjectWatch,
+    allowCodeExecution,
+    setAllowCodeExecution,
+  } = useSettingsStore();
+  const { showAudit } = useUiStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
