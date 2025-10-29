@@ -3,14 +3,20 @@ import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
+import RunOutputModal from "./components/RunOutputModal";
+import ExecutionAuditModal from "./components/ExecutionAuditModal";
+import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import Settings from "./components/Settings";
+import { useChatStore } from "./lib/stores/chatStore";
+import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
+import { useUiStore } from "./lib/stores/uiStore";
 
 export default function App(): JSX.Element {
-  const { loadSettings, registerGlobalShortcut } = useSettingsStore();
+  const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
+    useSettingsStore();
 
   useEffect(() => {
-    // Load settings on startup and register the global shortcut
     (async () => {
       try {
         await loadSettings();
@@ -22,7 +28,92 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        await registerGlobalShortcut(globalShortcut);
+      } catch (e) {
+        console.error("rebind shortcut failed", e);
+      }
+    })();
+  }, [globalShortcut, registerGlobalShortcut]);
+
   const [showSettings, setShowSettings] = useState(false);
+  // Wire tray menu events: open settings and new conversation
+  useEffect(() => {
+    let unlistenSettings: (() => void) | undefined;
+    let unlistenNew: (() => void) | undefined;
+    (async () => {
+      try {
+        const mod = await import("@tauri-apps/api/event");
+        // open settings
+        unlistenSettings = await mod.listen("tray://open-settings", () => {
+          setShowSettings(true);
+        });
+        // new conversation
+        const createConversation = useChatStore.getState().createConversation;
+        unlistenNew = await mod.listen("tray://new-conversation", async () => {
+          try {
+            await createConversation("New conversation", "gpt-4", "local");
+          } catch (e) {
+            console.error("failed to create conversation from tray", e);
+          }
+        });
+      } catch (e) {
+        // running in web preview or tests where tauri event API isn't available
+      }
+    })();
+    return () => {
+      try {
+        unlistenSettings && unlistenSettings();
+        unlistenNew && unlistenNew();
+      } catch {}
+    };
+  }, []);
+  // Watch system theme if preference is 'system'
+  useEffect(() => {
+    if (theme !== "system") return;
+    const addToast = useUiStore.getState().addToast;
+    let mounted = false;
+    // Ensure we apply immediately in case system changed while app was closed
+    try {
+      applyTheme("system");
+    } catch {}
+    const unwatch = watchSystemTheme(() => {
+      applyTheme("system");
+      // Avoid toasting on initial mount
+      if (mounted) {
+        addToast({
+          message: "Theme updated from system",
+          type: "info",
+          ttl: 1500,
+        });
+      }
+      // mounted is set after initial microtask, not here
+    });
+    // Mark mounted after initial microtask
+    Promise.resolve().then(() => {
+      mounted = true;
+    });
+    return () => {
+      try {
+        unwatch && unwatch();
+      } catch {}
+    };
+  }, [theme]);
+
+  // Keyboard shortcut: Ctrl+, toggles Settings panel
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === ",") {
+        e.preventDefault();
+        setShowSettings((s) => !s);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-900 text-white">
       <ConversationList />
@@ -50,6 +141,25 @@ export default function App(): JSX.Element {
         >
           Settings
         </button>
+        {/* Project watcher badge */}
+        {projectRoot && (
+          <div className="absolute left-4 top-4 flex items-center gap-2 bg-gray-800/80 text-xs px-2 py-1 rounded border border-gray-700">
+            <span className="truncate max-w-[36ch]" title={projectRoot}>
+              Watching: {projectRoot}
+            </span>
+            <button
+              onClick={async () => {
+                try {
+                  await stopProjectWatch();
+                } catch {}
+              }}
+              className="ml-1 px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600"
+              title="Stop watching"
+            >
+              Stop
+            </button>
+          </div>
+        )}
         {showSettings && (
           <div className="absolute right-4 top-12 z-50">
             <Settings onClose={() => setShowSettings(false)} />
@@ -59,6 +169,9 @@ export default function App(): JSX.Element {
         <ChatInterface />
       </main>
       <Toaster />
+      <RunOutputModal />
+      <ExecutionAuditModal />
+      <CommandSuggestionsModal />
     </div>
   );
 }

@@ -56,7 +56,7 @@ describe("Settings (global shortcut)", () => {
       fireEvent.change(input, { target: { value: "Ctrl+Shift+K" } });
     });
 
-    const save = screen.getByRole("button", { name: /save/i });
+    const save = screen.getByRole("button", { name: /^save$/i });
     act(() => {
       fireEvent.click(save);
     });
