@@ -93,3 +93,4 @@ repo-origin-backup*/
 
 # VS Code workspace files (optional - uncomment if you want to ignore)
 # *.code-workspace
+package-lock.json

@@ -8,7 +8,12 @@ import {
   registerGlobalShortcutSafe,
   unregisterAllShortcutsSafe,
 } from "../utils/tauri";
-import { applyTheme } from "../utils/theme";
+import { applyTheme, type ThemePref } from "../utils/theme";
+
+// Type guard to validate theme preference from database
+function isValidTheme(value: string | null): value is ThemePref {
+  return value === "light" || value === "dark" || value === "system";
+}
 
 interface SettingsState {
   theme: "light" | "dark" | "system";
@@ -54,8 +59,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const allowCodeExecution = allowRaw === "true";
       const projectRoot = (await db.settings.get("projectRoot")) || null;
 
+      const validTheme = isValidTheme(theme) ? theme : "system";
+
       set({
-        theme: (theme as any) || "system",
+        theme: validTheme,
         defaultProvider: defaultProvider || "openai",
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
@@ -64,7 +71,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         projectRoot,
       });
       try {
-        applyTheme(((theme as any) || "system") as any);
+        applyTheme(validTheme);
       } catch {}
       // If a project root is set, attempt to start the watcher on launch (best-effort)
       if (projectRoot) {
