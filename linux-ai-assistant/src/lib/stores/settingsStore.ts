@@ -18,6 +18,7 @@ interface SettingsState {
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
   projectRoot?: string | null;
+  allowCodeExecution: boolean;
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -29,6 +30,7 @@ interface SettingsState {
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
+  setAllowCodeExecution: (allow: boolean) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -38,6 +40,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
   projectRoot: null,
+  allowCodeExecution: false,
 
   loadSettings: async () => {
     try {
@@ -49,6 +52,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
       const projectRoot = (await db.settings.get("projectRoot")) || null;
+      const allowCodeExecution =
+        (await db.settings.get("allowCodeExecution")) === "true";
 
       set({
         theme: (theme as any) || "system",
@@ -57,6 +62,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         apiKeys: apiKeys || {},
         globalShortcut,
         projectRoot,
+        allowCodeExecution,
       });
 
       try {
@@ -178,5 +184,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       type: "info",
       ttl: 1400,
     });
+  },
+
+  setAllowCodeExecution: async (allow) => {
+    await db.settings.set("allowCodeExecution", allow ? "true" : "false");
+    set({ allowCodeExecution: allow });
   },
 }));

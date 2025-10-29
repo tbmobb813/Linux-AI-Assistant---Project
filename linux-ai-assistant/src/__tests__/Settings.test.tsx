@@ -30,9 +30,14 @@ describe("Settings (global shortcut)", () => {
     act(() => {
       fireEvent.change(input, { target: { value: "JustAKey" } });
     });
-    const save = screen.getByRole("button", { name: /save/i });
+    // Find the main save button (the blue one at the bottom)
+    const buttons = screen.getAllByRole("button", { name: /save/i });
+    const mainSaveButton = buttons.find((btn) =>
+      btn.className.includes("bg-blue"),
+    );
+    expect(mainSaveButton).toBeTruthy();
     act(() => {
-      fireEvent.click(save);
+      fireEvent.click(mainSaveButton!);
     });
     expect(
       await screen.findByText(/Use format like CommandOrControl\+Space/i),
@@ -56,9 +61,14 @@ describe("Settings (global shortcut)", () => {
       fireEvent.change(input, { target: { value: "Ctrl+Shift+K" } });
     });
 
-    const save = screen.getByRole("button", { name: /^save$/i });
+    // Find the main save button (the blue one at the bottom)
+    const buttons = screen.getAllByRole("button", { name: /save/i });
+    const mainSaveButton = buttons.find((btn) =>
+      btn.className.includes("bg-blue"),
+    );
+    expect(mainSaveButton).toBeTruthy();
     act(() => {
-      fireEvent.click(save);
+      fireEvent.click(mainSaveButton!);
     });
 
     await waitFor(() => expect(mockSet).toHaveBeenCalledWith("Ctrl+Shift+K"));
@@ -80,9 +90,14 @@ describe("Settings (global shortcut)", () => {
     act(() => {
       fireEvent.change(input, { target: { value: "OnlyKey" } });
     });
-    const saveBtn = screen.getByRole("button", { name: /save/i });
+    // Find the main save button (the blue one at the bottom)
+    const buttons = screen.getAllByRole("button", { name: /save/i });
+    const mainSaveButton = buttons.find((btn) =>
+      btn.className.includes("bg-blue"),
+    );
+    expect(mainSaveButton).toBeTruthy();
     act(() => {
-      fireEvent.click(saveBtn);
+      fireEvent.click(mainSaveButton!);
     });
     // Error appears
     const errorEl = await screen.findByText(
@@ -95,7 +110,7 @@ describe("Settings (global shortcut)", () => {
       fireEvent.change(input, { target: { value: "Ctrl+Shift+K" } });
     });
     act(() => {
-      fireEvent.click(saveBtn);
+      fireEvent.click(mainSaveButton!);
     });
 
     await waitFor(() => expect(mockSet).toHaveBeenCalledWith("Ctrl+Shift+K"));
