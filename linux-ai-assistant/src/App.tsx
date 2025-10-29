@@ -69,7 +69,6 @@ export default function App(): JSX.Element {
         unlistenNew && unlistenNew();
       } catch {}
     };
-
   }, []);
   // Watch system theme if preference is 'system'
   useEffect(() => {
