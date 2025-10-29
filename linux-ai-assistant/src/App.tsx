@@ -148,6 +148,9 @@ export default function App(): JSX.Element {
         <ChatInterface />
       </main>
       <Toaster />
+      <RunOutputModal />
+      <ExecutionAuditModal />
+      <CommandSuggestionsModal />
     </div>
   );
 }

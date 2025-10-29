@@ -81,7 +81,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       const newApiKeys = { ...state.apiKeys, [provider]: key };
       db.settings.setJSON("apiKeys", newApiKeys);
-      return { apiKeys: newApiKeys };
+      return { apiKeys: newApiKeys } as any;
     });
   },
 

@@ -1,9 +1,11 @@
+# Linux AI Desktop Assistant - Project Documentation
+
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
-Linux AI Desktop Assistant - Project Documentation
-Project Overview
+## Project Overview
+
 Mission Statement
 Build a native Linux desktop AI assistant that provides first-class support for Linux users, addressing the platform neglect from major AI providers while delivering superior system integration, developer workflow optimization, and privacy-respecting architecture.
 
@@ -222,33 +224,51 @@ Keyring: keyring-rs
   ├── tsconfig.json
   ├── tailwind.config.js
   └── README.md
-  Development Roadmap
-  Phase 1: Foundation (Weeks 1-3)
-  Goal: Basic application structure and chat interface
+
+Development Roadmap
+
+Phase 1: Foundation (Weeks 1-3)
+Goal: Basic application structure and chat interface
 
 Milestones:
 
-[ ] Set up Tauri project with React frontend
-[ ] Implement basic window management and system tray
-[ ] Create chat interface UI components
-[ ] Set up SQLite database with schema
-[ ] Implement conversation storage and retrieval
-[ ] Basic settings panel for configuration
-Deliverable: Functional desktop app with local conversation storage
+[x] Set up Tauri project with React frontend
+[x] Implement basic window management and system tray
+[x] Create chat interface UI components
+[x] Set up SQLite database with schema
+[x] Implement conversation storage and retrieval
+[x] Basic settings panel for configuration
+Deliverable: Functional desktop app with local conversation storage ✅
+
+Nice-to-haves (Phase 1):
+
+- Conversation search improvements: fuzzy search, filter by date/model
+- Export conversations in multiple formats (JSON, Markdown, PDF)
+- Conversation branching: fork conversations at any message
+- Bulk conversation management: archive, tag, organize folders
+- Database optimization: indexing, vacuum, query performance tuning
 
 Phase 2: AI Integration (Weeks 4-6)
 Goal: Connect to multiple AI providers
 
 Milestones:
 
-[ ] Implement OpenAI API adapter with streaming support
-[ ] Add Anthropic Claude integration
-[ ] Add Google Gemini support
-[ ] Create provider abstraction layer
-[ ] Implement API key management with keyring storage
-[ ] Add model selection UI
-[ ] Error handling and retry logic
-Deliverable: Working AI chat with multiple provider options
+[x] Implement OpenAI API adapter with streaming support
+[x] Add Anthropic Claude integration
+[x] Add Google Gemini support
+[x] Create provider abstraction layer
+[x] Implement API key management with keyring storage
+[x] Add model selection UI
+[x] Error handling and retry logic
+Deliverable: Working AI chat with multiple provider options ✅
+
+Nice-to-haves (Phase 2):
+
+- Streaming support for Anthropic and Gemini providers
+- Token usage tracking and cost estimation per conversation
+- Retry with different provider/model on failure
+- Custom system prompts per conversation or provider
+- Response quality feedback and model comparison tools
 
 Phase 3: System Integration (Weeks 7-9)
 Goal: Native Linux desktop features
@@ -268,13 +288,22 @@ Goal: Workflow optimization for developers
 
 Milestones:
 
-[ ] CLI companion tool with IPC communication
-[ ] File system watcher for project context
-[ ] Git integration (detect repo, branch, changes)
-[ ] Code block enhancements (copy, run, save)
-[ ] Terminal command suggestions
-[ ] Project-aware context injection
-Deliverable: Developer-optimized workflow integration
+[x] CLI companion tool with IPC communication
+[x] File system watcher for project context
+[x] Git integration (detect repo, branch, changes)
+[x] Code block enhancements (copy, run, save)
+[x] Terminal command suggestions with AI-powered generation
+[x] Project-aware context injection (recent file changes)
+Deliverable: Developer-optimized workflow integration ✅
+
+Nice-to-haves (Phase 4):
+
+- CLI: implement `lai last` to print the latest assistant reply.
+- CLI: distribution packaging and install instructions.
+- Watcher: tray toggle and ignore patterns; debounce noisy events.
+- Project context panel: surface recent changes and summaries in chat UI.
+- Execution hardening: runner profiles, resource limits, and optional sandboxing.
+- Integration tests: end-to-end checks for IPC events and watcher signals.
 
 Phase 5: Local AI & Privacy (Weeks 13-15)
 Goal: Privacy-respecting local processing options

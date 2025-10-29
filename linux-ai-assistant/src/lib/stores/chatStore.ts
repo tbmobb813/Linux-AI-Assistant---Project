@@ -182,6 +182,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // include the just persisted user message as last
       messagesForProvider.push({ role: "user", content });
 
+      // project-aware context: prepend a brief summary of recent file changes if available
+      try {
+        const summary = useProjectStore
+          .getState()
+          .getRecentSummary(8, 2 * 60 * 1000);
+        if (summary) {
+          messagesForProvider.unshift({
+            role: "system",
+            content: `Recent project file changes (last 2 minutes):\n${summary}`,
+          });
+        }
+      } catch {}
+
       // Add an optimistic assistant message which we will stream into
       const optimisticAssistantId = `optimistic-assistant-${Date.now()}`;
       const optimisticAssistant = {
@@ -303,6 +316,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
         content: m.content,
       }));
       messagesForProvider.push({ role: "user", content: msg.content });
+      try {
+        const summary = useProjectStore
+          .getState()
+          .getRecentSummary(8, 2 * 60 * 1000);
+        if (summary) {
+          messagesForProvider.unshift({
+            role: "system",
+            content: `Recent project file changes (last 2 minutes):\n${summary}`,
+          });
+        }
+      } catch {}
 
       const optimisticAssistantId = `optimistic-assistant-${Date.now()}`;
       const optimisticAssistant = {

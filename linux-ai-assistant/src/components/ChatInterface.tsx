@@ -6,7 +6,7 @@ import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment } from "../lib/utils/tauri";
 
-export default function ChatInterface(): JSX.Element {
+export default function ChatInterface() {
   const { currentConversation, messages, sendMessage, isLoading } =
     useChatStore();
   const addToast = useUiStore((s) => s.addToast);
@@ -20,6 +20,25 @@ export default function ChatInterface(): JSX.Element {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [currentConversation]);
+
+  // Git context for current workspace (populates header)
+  const [gitContext, setGitContext] = useState<{
+    is_repo: boolean;
+    branch?: string | null;
+    dirty?: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!isTauriEnvironment()) return;
+      try {
+        const res = await invokeSafe("get_git_context", {});
+        if (res) setGitContext(res as any);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     // keyboard shortcut: Ctrl+K focuses the message input
@@ -137,8 +156,10 @@ export default function ChatInterface(): JSX.Element {
           onSubmit={async (e) => {
             e.preventDefault();
             if (!value.trim()) return;
-            await sendMessage(value.trim());
+            const toSend = value.trim();
+            // Clear input immediately for snappier UX and to satisfy tests
             setValue("");
+            await sendMessage(toSend);
           }}
         >
           <div className="flex gap-2">
@@ -208,6 +229,7 @@ export default function ChatInterface(): JSX.Element {
           </div>
         </form>
       </div>
+      <CommandSuggestionsModal />
     </div>
   );
 }
