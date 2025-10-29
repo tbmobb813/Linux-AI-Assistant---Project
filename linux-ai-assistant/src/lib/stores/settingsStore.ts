@@ -17,12 +17,8 @@ interface SettingsState {
   defaultModel: string;
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
-<<<<<<< HEAD
-  projectRoot?: string | null;
-=======
-  // Compatibility flag used by some components; not managed in phase-2
   allowCodeExecution: boolean;
->>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
+  projectRoot?: string | null;
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -31,6 +27,7 @@ interface SettingsState {
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
+  setAllowCodeExecution: (allow: boolean) => Promise<void>;
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
@@ -42,20 +39,21 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   defaultModel: "gpt-4",
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
-<<<<<<< HEAD
-  projectRoot: null,
-=======
   allowCodeExecution: false,
->>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
+  projectRoot: null,
 
   loadSettings: async () => {
     try {
       const theme = await db.settings.get("theme");
       const defaultProvider = await db.settings.get("defaultProvider");
       const defaultModel = await db.settings.get("defaultModel");
-      const apiKeys = await db.settings.getJSON<Record<string, string>>("apiKeys");
+      const apiKeys =
+        await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
+      const allowRaw = await db.settings.get("allowCodeExecution");
+      const allowCodeExecution =
+        allowRaw === "true" || (typeof allowRaw === "boolean" && allowRaw);
       const projectRoot = (await db.settings.get("projectRoot")) || null;
 
       set({
@@ -64,12 +62,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
-<<<<<<< HEAD
+        allowCodeExecution,
         projectRoot,
-=======
-        // keep default false to maintain compatibility for non-phase-2 features
-        allowCodeExecution: false,
->>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
       });
 
       try {
@@ -97,13 +91,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ theme });
     try {
       applyTheme(theme);
-<<<<<<< HEAD
     } catch (e) {
       // ignore
     }
-=======
-    } catch {}
->>>>>>> d3f26fe (feat: implement environment-safe clipboard helpers and refactor clipboard usage across components)
   },
 
   setDefaultProvider: async (provider) => {
@@ -130,6 +120,15 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ globalShortcut: shortcut });
     // Attempt to re-register immediately
     await useSettingsStore.getState().registerGlobalShortcut(shortcut);
+  },
+
+  setAllowCodeExecution: async (allow) => {
+    try {
+      await db.settings.set("allowCodeExecution", String(allow));
+    } catch (e) {
+      console.error("Failed to persist allowCodeExecution", e);
+    }
+    set({ allowCodeExecution: allow });
   },
 
   registerGlobalShortcut: async (shortcutOptional) => {
@@ -197,4 +196,3 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     });
   },
 }));
-

@@ -141,9 +141,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
         </div>
         <div className="pt-1 flex flex-wrap gap-2">
           {[
-            { id: "openai", label: "Save OpenAI API key" },
-            { id: "anthropic", label: "Save Anthropic API key" },
-            { id: "gemini", label: "Save Gemini API key" },
+            { id: "openai", label: "Store OpenAI API key" },
+            { id: "anthropic", label: "Store Anthropic API key" },
+            { id: "gemini", label: "Store Gemini API key" },
           ].map((p) => (
             <button
               key={p.id}
