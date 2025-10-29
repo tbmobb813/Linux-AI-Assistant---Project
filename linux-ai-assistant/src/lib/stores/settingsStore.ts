@@ -44,7 +44,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const theme = await db.settings.get("theme");
       const defaultProvider = await db.settings.get("defaultProvider");
       const defaultModel = await db.settings.get("defaultModel");
-      const apiKeys = await db.settings.getJSON<Record<string, string>>("apiKeys");
+      const apiKeys =
+        await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
       const projectRoot = (await db.settings.get("projectRoot")) || null;
@@ -179,4 +180,3 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     });
   },
 }));
-
