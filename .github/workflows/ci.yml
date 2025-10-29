@@ -63,6 +63,14 @@ jobs:
           pnpm -C "${{ steps.fe.outputs.dir }}" exec -- prettier --version || true
           pnpm -C "${{ steps.fe.outputs.dir }}" exec -- prettier --check .
 
+      - name: Print Prettier version
+        if: ${{ steps.fe.outputs.dir != '' }}
+        working-directory: ${{ steps.fe.outputs.dir }}
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.19.0 --activate
+          pnpm -C "${{ steps.fe.outputs.dir }}" exec -- prettier --version
+
       - name: TypeScript typecheck
         if: ${{ steps.fe.outputs.dir != '' && hashFiles(format('{0}/tsconfig.json', steps.fe.outputs.dir)) != '' }}
         working-directory: ${{ steps.fe.outputs.dir }}
