@@ -107,4 +107,3 @@ describe("Settings (global shortcut)", () => {
     });
   });
 });
-

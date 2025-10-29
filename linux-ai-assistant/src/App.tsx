@@ -65,7 +65,7 @@ export default function App(): JSX.Element {
               type: "info",
               ttl: 2000,
             });
-          } catch { }
+          } catch {}
         });
         // CLI ask -> create/select conversation and send message
         unlistenCliAsk = await mod.listen<any>("cli://ask", async (e) => {
@@ -87,7 +87,7 @@ export default function App(): JSX.Element {
                 const w = winMod.getCurrentWebviewWindow();
                 await w.show();
                 await w.setFocus();
-              } catch { }
+              } catch {}
               targetProvider = obj.provider || undefined;
               forceNew = !!obj.new;
             }
@@ -132,7 +132,7 @@ export default function App(): JSX.Element {
                 ttl: 1500,
               });
             }
-          } catch { }
+          } catch {}
         });
         // new conversation
         const createConversation = useChatStore.getState().createConversation;
@@ -153,7 +153,7 @@ export default function App(): JSX.Element {
               import("./lib/stores/projectStore").then((m) => {
                 try {
                   m.useProjectStore.getState().addEvents(paths);
-                } catch { }
+                } catch {}
               });
               useUiStore.getState().addToast({
                 message: `Changed: ${paths[0]}`,
@@ -174,9 +174,8 @@ export default function App(): JSX.Element {
         unlistenCliNotify && unlistenCliNotify();
         unlistenCliAsk && unlistenCliAsk();
         unlistenProject && unlistenProject();
-      } catch { }
+      } catch {}
     };
-
   }, []);
   // Watch system theme if preference is 'system'
   useEffect(() => {
@@ -240,7 +239,7 @@ export default function App(): JSX.Element {
           Toggle
         </button>
 
-  {/* Settings button and panel */}
+        {/* Settings button and panel */}
         <button
           onClick={() => setShowSettings((s) => !s)}
           className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
