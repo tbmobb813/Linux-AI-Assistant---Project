@@ -1,6 +1,7 @@
 # Linux AI Assistant - Complete Documentation Index
 
-Welcome to the Linux AI Assistant documentation! This comprehensive resource covers everything from getting started to advanced development.
+Welcome to the Linux AI Assistant documentation! This comprehensive resource
+covers everything from getting started to advanced development.
 
 ## 📚 Documentation Overview
 
@@ -101,7 +102,7 @@ That's it! You're ready to use the Linux AI Assistant.
 
 ### I want to
 
-**Use AI for coding help**
+### Use AI for coding help
 
 - Create a new conversation titled "Python Help"
 - Paste code or describe the problem
@@ -109,33 +110,33 @@ That's it! You're ready to use the Linux AI Assistant.
 - Copy fixed code directly
 - See: [User Guide → Development Workflow](USER_GUIDE.md#development-workflow)
 
-**Keep conversations private**
+### Keep conversations private
 
 - Use Ollama with local models
 - No internet required, no data leaves your computer
 - See: [User Guide → Provider Selection](USER_GUIDE.md#3-provider-selection)
 
-**Export my conversations**
+### Export my conversations
 
 - Click the export icon or use Settings → Export
 - Choose JSON (for reimport) or Markdown (for sharing)
 - See: [User Guide → Export & Import](USER_GUIDE.md#5-export--import)
 
-**Use the command line**
+### Use the command line
 
 - Install CLI companion tool
 - Use `lai` commands in your terminal
 - Integrate with scripts and workflows
 - See: [CLI Guide](CLI_GUIDE.md)
 
-**Debug a problem**
+### Debug a problem
 
 - Check the [Troubleshooting Guide](TROUBLESHOOTING.md)
 - Collect debug information
 - Search for your issue
 - Submit detailed bug report if needed
 
-**Contribute code**
+### Contribute code\*\*
 
 - Fork the repository
 - Follow development setup in [Developer Guide](DEVELOPER_GUIDE.md#setup-development-environment)
@@ -271,7 +272,7 @@ linux-ai-assistant/
 ├── TROUBLESHOOTING.md             # Problem solving
 ├── DEVELOPER_GUIDE.md             # Development reference
 ├── DOCUMENTATION_INDEX.md         # This file
-├── Phase_6.2_Error_Handling_Summary.md  # Phase details
+├── (Phase summaries archived in ../../docs/archive/phase-summaries/)
 └── ...
 ```
 

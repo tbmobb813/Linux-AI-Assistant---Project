@@ -11,7 +11,8 @@
     "preview": "npm run -w linux-ai-assistant preview",
     "tauri": "npm run -w linux-ai-assistant tauri",
     "prepare": "( [ -x \"./node_modules/.bin/husky\" ] && ./node_modules/.bin/husky install ) || ( command -v husky >/dev/null 2>&1 && husky install ) || true",
-    "tauri-dev": "bash ./dev/tauri-dev.sh"
+    "tauri-dev": "bash ./dev/tauri-dev.sh",
+    "md:check": "markdownlint \"**/*.md\" -c .markdownlint.json --ignore-path .markdownlintignore -i node_modules -i linux-ai-assistant/node_modules"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
@@ -27,7 +28,8 @@
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.9.3",
-    "vite": "^7.1.12"
+    "vite": "^7.1.12",
+    "markdownlint-cli": "^0.42.0"
   },
   "husky": {
     "version": "8"

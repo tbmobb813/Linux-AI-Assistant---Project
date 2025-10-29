@@ -1,6 +1,7 @@
 # Linux AI Assistant - User Guide
 
-Welcome to the Linux AI Assistant! This comprehensive guide will help you get the most out of this powerful desktop AI companion for Linux developers and users.
+Welcome to the Linux AI Assistant! This comprehensive guide will help you get
+the most out of this powerful desktop AI companion for Linux developers and users.
 
 ## Table of Contents
 
