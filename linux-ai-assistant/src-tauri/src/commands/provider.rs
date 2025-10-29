@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use tauri::Emitter;
 use tauri::Manager;
 
@@ -95,6 +94,7 @@ pub fn set_api_key(provider: String, key: String) -> Result<(), String> {
             .map_err(|e| format!("keyring set failed: {}", e))?;
         return Ok(());
     }
+    #[allow(unreachable_code)]
     Err("keyring unsupported on this platform".into())
 }
 
@@ -109,6 +109,7 @@ pub fn get_api_key(provider: String) -> Result<String, String> {
             .map_err(|e| format!("keyring get failed: {}", e))?;
         return Ok(val);
     }
+    #[allow(unreachable_code)]
     Err("keyring unsupported on this platform".into())
 }
 
@@ -164,8 +165,8 @@ pub fn provider_gemini_generate(
     let api_key = prefer_keyring_or_env("gemini", "GEMINI_API_KEY")?;
     let model_name = model.unwrap_or_else(|| "gemini-1.5-flash".to_string());
     let url = format!(
-        "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent?key={}",
-        model_name, api_key
+        "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
+        model_name
     );
     let client = reqwest::blocking::Client::new();
     let text = messages
@@ -178,6 +179,7 @@ pub fn provider_gemini_generate(
     });
     let resp = client
         .post(&url)
+        .header("Authorization", format!("Bearer {}", api_key))
         .json(&body)
         .send()
         .map_err(|e| format!("request error: {}", e))?;
