@@ -3628,8 +3628,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  "@types/prop-types@15.7.15": {}
-
   '@types/prop-types@15.7.15': {}
 
   '@types/react-dom@18.3.7(@types/react@18.3.26)':
