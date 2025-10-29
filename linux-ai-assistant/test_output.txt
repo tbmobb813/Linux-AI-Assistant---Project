@@ -1,0 +1,15 @@
+
+> linux-ai-assistant@0.1.0 test /media/nixstation-remote/Dev Storage/Projects/Linux AI Assistant - Project/linux-ai-assistant
+> vitest --run --reporter dot
+
+
+[1m[46m RUN [49m[22m [36mv4.0.3 [39m[90m/media/nixstation-remote/Dev Storage/Projects/Linux AI Assistant - Project/linux-ai-assistant[39m
+
+[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m[33m[39m[32m·[39m
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (10)[39m
+[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 20:52:12
+[2m   Duration [22m 17.03s[2m (transform 2.04s, setup 4.24s, collect 3.42s, tests 4.13s, environment 21.01s, prepare 395ms)[22m
+
+ ELIFECYCLE  Test failed. See above for more details.
