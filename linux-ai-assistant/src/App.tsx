@@ -178,7 +178,6 @@ export default function App() {
         unlistenProject && unlistenProject();
       } catch {}
     };
-
   }, []);
   // Watch system theme if preference is 'system'
   useEffect(() => {
