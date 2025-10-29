@@ -8,3 +8,8 @@ declare module "@tauri-apps/api/tauri" {
 declare module "@tauri-apps/api" {
   export { invoke } from "@tauri-apps/api/tauri";
 }
+
+declare module "@tauri-apps/plugin-clipboard-manager" {
+  export function readText(): Promise<string>;
+  export function writeText(text: string): Promise<void>;
+}

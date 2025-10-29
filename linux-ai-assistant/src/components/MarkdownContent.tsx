@@ -107,7 +107,9 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
     if (!confirmRun) return;
     // Check settings
     try {
-      const settings = (await import("../lib/stores/settingsStore")) as any;
+      const settings = (await import(
+        "../lib/stores/settingsStore"
+      )) as typeof import("../lib/stores/settingsStore");
       const allow = settings.useSettingsStore.getState().allowCodeExecution;
       if (!allow) {
         addToast({
@@ -140,7 +142,8 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         const { exit_code } = res as any;
         // Show full output in modal
         // Use uiStore directly to set modal
-        useUiStore.getState().showRunResult({
+        const ui = (await import("../lib/stores/uiStore")) as any;
+        ui.useUiStore.getState().showRunResult({
           stdout: stdout || "",
           stderr: stderr || "",
           exit_code: exit_code ?? null,
