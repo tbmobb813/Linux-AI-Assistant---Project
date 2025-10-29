@@ -47,6 +47,14 @@ interface UiState {
   };
   showSuggestions: (items: string[]) => void;
   closeSuggestions: () => void;
+  // API key input modal
+  apiKeyModal: {
+    open: boolean;
+    title: string;
+    onSubmit?: (key: string) => void;
+  };
+  showApiKeyModal: (title: string, onSubmit: (key: string) => void) => void;
+  closeApiKeyModal: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -92,6 +100,17 @@ export const useUiStore = create<UiState>((set) => ({
     set(() => ({ suggestionsModal: { open: true, items } })),
   closeSuggestions: () =>
     set(() => ({ suggestionsModal: { open: false, items: [] } })),
+  apiKeyModal: {
+    open: false,
+    title: "",
+    onSubmit: undefined,
+  },
+  showApiKeyModal: (title: string, onSubmit: (key: string) => void) =>
+    set(() => ({ apiKeyModal: { open: true, title, onSubmit } })),
+  closeApiKeyModal: () =>
+    set(() => ({
+      apiKeyModal: { open: false, title: "", onSubmit: undefined },
+    })),
   showRunResult: (r) =>
     set(() => ({
       runModal: {

@@ -6,6 +6,7 @@ import Toaster from "./components/Toaster";
 import RunOutputModal from "./components/RunOutputModal";
 import ExecutionAuditModal from "./components/ExecutionAuditModal";
 import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
+import ApiKeyModal from "./components/ApiKeyModal";
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import Settings from "./components/Settings";
 import { useChatStore } from "./lib/stores/chatStore";
@@ -282,6 +283,7 @@ export default function App(): JSX.Element {
       <RunOutputModal />
       <ExecutionAuditModal />
       <CommandSuggestionsModal />
+      <ApiKeyModal />
     </div>
   );
 }

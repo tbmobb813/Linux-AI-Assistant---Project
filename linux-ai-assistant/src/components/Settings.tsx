@@ -15,7 +15,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
   const { projectRoot, setProjectRoot, stopProjectWatch } = useSettingsStore();
   const { defaultProvider, setDefaultProvider, defaultModel, setDefaultModel } =
     useSettingsStore();
-  const { showAudit } = useUiStore();
+  const { showAudit, showApiKeyModal } = useUiStore();
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -145,22 +145,22 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               key={p.id}
               onClick={async () => {
-                const k = window.prompt(`${p.label}`, "");
-                if (!k) return;
-                try {
-                  await invokeSafe("set_api_key", { provider: p.id, key: k });
-                  useUiStore.getState().addToast({
-                    message: `${p.id} key saved to keyring`,
-                    type: "success",
-                    ttl: 1400,
-                  });
-                } catch (e) {
-                  useUiStore.getState().addToast({
-                    message: `Failed to save ${p.id} key`,
-                    type: "error",
-                    ttl: 1600,
-                  });
-                }
+                showApiKeyModal(`${p.label}`, async (k) => {
+                  try {
+                    await invokeSafe("set_api_key", { provider: p.id, key: k });
+                    useUiStore.getState().addToast({
+                      message: `${p.id} key saved to keyring`,
+                      type: "success",
+                      ttl: 1400,
+                    });
+                  } catch (e) {
+                    useUiStore.getState().addToast({
+                      message: `Failed to save ${p.id} key`,
+                      type: "error",
+                      ttl: 1600,
+                    });
+                  }
+                });
               }}
               className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
             >
