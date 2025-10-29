@@ -264,7 +264,7 @@ See [Contributing Guide](https://github.com/tbmobb813/Linux-AI-Assistant/blob/ma
 
 ## 📝 Documentation Structure
 
-```
+```text
 linux-ai-assistant/
 ├── README.md                      # Project overview
 ├── USER_GUIDE.md                  # User documentation

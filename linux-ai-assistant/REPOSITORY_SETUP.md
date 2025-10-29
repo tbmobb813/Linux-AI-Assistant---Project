@@ -212,7 +212,7 @@ The automated workflow (`.github/workflows/repository-setup.yml`) handles:
 
 1. Add secrets to GitHub repository:
 
-   ```
+   ```text
    Settings → Secrets and variables → Actions
    ```
 

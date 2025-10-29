@@ -19,6 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@": path.resolve(__dirname, "src"),
       "@tauri-apps/api/tauri": path.resolve(__dirname, "src/mocks/tauri.ts"),
       "@tauri-apps/plugin-clipboard-manager": path.resolve(
         __dirname,
