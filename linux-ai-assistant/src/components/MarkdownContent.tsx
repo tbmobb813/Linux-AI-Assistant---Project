@@ -101,11 +101,7 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
   };
 
   const handleRun = async () => {
-    const confirmRun = window.confirm(
-      `Run this ${language || "code"} snippet?\n\nThis will execute:\n${codeString.substring(0, 100)}${codeString.length > 100 ? "..." : ""}\n\nOnly run trusted code!`,
-    );
-    if (!confirmRun) return;
-    // Check settings
+    // Check settings first
     try {
       const settings = (await import("../lib/stores/settingsStore")) as any;
       const allow = settings.useSettingsStore.getState().allowCodeExecution;
@@ -120,7 +116,11 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
     } catch (e) {
       // fail open
     }
-    (async () => {
+
+    // Show the confirmation dialog
+    const { showCodeExecutionDialog } = useUiStore.getState();
+    showCodeExecutionDialog(codeString, language, async () => {
+      // This callback will be executed when user confirms
       addToast({ message: "Running snippet...", type: "info", ttl: 1500 });
       try {
         const res = await invokeSafe("run_code", {
@@ -150,7 +150,7 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         console.error("run snippet failed", e);
         addToast({ message: "Run failed", type: "error", ttl: 3000 });
       }
-    })();
+    });
   };
 
   // Determine if code is runnable (common shell/script languages)
