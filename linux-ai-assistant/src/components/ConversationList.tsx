@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import ConversationItem from "./ConversationItem";
 
-export default function ConversationList(): JSX.Element {
+export default function ConversationList() {
   const {
     conversations,
     currentConversation,
