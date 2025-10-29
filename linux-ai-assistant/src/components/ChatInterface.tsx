@@ -3,7 +3,7 @@ import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import { database } from "../lib/api/database";
-import { readClipboardText } from "../lib/clipboard";
+import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
@@ -65,7 +65,12 @@ export default function ChatInterface() {
   }, []);
   const handlePasteFromClipboard = async () => {
     try {
-      const clipText = await readClipboardText();
+      let clipText = "";
+      if (isTauriEnvironment()) {
+        clipText = await readText();
+      } else {
+        clipText = await navigator.clipboard.readText();
+      }
       if (clipText) {
         setValue((prev) => (prev ? prev + "\n\n" + clipText : clipText));
         addToast({

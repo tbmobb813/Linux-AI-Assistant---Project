@@ -12,7 +12,7 @@ import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 
-export default function App(): JSX.Element {
+export default function App() {
   const {
     loadSettings,
     registerGlobalShortcut,
@@ -23,6 +23,7 @@ export default function App(): JSX.Element {
   } = useSettingsStore();
 
   useEffect(() => {
+    // Load settings on startup and register the global shortcut
     (async () => {
       try {
         await loadSettings();
@@ -33,7 +34,9 @@ export default function App(): JSX.Element {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
+    // Re-register when shortcut changes
     (async () => {
       try {
         await registerGlobalShortcut(globalShortcut);
@@ -103,7 +106,7 @@ export default function App(): JSX.Element {
             if (!convo || forceNew) {
               const title = prompt.slice(0, 40) || "CLI Ask";
               try {
-                await chat.createConversation(title, model, provider);
+                convo = await chat.createConversation(title, model, provider);
               } catch (err) {
                 console.error(
                   "failed to create conversation from CLI ask",
@@ -220,8 +223,9 @@ export default function App(): JSX.Element {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       <ConversationList />
       <main className="flex-1 flex flex-col relative">
         {/* Small toggle button to demonstrate invoking the window toggle command */}
@@ -247,7 +251,6 @@ export default function App(): JSX.Element {
         >
           Settings
         </button>
-
         {/* Project watcher badge */}
         {projectRoot && (
           <div className="absolute left-4 top-4 flex items-center gap-2 bg-gray-800/80 text-xs px-2 py-1 rounded border border-gray-700">

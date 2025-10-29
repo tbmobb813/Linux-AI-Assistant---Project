@@ -37,7 +37,7 @@ vi.mock("@tauri-apps/plugin-global-shortcut", () => ({
   }),
 }));
 
-// Provide a basic matchMedia mock for components that rely on it
+// Provide a basic matchMedia mock for theme tests and components that rely on it
 if (typeof window !== "undefined" && !window.matchMedia) {
   // @ts-ignore
   window.matchMedia = (query: string) => {

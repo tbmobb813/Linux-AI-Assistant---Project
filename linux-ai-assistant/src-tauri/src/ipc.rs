@@ -54,33 +54,15 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
 }
 
 pub fn start_ipc_server(app: AppHandle) {
-    // Try to bind to a port in the range 39871-39880
-    let base_port = 39871;
-    let max_port = 39880;
-    let mut listener = None;
-    let mut bound_port = base_port;
-    for port in base_port..=max_port {
-        let addr = format!("127.0.0.1:{}", port);
-        match TcpListener::bind(&addr) {
-            Ok(l) => {
-                listener = Some(l);
-                bound_port = port;
-                break;
-            }
-            Err(_) => continue,
-        }
-    }
-    let listener = match listener {
-        Some(l) => l,
-        None => {
-            eprintln!(
-                "IPC: failed to bind to any port in range {}-{}",
-                base_port, max_port
-            );
+    // Fixed localhost port; can be made configurable later
+    let addr = "127.0.0.1:39871";
+    let listener = match TcpListener::bind(addr) {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("IPC: failed to bind {}: {}", addr, e);
             return;
         }
     };
-    println!("IPC: server listening on 127.0.0.1:{}", bound_port);
     thread::spawn(move || {
         for stream in listener.incoming() {
             match stream {

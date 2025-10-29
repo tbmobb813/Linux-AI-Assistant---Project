@@ -7,9 +7,8 @@ type Props = {
   onClose?: () => void;
 };
 
-// Full settings panel used in-app. Tests only exercise the global shortcut
-// portion — keep the UI complete so runtime and E2E behavior are preserved.
-export default function Settings({ onClose }: Props): JSX.Element {
+// Minimal settings panel focused on the global shortcut
+export default function Settings({ onClose }: Props) {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
   const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
@@ -24,6 +23,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
+    // very light validation: must contain a modifier and a key
     const hasModifier =
       /(Command|Control|Ctrl|Cmd|Alt|Option|Shift|Super|Meta)/i.test(s);
     const hasKey = /\+\s*[^+\s]+$/i.test(s);
@@ -77,10 +77,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <input
           id="global-shortcut-input"
           value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            setError(null);
-          }}
+          onChange={(e) => setValue(e.target.value)}
           placeholder="CommandOrControl+Space"
           className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -101,32 +98,32 @@ export default function Settings({ onClose }: Props): JSX.Element {
           id="theme-select"
           value={theme}
           onChange={(e) => setTheme(e.target.value as any)}
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm"
         >
+          <option value="system">System (default)</option>
           <option value="light">Light</option>
           <option value="dark">Dark</option>
-          <option value="system">System</option>
         </select>
         <p className="text-[11px] text-gray-600 dark:text-gray-400">
-          Choose application theme. System will follow OS preference.
+          When set to System, the app follows your OS dark mode.
         </p>
       </div>
 
       <div className="space-y-1 pt-2">
         <label className="text-xs text-gray-700 dark:text-gray-300">
-          Provider & model
+          Default provider
         </label>
         <select
           value={defaultProvider}
           onChange={(e) => setDefaultProvider(e.target.value)}
           className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm"
         >
-          <option value="local">Local (mock)</option>
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic</option>
           <option value="gemini">Gemini</option>
+          <option value="local">Local (mock)</option>
         </select>
-        <label className="text-xs text-gray-700 dark:text-gray-300 mt-2 block">
+        <label className="text-xs text-gray-700 dark:text-gray-300">
           Default model
         </label>
         <input
@@ -141,9 +138,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
         </div>
         <div className="pt-1 flex flex-wrap gap-2">
           {[
-            { id: "openai", label: "Store OpenAI API key" },
-            { id: "anthropic", label: "Store Anthropic API key" },
-            { id: "gemini", label: "Store Gemini API key" },
+            { id: "openai", label: "Save OpenAI API key" },
+            { id: "anthropic", label: "Save Anthropic API key" },
+            { id: "gemini", label: "Save Gemini API key" },
           ].map((p) => (
             <button
               key={p.id}
@@ -199,6 +196,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <div className="pt-2">
           <button
             onClick={async () => {
+              // fetch last ~200 lines of audit and show modal
               try {
                 const content =
                   (await invokeSafe<string>("read_audit", { lines: 200 })) ||

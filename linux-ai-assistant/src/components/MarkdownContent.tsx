@@ -5,8 +5,8 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useState } from "react";
 import { useUiStore } from "../lib/stores/uiStore";
-import { writeClipboardText } from "../lib/clipboard";
-import { invokeSafe } from "../lib/utils/tauri";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github-dark.css";
 
@@ -62,7 +62,11 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
   // Block code (triple backticks)
   const handleCopy = async () => {
     try {
-      await writeClipboardText(codeString);
+      if (isTauriEnvironment()) {
+        await writeText(codeString);
+      } else {
+        await navigator.clipboard.writeText(codeString);
+      }
       addToast({ message: "Code copied", type: "success", ttl: 1500 });
     } catch (e) {
       console.error("Failed to copy code:", e);
