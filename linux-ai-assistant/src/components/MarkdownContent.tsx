@@ -5,6 +5,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useState } from "react";
 import { useUiStore } from "../lib/stores/uiStore";
+import { useSettingsStore } from "../lib/stores/settingsStore";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import "katex/dist/katex.min.css";
@@ -107,8 +108,7 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
     if (!confirmRun) return;
     // Check settings
     try {
-      const settings = (await import("../lib/stores/settingsStore")) as any;
-      const allow = settings.useSettingsStore.getState().allowCodeExecution;
+      const allow = useSettingsStore.getState().allowCodeExecution;
       if (!allow) {
         addToast({
           message: "Code execution is disabled in Settings",
@@ -140,14 +140,12 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         const { exit_code } = res as any;
         // Show full output in modal
         // Use uiStore directly to set modal
-        useUiStore
-          .getState()
-          .showRunResult({
-            stdout: stdout || "",
-            stderr: stderr || "",
-            exit_code: exit_code ?? null,
-            timed_out: !!timed_out,
-          });
+        useUiStore.getState().showRunResult({
+          stdout: stdout || "",
+          stderr: stderr || "",
+          exit_code: exit_code ?? null,
+          timed_out: !!timed_out,
+        });
       } catch (e) {
         console.error("run snippet failed", e);
         addToast({ message: "Run failed", type: "error", ttl: 3000 });
