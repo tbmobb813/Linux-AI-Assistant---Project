@@ -50,8 +50,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
-      const allowRaw = await db.settings.get("allowCodeExecution");
-      const allowCodeExecution = allowRaw === "true";
+      const allowCodeExecution =
+        (await db.settings.getJSON<boolean>("allowCodeExecution")) ?? false;
       const projectRoot = (await db.settings.get("projectRoot")) || null;
 
       set({
