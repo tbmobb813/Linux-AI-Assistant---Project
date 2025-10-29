@@ -155,17 +155,11 @@ export const useUiStore = create<UiState>((set) => ({
       },
     })),
   confirmCodeExecution: () => {
-    const { codeExecutionDialog } = useUiStore.getState();
+    const { codeExecutionDialog, closeCodeExecutionDialog } =
+      useUiStore.getState();
     if (codeExecutionDialog.onConfirm) {
       codeExecutionDialog.onConfirm();
     }
-    set(() => ({
-      codeExecutionDialog: {
-        open: false,
-        code: "",
-        language: "",
-        onConfirm: null,
-      },
-    }));
+    closeCodeExecutionDialog();
   },
 }));

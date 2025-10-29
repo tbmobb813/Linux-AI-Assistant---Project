@@ -96,7 +96,7 @@ export default function CodeExecutionConfirmDialog() {
             <button
               onClick={handleConfirm}
               disabled={!canExecute}
-              className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:disabled:opacity-40"
               title={
                 !canExecute
                   ? "Please wait and acknowledge the risks"
