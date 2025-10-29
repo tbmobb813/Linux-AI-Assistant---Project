@@ -108,8 +108,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       }
     } catch (e) {
       console.error("Failed to register global shortcut:", e);
+      const errorMessage = e instanceof Error ? e.message : String(e);
       useUiStore.getState().addToast({
-        message: `Failed to register shortcut: ${shortcut}`,
+        message: `Failed to register shortcut ${shortcut}: ${errorMessage}`,
         type: "error",
         ttl: 3500,
       });
