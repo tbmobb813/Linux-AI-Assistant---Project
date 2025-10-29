@@ -50,8 +50,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
-      const allowRaw = await db.settings.get("allowCodeExecution");
-      const allowCodeExecution = allowRaw === "true";
+      const allowCodeExecution =
+        (await db.settings.getJSON<boolean>("allowCodeExecution")) ?? false;
       const projectRoot = (await db.settings.get("projectRoot")) || null;
 
       set({
@@ -116,7 +116,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
 
   setAllowCodeExecution: async (allow) => {
     try {
-      await db.settings.set("allowCodeExecution", String(allow));
+      await db.settings.setJSON("allowCodeExecution", allow);
     } catch (e) {
       console.error("Failed to persist allowCodeExecution", e);
     }
