@@ -102,7 +102,89 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       const newApiKeys = { ...state.apiKeys, [provider]: key };
       db.settings.setJSON("apiKeys", newApiKeys);
-      return { apiKeys: newApiKeys };
+      return { apiKeys: newApiKeys } as any;
+    });
+  },
+
+  setGlobalShortcut: async (shortcut) => {
+    // Persist
+    await db.settings.set("globalShortcut", shortcut);
+    set({ globalShortcut: shortcut });
+    // Attempt to re-register immediately
+    await useSettingsStore.getState().registerGlobalShortcut(shortcut);
+  },
+
+  setAllowCodeExecution: async (allow) => {
+    try {
+      await db.settings.set("allowCodeExecution", String(allow));
+    } catch (e) {
+      console.error("Failed to persist allowCodeExecution", e);
+    }
+    set({ allowCodeExecution: allow });
+  },
+
+  registerGlobalShortcut: async (shortcutOptional) => {
+    const shortcut =
+      shortcutOptional || useSettingsStore.getState().globalShortcut;
+    // Unregister all first to avoid duplicate binds
+    await unregisterAllShortcutsSafe();
+    try {
+      const success = await registerGlobalShortcutSafe(shortcut, async () => {
+        try {
+          await db.window.toggle();
+        } catch (err) {
+          console.error("Failed to toggle window from shortcut:", err);
+        }
+      });
+      if (success) {
+        useUiStore.getState().addToast({
+          message: `Global shortcut set to ${shortcut}`,
+          type: "success",
+          ttl: 2500,
+        });
+      }
+    } catch (e) {
+      console.error("Failed to register global shortcut:", e);
+      useUiStore.getState().addToast({
+        message: `Failed to register shortcut: ${shortcut}`,
+        type: "error",
+        ttl: 3500,
+      });
+    }
+  },
+
+  setProjectRoot: async (path) => {
+    await db.settings.set("projectRoot", path);
+    set({ projectRoot: path });
+    try {
+      await invokeSafe("set_project_root", { path });
+      useUiStore.getState().addToast({
+        message: `Watching project: ${path}`,
+        type: "success",
+        ttl: 2000,
+      });
+    } catch (e) {
+      console.error("Failed to set project root:", e);
+      useUiStore.getState().addToast({
+        message: `Failed to watch project: ${path}`,
+        type: "error",
+        ttl: 3000,
+      });
+    }
+  },
+
+  stopProjectWatch: async () => {
+    try {
+      await invokeSafe("clear_project_root", {});
+    } catch (e) {
+      // ignore
+    }
+    await db.settings.delete("projectRoot");
+    set({ projectRoot: null });
+    useUiStore.getState().addToast({
+      message: `Stopped watching project`,
+      type: "info",
+      ttl: 1400,
     });
   },
 
