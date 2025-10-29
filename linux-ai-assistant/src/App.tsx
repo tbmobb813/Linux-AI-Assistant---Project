@@ -7,8 +7,7 @@ import { useSettingsStore } from "./lib/stores/settingsStore";
 import Settings from "./components/Settings";
 
 export default function App(): JSX.Element {
-  const { loadSettings, registerGlobalShortcut, globalShortcut } =
-    useSettingsStore();
+  const { loadSettings, registerGlobalShortcut } = useSettingsStore();
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut
