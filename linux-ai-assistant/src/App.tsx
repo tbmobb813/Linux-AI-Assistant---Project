@@ -6,14 +6,10 @@ import Toaster from "./components/Toaster";
 import RunOutputModal from "./components/RunOutputModal";
 import ExecutionAuditModal from "./components/ExecutionAuditModal";
 import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
-import ApiKeyModal from "./components/ApiKeyModal";
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
-import RunOutputModal from "./components/RunOutputModal";
-import ExecutionAuditModal from "./components/ExecutionAuditModal";
-import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
 import Settings from "./components/Settings";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { withErrorHandling } from "./lib/utils/errorHandler";
@@ -24,8 +20,6 @@ export default function App(): JSX.Element {
     registerGlobalShortcut,
     globalShortcut,
     theme,
-    projectRoot,
-    stopProjectWatch,
   } = useSettingsStore();
 
   useEffect(() => {
@@ -76,7 +70,7 @@ export default function App(): JSX.Element {
               type: "info",
               ttl: 2000,
             });
-          } catch {}
+          } catch { }
         });
         // CLI ask -> create/select conversation and send message
         unlistenCliAsk = await mod.listen<any>("cli://ask", async (e) => {
@@ -98,7 +92,7 @@ export default function App(): JSX.Element {
                 const w = winMod.getCurrentWebviewWindow();
                 await w.show();
                 await w.setFocus();
-              } catch {}
+              } catch { }
               targetProvider = obj.provider || undefined;
               forceNew = !!obj.new;
             }
@@ -143,7 +137,7 @@ export default function App(): JSX.Element {
                 ttl: 1500,
               });
             }
-          } catch {}
+          } catch { }
         });
         // new conversation
         const createConversation = useChatStore.getState().createConversation;
@@ -164,7 +158,7 @@ export default function App(): JSX.Element {
               import("./lib/stores/projectStore").then((m) => {
                 try {
                   m.useProjectStore.getState().addEvents(paths);
-                } catch {}
+                } catch { }
               });
               useUiStore.getState().addToast({
                 message: `Changed: ${paths[0]}`,
@@ -185,7 +179,7 @@ export default function App(): JSX.Element {
         unlistenCliNotify && unlistenCliNotify();
         unlistenCliAsk && unlistenCliAsk();
         unlistenProject && unlistenProject();
-      } catch {}
+      } catch { }
     };
   }, []);
   // Watch system theme if preference is 'system'
@@ -196,7 +190,7 @@ export default function App(): JSX.Element {
     // Ensure we apply immediately in case system changed while app was closed
     try {
       applyTheme("system");
-    } catch {}
+    } catch { }
     const unwatch = watchSystemTheme(() => {
       applyTheme("system");
       // Avoid toasting on initial mount
@@ -215,7 +209,7 @@ export default function App(): JSX.Element {
     return () => {
       try {
         unwatch && unwatch();
-      } catch {}
+      } catch { }
     };
   }, [theme]);
 
