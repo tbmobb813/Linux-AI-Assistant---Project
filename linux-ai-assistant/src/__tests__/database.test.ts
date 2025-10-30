@@ -1,10 +1,13 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { database } from "../lib/api/database";
-import * as core from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
+
+// Get the mocked invoke function
+const mockInvoke = vi.mocked(invoke);
 
 describe("database settings JSON roundtrip", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   test("setJSON and getJSON roundtrip preserves object structure", async () => {
@@ -17,18 +20,16 @@ describe("database settings JSON roundtrip", () => {
 
     // Mock the underlying invoke to return the JSON string we "set"
     let stored: string | null = null;
-    vi.spyOn(core, "invoke").mockImplementation(
-      async (cmd: string, args?: any) => {
-        if (cmd === "set_setting") {
-          stored = args.value;
-          return null;
-        }
-        if (cmd === "get_setting") {
-          return stored;
-        }
+    mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
+      if (cmd === "set_setting") {
+        stored = args.value;
         return null;
-      },
-    );
+      }
+      if (cmd === "get_setting") {
+        return stored;
+      }
+      return null;
+    });
 
     // Set the JSON
     await database.settings.setJSON("testKey", testData);
@@ -44,7 +45,7 @@ describe("database settings JSON roundtrip", () => {
   });
 
   test("getJSON returns null for non-existent key", async () => {
-    vi.spyOn(core, "invoke").mockResolvedValue(null);
+    mockInvoke.mockResolvedValue(null);
 
     const result = await database.settings.getJSON("nonExistentKey");
     expect(result).toBeNull();
