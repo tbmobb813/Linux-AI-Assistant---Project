@@ -9,7 +9,7 @@ import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
 
-export default function ChatInterface(): JSX.Element {
+export default function ChatInterface() {
   const { currentConversation, messages, sendMessage, isLoading } =
     useChatStore();
   const addToast = useUiStore((s) => s.addToast);
@@ -62,7 +62,7 @@ export default function ChatInterface(): JSX.Element {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [value]);
+  }, []);
   const handlePasteFromClipboard = async () => {
     try {
       let clipText = "";
@@ -171,8 +171,10 @@ export default function ChatInterface(): JSX.Element {
           onSubmit={async (e) => {
             e.preventDefault();
             if (!value.trim()) return;
-            await sendMessage(value.trim());
+            const toSend = value.trim();
+            // Clear input immediately for snappier UX and to satisfy tests
             setValue("");
+            await sendMessage(toSend);
           }}
         >
           <div className="flex gap-2">

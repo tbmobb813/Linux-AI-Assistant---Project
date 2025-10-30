@@ -1,6 +1,13 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { database as db } from "../lib/api/database";
-import { vi, afterEach, expect, test } from "vitest";
+import { vi, afterEach, expect, test, beforeEach } from "vitest";
+import { setMockInvoke, setMockListen } from "../lib/tauri-shim";
+
+beforeEach(() => {
+  // Mock Tauri APIs to avoid "transformCallback" errors
+  setMockInvoke(async () => null as any);
+  setMockListen(async () => (() => {}) as any);
+});
 
 afterEach(() => {
   useChatStore.setState({
@@ -11,6 +18,8 @@ afterEach(() => {
     error: null,
   });
   vi.restoreAllMocks();
+  setMockInvoke(undefined);
+  setMockListen(undefined);
 });
 
 test("retryMessage retries a failed user message and persists assistant response", async () => {

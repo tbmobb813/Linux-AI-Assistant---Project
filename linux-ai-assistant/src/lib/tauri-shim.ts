@@ -8,11 +8,30 @@ export type ListenFn = (
   cb: (e: any) => void,
 ) => Promise<() => void>;
 
+// Test mock support
+let mockInvokeFn: InvokeFn | undefined;
+let mockListenFn: ListenFn | undefined;
+
+/**
+ * Set a mock invoke function for testing. Call with undefined to clear.
+ */
+export function setMockInvoke(fn: InvokeFn | undefined): void {
+  mockInvokeFn = fn;
+}
+
+/**
+ * Set a mock listen function for testing. Call with undefined to clear.
+ */
+export function setMockListen(fn: ListenFn | undefined): void {
+  mockListenFn = fn;
+}
+
 /**
  * Try to resolve and return Tauri's `invoke` at runtime. If not available (web build),
  * returns undefined.
  */
 export async function getInvoke(): Promise<InvokeFn | undefined> {
+  if (mockInvokeFn) return mockInvokeFn;
   try {
     // build the specifier at runtime to avoid static analysis
     const mod = await import("@tauri-apps/api" + "/tauri");
@@ -27,6 +46,7 @@ export async function getInvoke(): Promise<InvokeFn | undefined> {
  * returns undefined.
  */
 export async function getListen(): Promise<ListenFn | undefined> {
+  if (mockListenFn) return mockListenFn;
   try {
     const mod = await import("@tauri-apps/api" + "/event");
     return mod.listen as ListenFn;
