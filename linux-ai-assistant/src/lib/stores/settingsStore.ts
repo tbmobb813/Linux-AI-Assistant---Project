@@ -103,11 +103,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     const shortcut =
       shortcutOptional || useSettingsStore.getState().globalShortcut;
     // Unregister all first to avoid duplicate binds
-    try {
-      await unregisterAllShortcutsSafe();
-    } catch (e) {
-      // ignore
-    }
+    await unregisterAllShortcutsSafe();
     try {
       const success = await registerGlobalShortcutSafe(shortcut, async () => {
         try {
