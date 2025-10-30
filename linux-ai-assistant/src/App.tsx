@@ -90,9 +90,8 @@ export default function App(): JSX.Element {
           ttl: 1500,
         });
       }
-      // 'mounted' is set after the initial microtask to avoid toasting on the first system theme change detected during mount
     });
-    // Mark mounted after initial microtask
+    // 'mounted' is set after the initial microtask to avoid toasting on the first system theme change detected during mount
     Promise.resolve().then(() => {
       mounted = true;
     });
