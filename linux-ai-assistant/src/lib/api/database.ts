@@ -1,7 +1,8 @@
 // src/lib/api/database.ts
 // Frontend API wrapper for Tauri commands
 
-import { invoke } from "@tauri-apps/api/core";
+import { getInvoke } from "../tauri-shim";
+import { isTauriEnvironment } from "../utils/tauri";
 import type {
   NewConversation,
   NewMessage,
@@ -16,10 +17,95 @@ async function callInvoke<T>(
   cmd: string,
   args?: Record<string, unknown>,
 ): Promise<T> {
+  // Simple in-memory settings store for web preview to support tests
+  // and allow basic persistence during a session.
+  // Note: module scope ensures a single instance per page.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wps: any =
+    (globalThis as any).__WEB_PREVIEW_SETTINGS__ ||
+    ((globalThis as any).__WEB_PREVIEW_SETTINGS__ = {
+      map: new Map<string, { value: string; updated_at: number }>(),
+    });
+  // Provide safe fallbacks when running in web preview (non-Tauri) so
+  // the app can render and E2E tests can run without native backend.
+  if (!isTauriEnvironment()) {
+    switch (cmd) {
+      // Conversations
+      case "get_all_conversations":
+        return [] as unknown as T;
+      case "get_conversation":
+        return null as unknown as T;
+      case "create_conversation":
+        return {
+          id: `preview-${Date.now()}`,
+          title: (args as any)?.title ?? "New conversation",
+          created_at: Date.now(),
+          updated_at: Date.now(),
+          model: (args as any)?.model ?? "gpt-4",
+          provider: (args as any)?.provider ?? "local",
+        } as unknown as T;
+      case "delete_conversation":
+      case "update_conversation_title":
+      case "restore_conversation":
+        return undefined as unknown as T;
+
+      // Messages
+      case "get_conversation_messages":
+      case "get_last_messages":
+      case "search_messages":
+        return [] as unknown as T;
+      case "create_message":
+        return {
+          id: `preview-msg-${Date.now()}`,
+          conversation_id: (args as any)?.conversation_id,
+          role: (args as any)?.role ?? "user",
+          content: (args as any)?.content ?? "",
+          timestamp: Date.now(),
+        } as unknown as T;
+      case "delete_message":
+      case "get_conversation_token_count":
+        return 0 as unknown as T;
+
+      // Settings
+      case "set_setting": {
+        const key = (args as any)?.key as string;
+        const value = String((args as any)?.value ?? "");
+        const updated_at = Date.now();
+        wps.map.set(key, { value, updated_at });
+        return undefined as unknown as T;
+      }
+      case "get_setting": {
+        const key = (args as any)?.key as string;
+        const entry = wps.map.get(key);
+        return (entry ? entry.value : null) as unknown as T;
+      }
+      case "get_all_settings": {
+        const items: Array<{ key: string; value: string; updated_at: number }> =
+          [];
+        wps.map.forEach(
+          (v: { value: string; updated_at: number }, key: string) => {
+            items.push({ key, value: v.value, updated_at: v.updated_at });
+          },
+        );
+        return items as unknown as T;
+      }
+
+      // Window
+      case "toggle_main_window":
+        return undefined as unknown as T;
+
+      default:
+        throw new Error(`Command '${cmd}' not available in web preview`);
+    }
+  }
+
   try {
+    const invoke = await getInvoke();
+    if (!invoke) {
+      throw new Error("Tauri invoke not available");
+    }
     return await invoke<T>(cmd as any, args as any);
   } catch (e: any) {
-    // Normalize the error shape: tauri may return an object; prefer a string message.
     const msg = e?.message || (typeof e === "string" ? e : JSON.stringify(e));
     throw new Error(msg);
   }

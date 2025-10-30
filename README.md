@@ -1,9 +1,11 @@
+# Linux AI Desktop Assistant - Project Documentation
+
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
-Linux AI Desktop Assistant - Project Documentation
-Project Overview
+## Project Overview
+
 Mission Statement
 Build a native Linux desktop AI assistant that provides first-class support for Linux users, addressing the platform neglect from major AI providers while delivering superior system integration, developer workflow optimization, and privacy-respecting architecture.
 
@@ -57,7 +59,7 @@ This repository's history was rewritten on 2025-10-23 to remove historical build
 The desktop application registers a system-wide keyboard shortcut (default: `CommandOrControl+Space`) to quickly invoke the assistant from anywhere. You can customize this shortcut in the app's Settings panel.
 
 - **Default shortcut**: `CommandOrControl+Space` (Ctrl+Space on Linux, Cmd+Space on macOS)
-- **How to change**: Open the app → click Settings (top-right or Ctrl+,) → edit "Global shortcut" → Save
+- **How to change**: Open the app → click Settings (top-right) → edit "Global shortcut" → Save
 - **Format examples**: `Ctrl+Shift+K`, `Super+Space`, `Alt+A`
 
 The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.

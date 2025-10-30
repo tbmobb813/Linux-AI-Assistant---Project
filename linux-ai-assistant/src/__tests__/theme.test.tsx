@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { applyTheme } from "../lib/utils/theme";
 import { useSettingsStore } from "../lib/stores/settingsStore";
+import { setMockInvoke } from "../lib/tauri-shim";
 
 describe("theme application", () => {
   beforeEach(() => {
     document.documentElement.classList.remove("dark");
+    // Mock Tauri invoke to avoid database errors in tests
+    setMockInvoke(async () => null as any);
   });
 
   it("applies dark and light classes when setTheme is called", async () => {

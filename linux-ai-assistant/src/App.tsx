@@ -13,7 +13,7 @@ import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 
-export default function App(): JSX.Element {
+export default function App() {
   const {
     loadSettings,
     registerGlobalShortcut,
@@ -24,7 +24,6 @@ export default function App(): JSX.Element {
   } = useSettingsStore();
 
   useEffect(() => {
-    // Load settings on startup and register the global shortcut
     (async () => {
       try {
         await loadSettings();
@@ -37,7 +36,6 @@ export default function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    // Re-register when shortcut changes
     (async () => {
       try {
         await registerGlobalShortcut(globalShortcut);
@@ -46,6 +44,7 @@ export default function App(): JSX.Element {
       }
     })();
   }, [globalShortcut, registerGlobalShortcut]);
+
   const [showSettings, setShowSettings] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
