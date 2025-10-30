@@ -21,11 +21,6 @@ describe("CommandSuggestionsModal component", () => {
     showRunResult: vi.fn(),
   };
 
-  beforeEach(() => {
-    (useUiStore as any).mockImplementation((selector: any) =>
-      selector ? selector(defaultState) : defaultState,
-    );
-  });
   test("renders without crashing", () => {
     render(<CommandSuggestionsModal />);
     expect(true).toBeTruthy();
