@@ -4,7 +4,7 @@ import { setMockInvoke } from "../lib/tauri-shim";
 
 describe("database settings JSON roundtrip", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   test("setJSON and getJSON roundtrip preserves object structure", async () => {

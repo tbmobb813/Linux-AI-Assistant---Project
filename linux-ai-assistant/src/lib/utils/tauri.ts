@@ -98,9 +98,7 @@ export async function invokeSafe<T = unknown>(
   if (!isTauriEnvironment()) return null;
   try {
     const { invoke } = await import("@tauri-apps/api/core");
-    // @ts-ignore - dynamic import typing
-    const res = await invoke(cmd, args || {});
-    return res as T;
+    return await invoke<T>(cmd, args || {});
   } catch (e) {
     console.warn("invokeSafe failed:", e);
     return null;

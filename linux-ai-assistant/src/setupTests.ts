@@ -27,6 +27,14 @@ vi.mock("@tauri-apps/api/core", () => ({
   }),
 }));
 
+// Mock the Tauri event API for listen functionality
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn(async (_event: string, _cb: (e: any) => void) => {
+    // Return an unlisten function
+    return () => {};
+  }),
+}));
+
 // Mock the global shortcut plugin to avoid errors during tests
 vi.mock("@tauri-apps/plugin-global-shortcut", () => ({
   register: vi.fn(async (_shortcut: string, _cb: () => void) => {
