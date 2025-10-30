@@ -48,3 +48,15 @@ lto = true            # Enable link-time optimization
 codegen-units = 1     # Better optimization, slower compile
 panic = "abort"       # Smaller binary size
 strip = true          # Remove debug symbols
+# Note: Stripping debug symbols makes debugging production issues harder.
+# If you need to troubleshoot production issues, use the `[profile.release-debug]` profile below.
+
+# Alternative release profile for debugging production issues
+[profile.release-debug]
+opt-level = "s"        # Optimize for size
+lto = true             # Enable link-time optimization
+codegen-units = 1      # Better optimization, slower compile
+panic = "abort"        # Smaller binary size
+strip = false          # Retain debug symbols for troubleshooting
+debug = true           # Enable debug info
+# Use this profile for builds where debugging in production is required.
