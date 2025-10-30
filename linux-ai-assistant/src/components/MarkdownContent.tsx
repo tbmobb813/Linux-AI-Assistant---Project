@@ -5,7 +5,6 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { useState } from "react";
 import { useUiStore } from "../lib/stores/uiStore";
-import { useSettingsStore } from "../lib/stores/settingsStore";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import "katex/dist/katex.min.css";
