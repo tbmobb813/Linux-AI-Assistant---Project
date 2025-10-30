@@ -15,7 +15,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
-    // very light validation: must contain a modifier and a key
+    // Very light validation: must contain a modifier and a key
     const hasModifier =
       /(Command|Control|Ctrl|Cmd|Alt|Option|Shift|Super|Meta)/i.test(s);
     const hasKey = /\+\s*[^+\s]+$/i.test(s);
