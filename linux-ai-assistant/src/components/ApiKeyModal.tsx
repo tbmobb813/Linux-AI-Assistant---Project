@@ -6,12 +6,12 @@ export default function ApiKeyModal() {
   const [keyValue, setKeyValue] = useState("");
 
   // Reset keyValue when modal is closed by any means
-  import { useEffect } from "react";
   useEffect(() => {
     if (!apiKeyModal.open) {
       setKeyValue("");
     }
   }, [apiKeyModal.open]);
+
   if (!apiKeyModal.open) return null;
 
   const resetAndClose = () => {
