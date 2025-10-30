@@ -1,0 +1,18 @@
+# Codecov configuration: controls status checks and coverage targets
+coverage:
+  status:
+    project:
+      default:
+        # Project-level target percentage. Adjust to your desired threshold.
+        target: 70%
+    patch:
+      default:
+        # Patch (PR) target: 0% means PRs are allowed to change coverage but won't be blocked
+        target: 0%
+
+comment:
+  # Keep Codecov PR comments concise
+  layout: "header, diff, changes"
+  require_changes: no
+
+precision: 2
