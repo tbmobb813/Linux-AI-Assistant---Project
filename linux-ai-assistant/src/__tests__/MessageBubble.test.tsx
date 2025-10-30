@@ -1,5 +1,5 @@
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, test, expect, beforeEach } from "vitest";
+import { vi, beforeEach } from "vitest";
 
 // Mock uiStore (selector-aware) and export mocks
 vi.mock("../lib/stores/uiStore", () => {
