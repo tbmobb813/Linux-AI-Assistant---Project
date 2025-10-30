@@ -200,7 +200,6 @@ export default function App(): JSX.Element {
           ttl: 1500,
         });
       }
-      mounted = true;
     });
     // Mark mounted after initial microtask
     Promise.resolve().then(() => {
