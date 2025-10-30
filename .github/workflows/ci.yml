@@ -19,14 +19,16 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install root dependencies
-        run: npm ci
+      - name: Setup pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.19.0 --activate
 
-      - name: Install workspace dependencies
-        run: npm ci --workspace=linux-ai-assistant
+      - name: Install dependencies (pnpm, frozen lockfile)
+        run: pnpm install --frozen-lockfile
 
-      - name: Run tests with coverage
-        run: npm --workspace=linux-ai-assistant run test:coverage
+      - name: Run tests with coverage (pnpm workspace)
+        run: pnpm --filter linux-ai-assistant run test:coverage
 
       - name: Show coverage dir
         run: |
