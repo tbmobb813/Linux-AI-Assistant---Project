@@ -13,8 +13,14 @@ import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 
 export default function App(): JSX.Element {
-  const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
-    useSettingsStore();
+  const {
+    loadSettings,
+    registerGlobalShortcut,
+    globalShortcut,
+    theme,
+    projectRoot,
+    stopProjectWatch,
+  } = useSettingsStore();
 
   useEffect(() => {
     (async () => {
