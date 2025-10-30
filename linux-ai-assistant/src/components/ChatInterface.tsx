@@ -4,9 +4,7 @@ import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
-import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
-import { getProvider } from "../lib/providers/provider";
-import { useProjectStore } from "../lib/stores/projectStore";
+import { isTauriEnvironment } from "../lib/utils/tauri";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 
@@ -30,24 +28,7 @@ export default function ChatInterface() {
     }
   }, [currentConversation]);
 
-  // Git context for current workspace (populates header)
-  const [gitContext, setGitContext] = useState<{
-    is_repo: boolean;
-    branch?: string | null;
-    dirty?: boolean;
-  } | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      if (!isTauriEnvironment()) return;
-      try {
-        const res = await invokeSafe("get_git_context", {});
-        if (res) setGitContext(res as any);
-      } catch (e) {
-        // ignore
-      }
-    })();
-  }, []);
+  // (Git context fetch removed; not currently used by UI)
 
   useEffect(() => {
     // keyboard shortcut: Ctrl+K focuses the message input
@@ -120,31 +101,8 @@ export default function ChatInterface() {
           <h3 className="text-lg font-semibold">
             {currentConversation.title || "Untitled"}
           </h3>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-              <span>
-                {currentConversation.model} • {currentConversation.provider}
-              </span>
-              {isLocalProvider(currentConversation.provider) ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                  🔒 Local
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                  ☁️ Cloud
-                </span>
-              )}
-            </div>
-            {gitContext && gitContext.is_repo && (
-              <div className="text-xs text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
-                <strong className="mr-1">{gitContext.branch || "HEAD"}</strong>
-                {gitContext.dirty ? (
-                  <span className="text-red-400">●</span>
-                ) : (
-                  <span className="text-green-400">●</span>
-                )}
-              </div>
-            )}
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            {currentConversation.model} • {currentConversation.provider}
           </div>
         </div>
         <div>
@@ -234,44 +192,6 @@ export default function ChatInterface() {
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
               </svg>
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                const lastUser = [...messages]
-                  .reverse()
-                  .find((m) => m.role === "user");
-                const base = lastUser?.content || value.trim();
-                if (!base) return;
-                const provider = getProvider();
-                const project = useProjectStore.getState();
-                const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
-                const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
-                try {
-                  const resp = await provider.generateResponse(
-                    currentConversation?.id || "suggestions",
-                    [{ role: "user", content: prompt }],
-                  );
-                  const items = resp
-                    .split(/\r?\n/)
-                    .map((s) => s.replace(/^[-•]\s*/, "").trim())
-                    .filter(Boolean)
-                    .slice(0, 5);
-                  useUiStore.getState().showSuggestions(items);
-                } catch (e) {
-                  addToast({
-                    message: "Failed to get suggestions",
-                    type: "error",
-                    ttl: 1600,
-                  });
-                }
-              }}
-              className="px-3 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-              disabled={isLoading}
-              title="Suggest terminal commands"
-              aria-label="Suggest terminal commands"
-            >
-              Suggest
             </button>
             <input
               ref={inputRef}

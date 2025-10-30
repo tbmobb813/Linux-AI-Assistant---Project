@@ -18,15 +18,6 @@ interface SettingsState {
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
   allowCodeExecution: boolean;
-  projectRoot?: string | null;
-  ollamaEndpoint: string; // Ollama server endpoint
-  enableHybridRouting: boolean; // Auto-fallback between local and cloud
-  preferLocal: boolean; // Prefer local models when available
-
-  // Data retention settings
-  autoCleanupEnabled: boolean; // Enable automatic cleanup
-  maxConversationAge: number; // Max age in days (0 = disabled)
-  maxConversationCount: number; // Max number of conversations (0 = unlimited)
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -35,17 +26,8 @@ interface SettingsState {
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
-  setAllowCodeExecution: (allow: boolean) => Promise<void>;
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
-  setProjectRoot: (path: string) => Promise<void>;
-  stopProjectWatch: () => Promise<void>;
-  setOllamaEndpoint: (endpoint: string) => Promise<void>;
-  setEnableHybridRouting: (enable: boolean) => Promise<void>;
-  setPreferLocal: (prefer: boolean) => Promise<void>;
-  setAutoCleanupEnabled: (enabled: boolean) => Promise<void>;
-  setMaxConversationAge: (days: number) => Promise<void>;
-  setMaxConversationCount: (count: number) => Promise<void>;
-  performManualCleanup: () => Promise<string>;
+  setAllowCodeExecution: (allow: boolean) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -55,13 +37,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
   allowCodeExecution: false,
-  projectRoot: null,
-  ollamaEndpoint: "http://localhost:11434",
-  enableHybridRouting: false,
-  preferLocal: true,
-  autoCleanupEnabled: false,
-  maxConversationAge: 90, // 90 days
-  maxConversationCount: 1000, // 1000 conversations
 
   loadSettings: async () => {
     try {
@@ -72,25 +47,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
-      const allowRaw = await db.settings.get("allowCodeExecution");
-      const allowCodeExecution = allowRaw === "true";
-      const projectRoot = (await db.settings.get("projectRoot")) || null;
-      const ollamaEndpoint =
-        (await db.settings.get("ollamaEndpoint")) || "http://localhost:11434";
-      const enableHybridRoutingRaw = await db.settings.get(
-        "enableHybridRouting",
-      );
-      const enableHybridRouting = enableHybridRoutingRaw === "true";
-      const preferLocalRaw = await db.settings.get("preferLocal");
-      const preferLocal = preferLocalRaw !== "false"; // Default to true
-      const autoCleanupEnabledRaw = await db.settings.get("autoCleanupEnabled");
-      const autoCleanupEnabled = autoCleanupEnabledRaw === "true";
-      const maxConversationAge = parseInt(
-        (await db.settings.get("maxConversationAge")) || "90",
-      );
-      const maxConversationCount = parseInt(
-        (await db.settings.get("maxConversationCount")) || "1000",
-      );
+      const allowCodeExecution =
+        (await db.settings.get("allowCodeExecution")) === "true";
 
       set({
         theme: (theme as any) || "system",
@@ -99,26 +57,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         apiKeys: apiKeys || {},
         globalShortcut,
         allowCodeExecution,
-        projectRoot,
-        ollamaEndpoint,
-        enableHybridRouting,
-        preferLocal,
-        autoCleanupEnabled,
-        maxConversationAge,
-        maxConversationCount,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
       } catch {}
-      // If a project root is set, attempt to start the watcher on launch (best-effort)
-      if (projectRoot) {
-        try {
-          const { invokeSafe } = await import("../utils/tauri");
-          await invokeSafe("set_project_root", { path: projectRoot });
-        } catch (e) {
-          // non-fatal
-        }
-      }
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -146,7 +88,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       const newApiKeys = { ...state.apiKeys, [provider]: key };
       db.settings.setJSON("apiKeys", newApiKeys);
-      return { apiKeys: newApiKeys };
+      return { apiKeys: newApiKeys } as any;
     });
   },
 
@@ -158,24 +100,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     await useSettingsStore.getState().registerGlobalShortcut(shortcut);
   },
 
-  setAllowCodeExecution: async (allow) => {
-    try {
-      await db.settings.set("allowCodeExecution", String(allow));
-    } catch (e) {
-      console.error("Failed to persist allowCodeExecution", e);
-    }
-    set({ allowCodeExecution: allow });
-  },
-
   registerGlobalShortcut: async (shortcutOptional) => {
     const shortcut =
       shortcutOptional || useSettingsStore.getState().globalShortcut;
     // Unregister all first to avoid duplicate binds
-    try {
-      await unregisterAllShortcutsSafe();
-    } catch (e) {
-      // ignore
-    }
+    await unregisterAllShortcutsSafe();
     try {
       const success = await registerGlobalShortcutSafe(shortcut, async () => {
         try {
@@ -201,44 +130,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }
   },
 
-  setProjectRoot: async (path: string) => {
-    try {
-      await db.settings.set("projectRoot", path);
-      set({ projectRoot: path });
-      const { invokeSafe } = await import("../utils/tauri");
-      await invokeSafe("set_project_root", { path });
-      useUiStore.getState().addToast({
-        message: "Watching project root",
-        type: "success",
-        ttl: 1400,
-      });
-    } catch (e) {
-      useUiStore.getState().addToast({
-        message: "Failed to watch project root",
-        type: "error",
-        ttl: 1600,
-      });
-    }
-  },
-
-  stopProjectWatch: async () => {
-    try {
-      const { invokeSafe } = await import("../utils/tauri");
-      await invokeSafe("stop_project_watch");
-      set({ projectRoot: null });
-      await db.settings.delete("projectRoot");
-      useUiStore.getState().addToast({
-        message: "Stopped watching project",
-        type: "info",
-        ttl: 1200,
-      });
-    } catch (e) {
-      useUiStore.getState().addToast({
-        message: "Failed to stop watcher",
-        type: "error",
-        ttl: 1600,
-      });
-    }
+  setAllowCodeExecution: async (allow) => {
+    await db.settings.set("allowCodeExecution", allow ? "true" : "false");
+    set({ allowCodeExecution: allow });
   },
 
   setOllamaEndpoint: async (endpoint: string) => {

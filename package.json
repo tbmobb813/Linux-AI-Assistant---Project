@@ -16,6 +16,7 @@
   "devDependencies": {
     "@playwright/test": "^1.56.1",
     "@tauri-apps/cli": "2.9.1",
+    "@types/node": "^24.9.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -36,7 +37,7 @@
       "prettier --write"
     ],
     "linux-ai-assistant/src-tauri/**/*.rs": [
-      "sh -c 'cd linux-ai-assistant/src-tauri && cargo fmt'"
+      "bash -c 'cd linux-ai-assistant/src-tauri && cargo fmt -- \"$@\"' --"
     ]
   }
 }
