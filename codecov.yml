@@ -7,8 +7,8 @@ coverage:
         target: 70%
     patch:
       default:
-        # Patch (PR) target: 0% means PRs are allowed to change coverage but won't be blocked
-        target: 0%
+        # Patch (PR) target: 60% means PRs must have at least 60% coverage for new/changed code
+        target: 60%
 
 comment:
   # Keep Codecov PR comments concise
