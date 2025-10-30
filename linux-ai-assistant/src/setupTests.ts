@@ -2,6 +2,32 @@ import { vi } from "vitest";
 import "@testing-library/jest-dom";
 
 // Mock the Tauri core invoke API used in the frontend database wrapper so tests run in Node/jsdom
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(async (cmd: string, args?: any) => {
+    // Basic noop mock that returns reasonable defaults for commands used by tests
+    if (cmd === "get_all_conversations") return [];
+    if (cmd === "get_conversation") return null;
+    if (cmd === "create_conversation")
+      return {
+        id: "mock-c",
+        title: args?.title || "mock",
+        model: args?.model || "gpt",
+        provider: args?.provider || "local",
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      };
+    if (cmd === "get_conversation_messages") return [];
+    // Settings
+    if (cmd === "get_setting") return null;
+    if (cmd === "set_setting") return null;
+    if (cmd === "get_all_settings") return [];
+    // Window
+    if (cmd === "toggle_main_window") return null;
+    return null;
+  }),
+}));
+
+// Also mock the old path for backwards compatibility
 vi.mock("@tauri-apps/api/tauri", () => ({
   invoke: vi.fn(async (cmd: string, args?: any) => {
     // Basic noop mock that returns reasonable defaults for commands used by tests
@@ -24,6 +50,14 @@ vi.mock("@tauri-apps/api/tauri", () => ({
     // Window
     if (cmd === "toggle_main_window") return null;
     return null;
+  }),
+}));
+
+// Mock the Tauri event API for listen functionality
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn(async (_event: string, _cb: (e: any) => void) => {
+    // Return an unlisten function
+    return () => {};
   }),
 }));
 
