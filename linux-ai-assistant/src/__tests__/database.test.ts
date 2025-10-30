@@ -33,11 +33,9 @@ describe("database settings JSON roundtrip", () => {
   test("setJSON with array data", async () => {
     const arrayData = ["item1", "item2", "item3"];
 
-    await database.settings.setJSON("arrayKey-" + Date.now(), arrayData);
-    const retrieved = await database.settings.getJSON<typeof arrayData>(
-      "arrayKey-" + Date.now(),
-    );
-
+    const key = "arrayKey-" + Date.now();
+    await database.settings.setJSON(key, arrayData);
+    const retrieved = await database.settings.getJSON<typeof arrayData>(key);
     // Array may not exist due to different keys
     if (retrieved) {
       expect(Array.isArray(retrieved)).toBe(true);
