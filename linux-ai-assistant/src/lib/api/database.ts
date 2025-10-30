@@ -1,7 +1,7 @@
 // src/lib/api/database.ts
 // Frontend API wrapper for Tauri commands
 
-import { invoke } from "@tauri-apps/api/core";
+import { getInvoke } from "../tauri-shim";
 import type {
   NewConversation,
   NewMessage,
@@ -17,6 +17,10 @@ async function callInvoke<T>(
   args?: Record<string, unknown>,
 ): Promise<T> {
   try {
+    const invoke = await getInvoke();
+    if (!invoke) {
+      throw new Error("Tauri invoke not available");
+    }
     return await invoke<T>(cmd as any, args as any);
   } catch (e: any) {
     // Normalize the error shape: tauri may return an object; prefer a string message.
