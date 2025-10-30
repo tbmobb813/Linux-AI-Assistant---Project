@@ -133,7 +133,7 @@ export function createAppError(
   const errorKey = extractErrorKey(error);
 
   return {
-    id: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `error_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
     type,
     severity,
     message: String(error),
