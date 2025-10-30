@@ -242,3 +242,212 @@ pub fn provider_openai_stream(
 
     Ok(session_id)
 }
+
+#[tauri::command]
+pub fn provider_ollama_generate(
+    _conversation_id: String,
+    messages: Vec<ProviderMessage>,
+    model: Option<String>,
+) -> Result<String, String> {
+    let client = reqwest::blocking::Client::new();
+
+    // Default Ollama endpoint - can be configured later
+    let endpoint =
+        std::env::var("OLLAMA_ENDPOINT").unwrap_or_else(|_| "http://localhost:11434".to_string());
+    let api_url = format!("{}/api/generate", endpoint);
+
+    // Convert messages to a single prompt for Ollama
+    let prompt = messages
+        .into_iter()
+        .map(|m| match m.role.as_str() {
+            "system" => format!("System: {}", m.content),
+            "user" => format!("Human: {}", m.content),
+            "assistant" => format!("Assistant: {}", m.content),
+            _ => format!("{}: {}", m.role, m.content),
+        })
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    let model_name = model.unwrap_or_else(|| "llama3.2".to_string());
+
+    let body = serde_json::json!({
+        "model": model_name,
+        "prompt": prompt,
+        "stream": false
+    });
+
+    let resp = client
+        .post(&api_url)
+        .json(&body)
+        .send()
+        .map_err(|e| format!("Ollama request error: {}", e))?;
+
+    let status = resp.status();
+    let json: serde_json::Value = resp
+        .json()
+        .map_err(|e| format!("json parse error: {}", e))?;
+
+    if !status.is_success() {
+        return Err(format!("Ollama API returned {}: {}", status, json));
+    }
+
+    let content = json["response"].as_str().unwrap_or("").to_string();
+
+    Ok(content)
+}
+
+#[tauri::command]
+pub fn provider_ollama_stream(
+    app: tauri::AppHandle,
+    _conversation_id: String,
+    messages: Vec<ProviderMessage>,
+    model: Option<String>,
+) -> Result<String, String> {
+    let client = reqwest::blocking::Client::new();
+
+    let endpoint =
+        std::env::var("OLLAMA_ENDPOINT").unwrap_or_else(|_| "http://localhost:11434".to_string());
+    let api_url = format!("{}/api/generate", endpoint);
+
+    let prompt = messages
+        .into_iter()
+        .map(|m| match m.role.as_str() {
+            "system" => format!("System: {}", m.content),
+            "user" => format!("Human: {}", m.content),
+            "assistant" => format!("Assistant: {}", m.content),
+            _ => format!("{}: {}", m.role, m.content),
+        })
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    let model_name = model.unwrap_or_else(|| "llama3.2".to_string());
+    let session_id = uuid::Uuid::new_v4().to_string();
+
+    let body = serde_json::json!({
+        "model": model_name,
+        "prompt": prompt,
+        "stream": true
+    });
+
+    // Spawn thread for streaming response
+    let session_id_clone = session_id.clone();
+    std::thread::spawn(move || {
+        let resp = match client.post(&api_url).json(&body).send() {
+            Ok(r) => r,
+            Err(_) => return,
+        };
+
+        if !resp.status().is_success() {
+            return;
+        }
+
+        let reader = std::io::BufReader::new(resp);
+        use std::io::BufRead;
+
+        for line in reader.lines().map_while(Result::ok) {
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&line) {
+                if let Some(response) = json["response"].as_str() {
+                    let payload = serde_json::json!({
+                        "session_id": session_id_clone,
+                        "chunk": response
+                    });
+
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit("provider-stream-chunk", payload);
+                    }
+                }
+
+                // Check if this is the final response
+                if json["done"].as_bool().unwrap_or(false) {
+                    let payload = serde_json::json!({
+                        "session_id": session_id_clone
+                    });
+
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit("provider-stream-end", payload);
+                    }
+                    break;
+                }
+            }
+        }
+    });
+
+    Ok(session_id)
+}
+
+#[tauri::command]
+pub fn ollama_list_models() -> Result<Vec<String>, String> {
+    let client = reqwest::blocking::Client::new();
+    let endpoint =
+        std::env::var("OLLAMA_ENDPOINT").unwrap_or_else(|_| "http://localhost:11434".to_string());
+    let api_url = format!("{}/api/tags", endpoint);
+
+    let resp = client
+        .get(&api_url)
+        .send()
+        .map_err(|e| format!("Ollama request error: {}", e))?;
+
+    let status = resp.status();
+    let json: serde_json::Value = resp
+        .json()
+        .map_err(|e| format!("json parse error: {}", e))?;
+
+    if !status.is_success() {
+        return Err(format!("Ollama API returned {}: {}", status, json));
+    }
+
+    let models = json["models"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .iter()
+        .filter_map(|model| model["name"].as_str())
+        .map(|name| name.to_string())
+        .collect();
+
+    Ok(models)
+}
+
+#[tauri::command]
+pub fn ollama_pull_model(model: String) -> Result<String, String> {
+    let client = reqwest::blocking::Client::new();
+    let endpoint =
+        std::env::var("OLLAMA_ENDPOINT").unwrap_or_else(|_| "http://localhost:11434".to_string());
+    let api_url = format!("{}/api/pull", endpoint);
+
+    let body = serde_json::json!({
+        "name": model,
+        "stream": false
+    });
+
+    let resp = client
+        .post(&api_url)
+        .json(&body)
+        .send()
+        .map_err(|e| format!("Ollama pull request error: {}", e))?;
+
+    let status = resp.status();
+
+    if !status.is_success() {
+        let error_text = resp.text().unwrap_or_default();
+        return Err(format!("Ollama pull failed {}: {}", status, error_text));
+    }
+
+    Ok(format!("Successfully pulled model: {}", model))
+}
+
+#[tauri::command]
+pub fn ollama_check_connection() -> Result<bool, String> {
+    let client = reqwest::blocking::Client::new();
+    let endpoint =
+        std::env::var("OLLAMA_ENDPOINT").unwrap_or_else(|_| "http://localhost:11434".to_string());
+    let api_url = format!("{}/api/version", endpoint);
+
+    match client.get(&api_url).send() {
+        Ok(resp) => Ok(resp.status().is_success()),
+        Err(_) => Ok(false),
+    }
+}

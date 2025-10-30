@@ -1,5 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
 # Ensure we use Node 22+ for lint-staged (requires top-level await support)
 export NVM_DIR="$HOME/.nvm"

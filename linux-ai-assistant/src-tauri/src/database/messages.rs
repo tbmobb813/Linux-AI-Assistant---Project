@@ -20,6 +20,16 @@ pub struct NewMessage {
     pub tokens_used: Option<i64>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewMessageWithId {
+    pub id: String,
+    pub conversation_id: String,
+    pub role: String,
+    pub content: String,
+    pub timestamp: i64,
+    pub tokens_used: Option<i64>,
+}
+
 impl Message {
     pub fn create(conn: &Connection, new_msg: NewMessage) -> Result<Self> {
         let now = SystemTime::now()
@@ -38,6 +48,21 @@ impl Message {
             role: new_msg.role,
             content: new_msg.content,
             timestamp: now,
+            tokens_used: new_msg.tokens_used,
+        })
+    }
+
+    pub fn create_with_id(conn: &Connection, new_msg: NewMessageWithId) -> Result<Self> {
+        conn.execute(
+            "INSERT INTO messages (id, conversation_id, role, content, timestamp, tokens_used) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![&new_msg.id, &new_msg.conversation_id, &new_msg.role, &new_msg.content, new_msg.timestamp, new_msg.tokens_used],
+        )?;
+        Ok(Message {
+            id: new_msg.id,
+            conversation_id: new_msg.conversation_id,
+            role: new_msg.role,
+            content: new_msg.content,
+            timestamp: new_msg.timestamp,
             tokens_used: new_msg.tokens_used,
         })
     }

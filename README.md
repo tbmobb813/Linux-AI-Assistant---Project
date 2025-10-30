@@ -246,6 +246,61 @@ Keyring: keyring-rs
   │ ├── user-guide.md
   │ └── development.md
   │
+
+## Phase 5: Local AI & Privacy Features ✅
+
+**Complete privacy-respecting local processing options delivered!**
+
+### 🚀 **Ollama Integration**
+
+- **Full Local AI Processing**: Run models like Llama, Mistral, CodeLlama locally
+- **HTTP API Integration**: Seamless communication with local Ollama service
+- **Model Management**: Browse, download, and manage local models
+- **Progress Tracking**: Real-time download progress with native OS integration
+
+### 🔄 **Hybrid Routing System**
+
+- **Smart Provider Selection**: Automatically choose between local and cloud models
+- **User Preferences**: Configure local-first or cloud-first routing
+- **Availability Detection**: Automatically detect Ollama service status
+- **Graceful Fallback**: Seamless fallback when preferred providers unavailable
+
+### 🛡️ **Privacy Indicators**
+
+- **Visual Cues**: Clear indicators showing local vs cloud processing
+- **Provider Display**: Conversation-level provider and model information
+- **Transparency**: Users always know where their data is processed
+
+### 📤 **Enhanced Export/Import System**
+
+- **Multiple Formats**: JSON (structured) and Markdown (readable) export
+- **Individual Export**: Export single conversations with format selection
+- **Bulk Export**: Export all conversations at once
+- **Data Preservation**: Import maintains original IDs, timestamps, metadata
+- **Native Dialogs**: OS-native file picker integration
+
+### 🗂️ **Data Retention Controls**
+
+- **Automatic Cleanup**: Configurable age and count-based retention policies
+- **Manual Management**: One-click cleanup for immediate data removal
+- **Smart Policies**: Balance between data retention and privacy
+- **Safety Features**: Clear warnings and confirmation patterns
+
+### 🔧 **Technical Implementation**
+
+- **Tauri v2 Integration**: Updated to latest with proper plugin system
+- **Rust Performance**: High-performance backend for file operations
+- **Type Safety**: Full TypeScript integration with error handling
+- **Settings Persistence**: All preferences saved and restored properly
+- **Database Extensions**: Support for ID preservation during imports
+
+### 📋 **User Experience**
+
+- **Conversation List**: Export buttons (📄 JSON, 📝 Markdown) on each conversation
+- **Settings Panel**: Comprehensive privacy and retention controls
+- **Progress Feedback**: Real-time status updates for all operations
+- **Error Handling**: Clear error messages and recovery guidance
+
   ├── package.json
   ├── tsconfig.json
   ├── tailwind.config.js
@@ -344,27 +399,47 @@ Goal: Privacy-respecting local processing options
 
 Milestones:
 
-[ ] Ollama integration for local models
-[ ] Model download and management UI
-[ ] Hybrid routing (local vs cloud)
-[ ] Privacy indicators (local/cloud visual cues)
-[ ] Conversation export/import
-[ ] Data retention controls
-Deliverable: Complete privacy control for users
+[x] Ollama integration for local models
+[x] Model download and management UI
+[x] Hybrid routing (local vs cloud)
+[x] Privacy indicators (local/cloud visual cues)
+[x] Conversation export/import
+[x] Data retention controls
+Deliverable: Complete privacy control for users ✅
+
+Nice-to-haves (Phase 5):
+
+- Model statistics and performance comparison dashboard
+- Automatic model optimization and cleanup
+- Encrypted conversation storage for sensitive topics
+- Privacy audit logging (what data is sent where)
+- Scheduled data purging with customizable retention policies
+- Model benchmarking against cloud providers
+- Advanced search across conversations with privacy modes
 
 Phase 6: Polish & Distribution (Weeks 16-18)
 Goal: Production-ready application
 
 Milestones:
 
-[ ] Performance optimization and profiling
-[ ] Comprehensive error handling
-[ ] User documentation and help system
-[ ] Package for Snap, Flatpak, AppImage
+[x] Performance optimization and profiling ✅
+[x] Comprehensive error handling ✅
+[x] User documentation and help system ✅
+[x] Package for Snap, Flatpak, AppImage ✅
 [ ] Create DEB and RPM packages
 [ ] Set up automatic updates
 [ ] Beta testing with Linux community
 Deliverable: Distributable packages on multiple channels
+
+Nice-to-haves (Phase 6):
+
+- Advanced performance monitoring dashboard with metrics export
+- Multi-language support (i18n) for international users
+- Accessibility improvements (keyboard navigation, screen reader support)
+- Analytics opt-in system for usage insights
+- A/B testing framework for feature evaluation
+- Plugin system for third-party extensions
+- Dark mode theme with customizable color schemes
 
 Technical Specifications
 Database Schema
@@ -432,7 +507,8 @@ models = ["claude-sonnet-4.5", "claude-opus-4"]
 enabled = false
 endpoint = "<http://localhost:11434>"
 Key Features & Requirements
-Must Have (MVP)
+
+**Must Have (MVP) ✅ COMPLETED**
 ✅ Multi-provider AI chat (OpenAI, Anthropic, Gemini)
 ✅ Conversation history with search
 ✅ Markdown rendering with code syntax highlighting
@@ -441,15 +517,21 @@ Must Have (MVP)
 ✅ Secure API key storage
 ✅ Dark/Light theme support
 ✅ Export conversations
-Should Have (V1.0)
-🎯 CLI companion tool
-🎯 Local model support via Ollama
-🎯 Clipboard integration
-🎯 Git awareness
-🎯 File attachment support
-🎯 Custom system prompts
-🎯 Conversation branching
-Nice to Have (Future)
+
+**Should Have (V1.0) ✅ COMPLETED**
+✅ CLI companion tool
+✅ Local model support via Ollama
+✅ Clipboard integration
+✅ Git awareness
+✅ File attachment support
+✅ Custom system prompts
+✅ Conversation branching
+✅ **NEW: Hybrid routing (local/cloud)**
+✅ **NEW: Privacy indicators**
+✅ **NEW: Individual conversation export**
+✅ **NEW: Data retention controls**
+
+**Nice to Have (Future) 🚧 PHASE 6+**
 💡 End-to-end encrypted sync
 💡 Voice input/output
 💡 Image generation integration

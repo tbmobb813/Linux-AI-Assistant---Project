@@ -18,6 +18,29 @@ export default defineConfig({
   build: {
     rollupOptions: {
       external: [/^@tauri-apps\/api($|\/)/],
+      output: {
+        manualChunks: {
+          // Split vendor libraries into separate chunks
+          vendor: ["react", "react-dom"],
+          ui: ["lucide-react", "zustand"],
+          markdown: [
+            "react-markdown",
+            "rehype-highlight",
+            "rehype-katex",
+            "remark-gfm",
+            "remark-math",
+          ],
+          math: ["katex"],
+        },
+      },
     },
+    // Enable compression reporting
+    reportCompressedSize: true,
+    // Reduce chunk size warning limit
+    chunkSizeWarningLimit: 400,
+  },
+  // Enable dependency optimization
+  optimizeDeps: {
+    exclude: ["@tauri-apps/api"],
   },
 });

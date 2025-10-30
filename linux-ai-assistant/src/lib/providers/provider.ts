@@ -114,6 +114,44 @@ export function getProvider(): Provider {
             }
           }
           return res;
+        } else if (provider === "ollama") {
+          if (onChunk && listenAvailable) {
+            const sessionId: string = await invokeFn("provider_ollama_stream", {
+              conversation_id: conversationId,
+              messages,
+              model,
+            });
+            let buffer = "";
+            const unlistenChunkP = listenFn(
+              "provider-stream-chunk",
+              (e: any) => {
+                const payload: any = e.payload;
+                if (payload?.session_id === sessionId) {
+                  const chunk = payload.chunk as string;
+                  buffer += chunk;
+                  try {
+                    onChunk(chunk);
+                  } catch (_) {}
+                }
+              },
+            );
+            const unlistenEndP = listenFn("provider-stream-end", (e: any) => {
+              const payload: any = e.payload;
+              if (payload?.session_id === sessionId) {
+                Promise.all([unlistenChunkP, unlistenEndP]).then((fns: any[]) =>
+                  fns.forEach((fn) => fn && fn()),
+                );
+              }
+            });
+            await new Promise((r) => setTimeout(r, 200));
+            return buffer;
+          }
+          // fallback to non-streaming
+          return await invokeFn("provider_ollama_generate", {
+            conversation_id: conversationId,
+            messages,
+            model,
+          });
         } else {
           return mockProvider.generateResponse(
             conversationId,

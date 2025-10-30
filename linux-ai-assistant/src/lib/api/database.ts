@@ -10,13 +10,14 @@ import type {
   ApiMessage,
   Setting,
 } from "./types";
+import { handleDatabaseError } from "../utils/errorHandler";
 
-// Centralized invoke wrapper to normalize errors and provide a single place to
-// add timeouts, logging, or other cross-cutting behaviors for Tauri calls.
+// Enhanced invoke wrapper with better error handling and recovery
 async function callInvoke<T>(
   cmd: string,
   args?: Record<string, unknown>,
 ): Promise<T> {
+  const startTime = Date.now();
   // Simple in-memory settings store for web preview to support tests
   // and allow basic persistence during a session.
   // Note: module scope ensures a single instance per page.
@@ -107,7 +108,19 @@ async function callInvoke<T>(
     return await invokeFn<T>(cmd as any, args as any);
   } catch (e: any) {
     const msg = e?.message || (typeof e === "string" ? e : JSON.stringify(e));
-    throw new Error(msg);
+    const error = new Error(`Database operation failed: ${cmd} - ${msg}`);
+
+    // Add context about the operation
+    (error as any).operation = cmd;
+    (error as any).args = args;
+    (error as any).duration = Date.now() - startTime;
+
+    // Handle critical database errors
+    if (msg.includes("database is locked") || msg.includes("disk I/O error")) {
+      handleDatabaseError(error, `Database.${cmd}`);
+    }
+
+    throw error;
   }
 }
 

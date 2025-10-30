@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
-import { invokeSafe } from "../lib/utils/tauri";
 import { useUiStore } from "../lib/stores/uiStore";
+import { withErrorHandling } from "../lib/utils/errorHandler";
 
 type Props = {
   onClose?: () => void;
@@ -11,15 +11,10 @@ type Props = {
 export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
-  const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
-  const { projectRoot, setProjectRoot, stopProjectWatch } = useSettingsStore();
-  const { defaultProvider, setDefaultProvider, defaultModel, setDefaultModel } =
-    useSettingsStore();
-  const { showAudit, showApiKeyModal } = useUiStore();
+  const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [projectPath, setProjectPath] = useState<string>(projectRoot || "");
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -40,15 +35,30 @@ export default function Settings({ onClose }: Props): JSX.Element {
       return;
     }
     setSaving(true);
-    try {
-      await setGlobalShortcut(v);
-      setError(null);
-      onClose?.();
-    } catch (e) {
+
+    const result = await withErrorHandling(
+      async () => {
+        await setGlobalShortcut(v);
+        setError(null);
+        onClose?.();
+      },
+      "Settings.onSave",
+      "Failed to save settings. Please try again.",
+    );
+
+    if (result !== null) {
+      // Success - settings were saved
+      addToast({
+        message: "Settings saved successfully",
+        type: "success",
+        ttl: 2000,
+      });
+    } else {
+      // Error occurred - handled by withErrorHandling
       setError("Failed to save shortcut");
-    } finally {
-      setSaving(false);
     }
+
+    setSaving(false);
   };
 
   return (
@@ -107,153 +117,6 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <p className="text-[11px] text-gray-600 dark:text-gray-400">
           When set to System, the app follows your OS dark mode.
         </p>
-      </div>
-
-      <div className="space-y-1 pt-2">
-        <label className="text-xs text-gray-700 dark:text-gray-300">
-          Default provider
-        </label>
-        <select
-          value={defaultProvider}
-          onChange={(e) => setDefaultProvider(e.target.value)}
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm"
-        >
-          <option value="openai">OpenAI</option>
-          <option value="anthropic">Anthropic</option>
-          <option value="gemini">Gemini</option>
-          <option value="local">Local (mock)</option>
-        </select>
-        <label className="text-xs text-gray-700 dark:text-gray-300">
-          Default model
-        </label>
-        <input
-          value={defaultModel}
-          onChange={(e) => setDefaultModel(e.target.value)}
-          placeholder="e.g., gpt-4o, claude-3-5-sonnet, gemini-1.5-flash"
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="text-[11px] text-gray-600 dark:text-gray-400">
-          Provider-specific models are supported; leave blank to use provider
-          defaults.
-        </div>
-        <div className="pt-1 flex flex-wrap gap-2">
-          {[
-            { id: "openai", label: "Save OpenAI API key" },
-            { id: "anthropic", label: "Save Anthropic API key" },
-            { id: "gemini", label: "Save Gemini API key" },
-          ].map((p) => (
-            <button
-              key={p.id}
-              onClick={async () => {
-                showApiKeyModal(`${p.label}`, async (k) => {
-                  try {
-                    await invokeSafe("set_api_key", { provider: p.id, key: k });
-                    useUiStore.getState().addToast({
-                      message: `${p.id} key saved to keyring`,
-                      type: "success",
-                      ttl: 1400,
-                    });
-                  } catch (e) {
-                    useUiStore.getState().addToast({
-                      message: `Failed to save ${p.id} key`,
-                      type: "error",
-                      ttl: 1600,
-                    });
-                  }
-                });
-              }}
-              className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-1 pt-2">
-        <label className="text-xs text-gray-700 dark:text-gray-300">
-          Code execution
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            id="allow-code-exec"
-            type="checkbox"
-            checked={allowCodeExecution}
-            onChange={(e) => setAllowCodeExecution(e.target.checked)}
-          />
-          <label
-            htmlFor="allow-code-exec"
-            className="text-xs text-gray-600 dark:text-gray-400"
-          >
-            Allow running code snippets (use with caution)
-          </label>
-        </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400 pt-1">
-          Warning: Enabling code execution allows the app to run commands with
-          your user permissions. Only enable this if you trust the source of
-          snippets. You can leave it disabled to prevent accidental execution.
-        </p>
-        <div className="pt-2">
-          <button
-            onClick={async () => {
-              // fetch last ~200 lines of audit and show modal
-              try {
-                const content =
-                  (await invokeSafe<string>("read_audit", { lines: 200 })) ||
-                  "";
-                showAudit(content);
-              } catch (e) {
-                console.error("failed to load audit log", e);
-              }
-            }}
-            className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
-          >
-            View execution audit
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-1 pt-2">
-        <label className="text-xs text-gray-700 dark:text-gray-300">
-          Project root (enable file watcher)
-        </label>
-        <input
-          value={projectPath}
-          onChange={(e) => setProjectPath(e.target.value)}
-          placeholder="/path/to/project"
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="pt-1">
-          <button
-            onClick={async () => {
-              if (!projectPath.trim()) return;
-              await setProjectRoot(projectPath.trim());
-            }}
-            className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
-          >
-            Watch folder
-          </button>
-          {projectRoot && (
-            <button
-              onClick={async () => {
-                await stopProjectWatch();
-                setProjectPath("");
-              }}
-              className="ml-2 text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
-            >
-              Stop watching
-            </button>
-          )}
-        </div>
-        <p className="text-[11px] text-gray-600 dark:text-gray-400">
-          Changes will appear as toasts for now. Future versions will surface
-          project-aware context in chat.
-        </p>
-        {projectRoot && (
-          <p className="text-[11px] text-gray-500 dark:text-gray-400">
-            Currently watching: {projectRoot}
-          </p>
-        )}
       </div>
 
       <div className="flex justify-end gap-2 pt-1">

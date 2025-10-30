@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
-import { database } from "../lib/api/database";
 import type { ApiConversation } from "../lib/api/types";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
+import { invokeSafe } from "../lib/utils/tauri";
 
 interface Props {
   conversation: ApiConversation;
@@ -18,6 +18,7 @@ export default function ConversationItem({
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(conversation.title || "Untitled");
+  const [exporting, setExporting] = useState(false);
   const updateTitle = useChatStore((s) => s.updateConversationTitle);
   const deleteConversation = useChatStore((s) => s.deleteConversation);
   const addToast = useUiStore((s) => s.addToast);
@@ -37,54 +38,42 @@ export default function ConversationItem({
     }
   };
 
-  const handleDelete = async (ev: MouseEvent) => {
-    ev.stopPropagation();
-    if (!window.confirm("Delete this conversation? This cannot be undone."))
-      return;
-
-    // Capture conversation snapshot for potential undo
-    const snapshot = { ...conversation };
-
-    // No need to snapshot messages — soft-delete preserves them server-side.
-
+  const handleDelete = async (e: MouseEvent) => {
+    e.stopPropagation();
     try {
       await deleteConversation(conversation.id);
-
-      // Offer undo via toast action which will recreate a conversation with the same title/model/provider
       addToast({
         message: "Conversation deleted",
-        type: "info",
-        ttl: 10000,
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            try {
-              // Call backend restore which clears deleted flag
-              await database.conversations.restore(snapshot.id);
-              // Refresh the conversation list and select restored conv
-              await useChatStore.getState().loadConversations();
-              await useChatStore.getState().selectConversation(snapshot.id);
-              useUiStore.getState().addToast({
-                message: "Conversation restored",
-                type: "success",
-                ttl: 3000,
-              });
-            } catch (e: any) {
-              useUiStore.getState().addToast({
-                message: `Restore failed: ${String(e)}`,
-                type: "error",
-                ttl: 4000,
-              });
-            }
-          },
-        },
+        type: "success",
+        ttl: 3000,
+      });
+    } catch (err: any) {
+      addToast({ message: err.message, type: "error", ttl: 3000 });
+    }
+  };
+
+  const handleExport = async (e: MouseEvent, format: "json" | "markdown") => {
+    e.stopPropagation();
+    setExporting(true);
+    try {
+      const result = await invokeSafe("save_single_conversation_export", {
+        conversation_id: conversation.id,
+        format: format,
+        title: conversation.title || "Untitled",
+      });
+      addToast({
+        message: `Conversation exported: ${result}`,
+        type: "success",
+        ttl: 3000,
       });
     } catch (err: any) {
       addToast({
-        message: `Delete failed: ${String(err)}`,
+        message: `Export failed: ${err.message || err}`,
         type: "error",
-        ttl: 5000,
+        ttl: 3000,
       });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -147,6 +136,22 @@ export default function ConversationItem({
               }}
             >
               Rename
+            </button>
+            <button
+              className="text-xs px-1 py-1 bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
+              onClick={(e) => handleExport(e, "json")}
+              disabled={exporting}
+              title="Export as JSON"
+            >
+              📄
+            </button>
+            <button
+              className="text-xs px-1 py-1 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
+              onClick={(e) => handleExport(e, "markdown")}
+              disabled={exporting}
+              title="Export as Markdown"
+            >
+              📝
             </button>
             <button
               className="text-xs px-2 py-1 bg-red-600 rounded hover:bg-red-700"
