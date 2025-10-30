@@ -99,7 +99,7 @@ Snap vs system terminal (important)
 Quick commands (system terminal):
 
 ```zsh
-cd '/media/nixstation-remote/Dev Storage/Projects/Linux AI Assistant - Project/linux-ai-assistant'
+cd '$(pwd)'
 # Start dev server + Tauri
 npm run tauri dev
 ```
