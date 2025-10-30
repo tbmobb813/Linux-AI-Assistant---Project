@@ -46,16 +46,16 @@ export default function Settings({ onClose }: Props): JSX.Element {
       "Failed to save settings. Please try again.",
     );
 
-    if (result !== null) {
+    if (result === null) {
+      // Error occurred - handled by withErrorHandling
+      setError("Failed to save shortcut");
+    } else {
       // Success - settings were saved
       addToast({
         message: "Settings saved successfully",
         type: "success",
         ttl: 2000,
       });
-    } else {
-      // Error occurred - handled by withErrorHandling
-      setError("Failed to save shortcut");
     }
 
     setSaving(false);

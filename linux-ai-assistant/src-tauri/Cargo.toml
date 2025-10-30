@@ -31,10 +31,12 @@ tauri-plugin-dialog = "2"
 image = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 reqwest = { version = "0.11", features = ["blocking", "json", "rustls-tls"] }
 tauri-plugin-clipboard-manager = "2.3.1"
+tauri-plugin-updater = "2"
 notify = "6"
 tempfile = "3"
 keyring = "2"
 chrono = { version = "0.4", features = ["serde"] }
+dirs = "5"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
@@ -46,3 +48,16 @@ lto = true            # Enable link-time optimization
 codegen-units = 1     # Better optimization, slower compile
 panic = "abort"       # Smaller binary size
 strip = true          # Remove debug symbols
+# Note: Stripping debug symbols makes debugging production issues harder.
+# If you need to troubleshoot production issues, use the `[profile.release-debug]` profile below.
+
+# Alternative release profile for debugging production issues
+[profile.release-debug]
+inherits = "release"
+opt-level = "s"        # Optimize for size
+lto = true             # Enable link-time optimization
+codegen-units = 1      # Better optimization, slower compile
+panic = "abort"        # Smaller binary size
+strip = false          # Retain debug symbols for troubleshooting
+debug = true           # Enable debug info
+# Use this profile for builds where debugging in production is required.

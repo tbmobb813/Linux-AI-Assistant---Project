@@ -1,0 +1,12 @@
+docs/archive/**
+
+# Ignore dependencies and build artifacts
+node_modules/**
+linux-ai-assistant/node_modules/**
+
+# Ignore coverage outputs
+linux-ai-assistant/coverage/**
+
+# Ignore Rust/tauri build outputs
+linux-ai-assistant/src-tauri/target/**
+linux-ai-assistant/src-tauri/**/target/**

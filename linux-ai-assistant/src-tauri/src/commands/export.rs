@@ -152,30 +152,20 @@ pub async fn save_export_file(
     content: String,
     filename: String,
 ) -> Result<String, String> {
-    use std::sync::{Arc, Mutex};
-    use std::thread;
-    use std::time::Duration;
+    use std::sync::mpsc;
     use tauri_plugin_dialog::DialogExt;
 
-    let result = Arc::new(Mutex::new(None));
-    let result_clone = result.clone();
+    let (tx, rx) = mpsc::channel();
 
     app.dialog()
         .file()
         .set_file_name(&filename)
         .save_file(move |file_path| {
-            let mut res = result_clone.lock().unwrap();
-            *res = Some(file_path);
+            let _ = tx.send(file_path);
         });
 
     // Wait for the dialog to complete
-    let file_path = loop {
-        thread::sleep(Duration::from_millis(10));
-        let res = result.lock().unwrap();
-        if let Some(ref path_opt) = *res {
-            break path_opt.clone();
-        }
-    };
+    let file_path = rx.recv().unwrap();
 
     let file_path = file_path.ok_or_else(|| "User cancelled file save".to_string())?;
     let path = file_path

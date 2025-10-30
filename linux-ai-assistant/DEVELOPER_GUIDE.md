@@ -31,7 +31,7 @@ The Linux AI Assistant is built using a modern technology stack:
 
 **Key Components:**
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │         Desktop Application             │
 ├──────────────────┬──────────────────────┤

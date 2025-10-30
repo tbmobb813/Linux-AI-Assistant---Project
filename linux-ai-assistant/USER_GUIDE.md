@@ -1,6 +1,7 @@
 # Linux AI Assistant - User Guide
 
-Welcome to the Linux AI Assistant! This comprehensive guide will help you get the most out of this powerful desktop AI companion for Linux developers and users.
+Welcome to the Linux AI Assistant! This comprehensive guide will help you get
+the most out of this powerful desktop AI companion for Linux developers and users.
 
 ## Table of Contents
 
@@ -28,7 +29,7 @@ The Linux AI Assistant is available in multiple formats:
 1. Launch the application from your application menu or directly from the file manager
 2. The application will create a database and default settings on first run
 3. A welcome window will guide you through initial setup
-4. Configure your preferred AI provider (see [Providers](#providers))
+4. Configure your preferred AI provider (see [Provider Selection](#3-provider-selection))
 
 ### Initial Configuration
 

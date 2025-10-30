@@ -1,8 +1,0 @@
-[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = true
-[remote "origin"]
-	url = /media/nixstation-remote/Dev Storage/Projects/Linux AI Assistant - Project
-	fetch = +refs/*:refs/*
-	mirror = true

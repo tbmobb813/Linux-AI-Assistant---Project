@@ -69,6 +69,10 @@ coverage/
 *.lcov
 .nyc_output/
 
+# Playwright/Vitest outputs
+**/test-results/
+**/test_output.txt
+
 # Vitest
 .vitest/
 

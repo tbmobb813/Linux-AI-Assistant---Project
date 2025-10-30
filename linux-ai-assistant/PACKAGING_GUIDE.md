@@ -65,7 +65,7 @@ cd ..
 
 **Output Location:**
 
-```
+```text
 src-tauri/target/release/bundle/appimage/linux-ai-assistant_*.AppImage
 ```
 
@@ -103,7 +103,7 @@ npm run tauri build
 
 **Output Location:**
 
-```
+```text
 src-tauri/target/release/bundle/deb/linux-ai-assistant_*.deb
 ```
 
@@ -157,7 +157,7 @@ npm run tauri build
 
 **Output Location:**
 
-```
+```text
 src-tauri/target/release/bundle/rpm/linux-ai-assistant-*.rpm
 ```
 
@@ -506,7 +506,7 @@ flatpak install com.linuxai.assistant  # Flatpak
 
 ### Semantic Versioning
 
-```
+```text
 MAJOR.MINOR.PATCH
 0.1.0
 │ │ └─ Patch: Bug fixes (0.1.1, 0.1.2)

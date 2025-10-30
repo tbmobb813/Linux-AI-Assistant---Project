@@ -118,6 +118,7 @@ async function callInvoke<T>(
     // Handle critical database errors
     if (msg.includes("database is locked") || msg.includes("disk I/O error")) {
       handleDatabaseError(error, `Database.${cmd}`);
+      return null as unknown as T; // Return early for critical errors
     }
 
     throw error;

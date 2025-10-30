@@ -1,11 +1,28 @@
+# Linux AI Desktop Assistant - Project Documentation
+
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
-Linux AI Desktop Assistant - Project Documentation
-Project Overview
+## Documentation
+
+The complete, up-to-date documentation lives inside `linux-ai-assistant/`:
+
+- Documentation Index (start here): [linux-ai-assistant/DOCUMENTATION_INDEX.md](linux-ai-assistant/DOCUMENTATION_INDEX.md)
+- User Guide: [linux-ai-assistant/USER_GUIDE.md](linux-ai-assistant/USER_GUIDE.md)
+- CLI Guide: [linux-ai-assistant/CLI_GUIDE.md](linux-ai-assistant/CLI_GUIDE.md)
+- Developer Guide: [linux-ai-assistant/DEVELOPER_GUIDE.md](linux-ai-assistant/DEVELOPER_GUIDE.md)
+- Troubleshooting: [linux-ai-assistant/TROUBLESHOOTING.md](linux-ai-assistant/TROUBLESHOOTING.md)
+
+Historical and phase summary documents have been archived under `docs/archive/`.
+
+## Project Overview
+
 Mission Statement
-Build a native Linux desktop AI assistant that provides first-class support for Linux users, addressing the platform neglect from major AI providers while delivering superior system integration, developer workflow optimization, and privacy-respecting architecture.
+Build a native Linux desktop AI assistant that provides first-class support for
+Linux users, addressing the platform neglect from major AI providers while
+delivering superior system integration, developer workflow optimization, and
+privacy-respecting architecture.
 
 Core Value Propositions
 Native Linux Experience: True desktop integration with system-level features
@@ -50,26 +67,35 @@ State Management: Zustand
 
 ## Important note
 
-This repository's history was rewritten on 2025-10-23 to remove historical build artifacts and vendor files (for example: `node_modules/`, `linux-ai-assistant/dist/`, and Rust `target/` directories). Please see `docs/post-rewrite-notice.md` for details and re-clone instructions.
+This repository's history was rewritten on 2025-10-23 to remove historical
+build artifacts and vendor files (for example: `node_modules/`,
+`linux-ai-assistant/dist/`, and Rust `target/` directories). Please see
+`docs/post-rewrite-notice.md` for details and re-clone instructions.
 
 ## Global Shortcut
 
-The desktop application registers a system-wide keyboard shortcut (default: `CommandOrControl+Space`) to quickly invoke the assistant from anywhere. You can customize this shortcut in the app's Settings panel.
+The desktop application registers a system-wide keyboard shortcut (default:
+`CommandOrControl+Space`) to quickly invoke the assistant from anywhere. You can
+customize this shortcut in the app's Settings panel.
 
-- **Default shortcut**: `CommandOrControl+Space` (Ctrl+Space on Linux, Cmd+Space on macOS)
-- **How to change**: Open the app → click Settings (top-right or Ctrl+,) → edit "Global shortcut" → Save
+- **Default shortcut**: `CommandOrControl+Space` (Ctrl+Space on Linux,
+  Cmd+Space on macOS)
+- **How to change**: Open the app → click Settings (top-right or Ctrl+,) → edit
+  "Global shortcut" → Save
 - **Format examples**: `Ctrl+Shift+K`, `Super+Space`, `Alt+A`
 
-The shortcut toggles the main window visibility, allowing you to invoke the assistant without leaving your current workflow.
+The shortcut toggles the main window visibility, allowing you to invoke the
+assistant without leaving your current workflow.
 
 ## Multi-Provider AI Support
 
-The assistant supports multiple AI providers with secure API key storage and easy switching:
+The assistant supports multiple AI providers with secure API key storage and
+easy switching:
 
 - **OpenAI**: GPT-4, GPT-4 Turbo, GPT-3.5 Turbo (with streaming support)
 - **Anthropic**: Claude Opus, Claude Sonnet models
 - **Google Gemini**: Gemini Pro and other models
-- **Local Models**: Ollama integration (coming in Phase 5)
+- **Local Models**: Ollama integration ✅ **COMPLETED**
 
 **Configuration**:
 
@@ -78,21 +104,27 @@ The assistant supports multiple AI providers with secure API key storage and eas
 3. Save your API key securely (stored in system keyring)
 4. Start chatting with your chosen provider
 
-API keys are stored securely using your system's keyring (GNOME Keyring, KWallet, etc.) and fall back to environment variables if needed.
+API keys are stored securely using your system's keyring (GNOME Keyring,
+KWallet, etc.) and fall back to environment variables if needed.
 
 ## Project-Aware Context
 
-The assistant automatically tracks file changes in your workspace and injects relevant context into conversations:
+The assistant automatically tracks file changes in your workspace and injects
+relevant context into conversations:
 
 - **File Watcher**: Monitors your project for modifications, creations, and deletions
-- **Smart Context**: Recent file changes (last 2 minutes, up to 8 files) are included in chat messages
-- **Terminal Suggestions**: Click the "Suggest" button to get AI-powered shell command recommendations based on your last message and project context
+- **Smart Context**: Recent file changes (last 2 minutes, up to 8 files) are
+  included in chat messages
+- **Terminal Suggestions**: Click the "Suggest" button to get AI-powered shell
+  command recommendations based on your last message and project context
 
-This helps the AI provide more relevant, context-aware assistance for your specific project.
+This helps the AI provide more relevant, context-aware assistance for your
+specific project.
 
 ## Application Launcher Integration
 
-A `.desktop` file is included at `linux-ai-assistant/linux-ai-assistant.desktop` for integration with your system's application launcher.
+A `.desktop` file is included at `linux-ai-assistant/linux-ai-assistant.desktop`
+for integration with your system's application launcher.
 
 **Manual Installation:**
 
@@ -240,12 +272,14 @@ Keyring: keyring-rs
   │ │ └── ipc.rs
   │ └── Cargo.toml
   │
-  ├── docs/
-  │ ├── architecture.md
-  │ ├── api-integration.md
-  │ ├── user-guide.md
-  │ └── development.md
-  │
+  ├── DOCUMENTATION_INDEX.md # Canonical docs entry point
+  ├── USER_GUIDE.md # End-user guide
+  ├── CLI_GUIDE.md # CLI usage
+  ├── DEVELOPER_GUIDE.md # Developer reference
+  ├── TROUBLESHOOTING.md # Troubleshooting
+  ├── UPDATE_GUIDE.md # Auto-update system
+  ├── PACKAGING_GUIDE.md # Packaging formats and script
+  └── REPOSITORY_SETUP.md # APT/Copr repository setup
 
 ## Phase 5: Local AI & Privacy Features ✅
 
@@ -426,10 +460,12 @@ Milestones:
 [x] Comprehensive error handling ✅
 [x] User documentation and help system ✅
 [x] Package for Snap, Flatpak, AppImage ✅
-[ ] Create DEB and RPM packages
-[ ] Set up automatic updates
+[x] Create DEB and RPM packages ✅
+[x] Set up automatic updates ✅
+[x] APT PPA and Copr repositories ✅
 [ ] Beta testing with Linux community
-Deliverable: Distributable packages on multiple channels
+Deliverable: Distributable packages on multiple channels with automatic updates
+and system package manager integration
 
 Nice-to-haves (Phase 6):
 
@@ -479,7 +515,7 @@ content_rowid=rowid
 API Provider Interface
 Configuration File Format
 
-# ~/.config/linux-ai-assistant/config.toml
+## ~/.config/linux-ai-assistant/config.toml
 
 [general]
 theme = "system" # system, dark, light
@@ -603,8 +639,9 @@ npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu
 
 ## Developer environment: pnpm (recommended)
 
-This repository now uses pnpm as the workspace package manager (via Corepack) for faster, more
-deterministic installs and smaller disk usage. If you're contributing, please use Corepack or
+This repository now uses pnpm as the workspace package manager (via Corepack)
+for faster, more deterministic installs and smaller disk usage. If you're
+contributing, please use Corepack or
 install pnpm locally.
 
 Using Corepack (recommended):
@@ -656,8 +693,9 @@ developer environment that avoids host packaging quirks.
 
 CI/Devcontainer
 
-The devcontainer and CI are configured to use Corepack and pin pnpm `10.19.0`. If you need a
-different pnpm version, update the Corepack prepare invocation in `.devcontainer/devcontainer.json`
+The devcontainer and CI are configured to use Corepack and pin pnpm `10.19.0`.
+If you need a different pnpm version, update the Corepack prepare invocation in
+`.devcontainer/devcontainer.json`
 and `.github/workflows/ci.yml`.
 
 cargo add tauri-plugin-notification
