@@ -107,7 +107,7 @@ export default function App(): JSX.Element {
             if (!convo || forceNew) {
               const title = prompt.slice(0, 40) || "CLI Ask";
               try {
-                convo = await chat.createConversation(title, model, provider);
+                await chat.createConversation(title, model, provider);
               } catch (err) {
                 console.error(
                   "failed to create conversation from CLI ask",
