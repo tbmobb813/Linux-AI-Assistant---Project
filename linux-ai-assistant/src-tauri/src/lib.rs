@@ -12,6 +12,7 @@ pub fn run() {
     tauri::Builder::default()
         // Plugins (register those that don't need extra setup here)
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         // Optional: attach a log plugin during debug for easier troubleshooting
         .setup(|app| {
@@ -103,18 +104,28 @@ pub fn run() {
                                     }
                                 }
                                 "new-convo" => {
+                                    // Bring window to front and ask frontend to create a new conversation
                                     if let Some(window) = app.get_webview_window("main") {
                                         let _ = window.show();
                                         let _ = window.set_focus();
                                     }
-                                    let _ = app.emit("tray://new-conversation", ());
+                                    let _ = app.emit_to(
+                                        tauri::EventTarget::any(),
+                                        "tray://new-conversation",
+                                        (),
+                                    );
                                 }
                                 "settings" => {
+                                    // Bring window to front and ask frontend to open settings panel
                                     if let Some(window) = app.get_webview_window("main") {
                                         let _ = window.show();
                                         let _ = window.set_focus();
                                     }
-                                    let _ = app.emit("tray://open-settings", ());
+                                    let _ = app.emit_to(
+                                        tauri::EventTarget::any(),
+                                        "tray://open-settings",
+                                        (),
+                                    );
                                 }
                                 "quit" => {
                                     std::process::exit(0);
