@@ -2,6 +2,7 @@
 // Frontend API wrapper for Tauri commands
 
 import { getInvoke } from "../tauri-shim";
+import { isTauriEnvironment } from "../utils/tauri";
 import type {
   NewConversation,
   NewMessage,
