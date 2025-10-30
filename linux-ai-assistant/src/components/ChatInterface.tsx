@@ -171,8 +171,10 @@ export default function ChatInterface(): JSX.Element {
           onSubmit={async (e) => {
             e.preventDefault();
             if (!value.trim()) return;
-            await sendMessage(value.trim());
+            const toSend = value.trim();
+            // Clear input immediately for snappier UX and to satisfy tests
             setValue("");
+            await sendMessage(toSend);
           }}
         >
           <div className="flex gap-2">
