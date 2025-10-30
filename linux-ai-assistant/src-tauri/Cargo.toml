@@ -53,6 +53,7 @@ strip = true          # Remove debug symbols
 
 # Alternative release profile for debugging production issues
 [profile.release-debug]
+inherits = "release"
 opt-level = "s"        # Optimize for size
 lto = true             # Enable link-time optimization
 codegen-units = 1      # Better optimization, slower compile

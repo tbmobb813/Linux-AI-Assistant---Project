@@ -248,8 +248,6 @@ async fn download_release(version: &str) -> Result<String, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_version_parsing() {
         let version_str = "0.2.0";
