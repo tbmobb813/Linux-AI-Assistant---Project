@@ -8,6 +8,9 @@ import Settings from "./components/Settings";
 import { useChatStore } from "./lib/stores/chatStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
+import RunOutputModal from "./components/RunOutputModal";
+import ExecutionAuditModal from "./components/ExecutionAuditModal";
+import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
 
 export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
