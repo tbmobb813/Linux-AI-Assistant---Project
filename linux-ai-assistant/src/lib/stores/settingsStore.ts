@@ -7,7 +7,6 @@ import { useUiStore } from "./uiStore";
 import {
   registerGlobalShortcutSafe,
   unregisterAllShortcutsSafe,
-  invokeSafe,
 } from "../utils/tauri";
 import { applyTheme } from "../utils/theme";
 
@@ -17,7 +16,6 @@ interface SettingsState {
   defaultModel: string;
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
-  projectRoot?: string | null;
   allowCodeExecution: boolean;
 
   // Actions
@@ -28,8 +26,6 @@ interface SettingsState {
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
-  setProjectRoot: (path: string) => Promise<void>;
-  stopProjectWatch: () => Promise<void>;
   setAllowCodeExecution: (allow: boolean) => Promise<void>;
 }
 
@@ -39,7 +35,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   defaultModel: "gpt-4",
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
-  projectRoot: null,
   allowCodeExecution: false,
 
   loadSettings: async () => {
@@ -51,7 +46,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
-      const projectRoot = (await db.settings.get("projectRoot")) || null;
       const allowCodeExecution =
         (await db.settings.get("allowCodeExecution")) === "true";
 
@@ -61,25 +55,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
-        projectRoot,
         allowCodeExecution,
       });
-
       try {
         applyTheme(((theme as any) || "system") as any);
-      } catch (e) {
-        // ignore theme application errors
-        console.warn("applyTheme failed", e);
-      }
-
-      // If a project root is set, attempt to inform backend (best-effort)
-      if (projectRoot) {
-        try {
-          await invokeSafe("set_project_root", { path: projectRoot });
-        } catch (e) {
-          // non-fatal
-        }
-      }
+      } catch {}
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -90,9 +70,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ theme });
     try {
       applyTheme(theme);
-    } catch (e) {
-      // ignore
-    }
+    } catch {}
   },
 
   setDefaultProvider: async (provider) => {
@@ -149,41 +127,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         ttl: 3500,
       });
     }
-  },
-
-  setProjectRoot: async (path) => {
-    await db.settings.set("projectRoot", path);
-    set({ projectRoot: path });
-    try {
-      await invokeSafe("set_project_root", { path });
-      useUiStore.getState().addToast({
-        message: `Watching project: ${path}`,
-        type: "success",
-        ttl: 2000,
-      });
-    } catch (e) {
-      console.error("Failed to set project root:", e);
-      useUiStore.getState().addToast({
-        message: `Failed to watch project: ${path}`,
-        type: "error",
-        ttl: 3000,
-      });
-    }
-  },
-
-  stopProjectWatch: async () => {
-    try {
-      await invokeSafe("clear_project_root", {});
-    } catch (e) {
-      // ignore
-    }
-    await db.settings.delete("projectRoot");
-    set({ projectRoot: null });
-    useUiStore.getState().addToast({
-      message: `Stopped watching project`,
-      type: "info",
-      ttl: 1400,
-    });
   },
 
   setAllowCodeExecution: async (allow) => {

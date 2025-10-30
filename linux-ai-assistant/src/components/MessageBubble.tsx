@@ -3,7 +3,6 @@ import { useUiStore } from "../lib/stores/uiStore";
 import type { ApiMessage } from "../lib/api/types";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment } from "../lib/utils/tauri";
-import MarkdownContent from "./MarkdownContent";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -49,13 +48,7 @@ export default function MessageBubble({ message }: Props) {
         }`}
       >
         <div className="flex justify-between items-start gap-2">
-          <div className="flex-1">
-            {isUser ? (
-              <div className="whitespace-pre-wrap">{message.content}</div>
-            ) : (
-              <MarkdownContent content={message.content} />
-            )}
-          </div>
+          <div className="flex-1">{message.content}</div>
           {!isUser && (
             <button
               onClick={handleCopy}
