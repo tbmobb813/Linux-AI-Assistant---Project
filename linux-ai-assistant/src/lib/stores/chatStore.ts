@@ -9,6 +9,7 @@ import type {
 } from "../api/types";
 import { getProvider } from "../providers/provider";
 import { notifySafe } from "../utils/tauri";
+import { useProjectStore } from "./projectStore";
 
 interface ChatState {
   // Current state

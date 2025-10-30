@@ -16,6 +16,7 @@ interface SettingsState {
   defaultModel: string;
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
+  allowCodeExecution: boolean;
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -25,6 +26,7 @@ interface SettingsState {
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
+  setAllowCodeExecution: (allow: boolean) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -33,6 +35,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   defaultModel: "gpt-4",
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
+  allowCodeExecution: false,
 
   loadSettings: async () => {
     try {
@@ -43,6 +46,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
+      const allowCodeExecution =
+        (await db.settings.get("allowCodeExecution")) === "true";
 
       set({
         theme: (theme as any) || "system",
@@ -50,6 +55,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
         globalShortcut,
+        allowCodeExecution,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -125,5 +131,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         ttl: 3500,
       });
     }
+  },
+
+  setAllowCodeExecution: async (allow) => {
+    await db.settings.set("allowCodeExecution", allow ? "true" : "false");
+    set({ allowCodeExecution: allow });
   },
 }));

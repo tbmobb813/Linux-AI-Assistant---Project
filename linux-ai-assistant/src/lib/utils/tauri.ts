@@ -53,6 +53,26 @@ export async function unregisterAllShortcutsSafe(): Promise<void> {
 }
 
 /**
+ * Safely invoke a Tauri command with automatic environment detection.
+ * Returns null if not in Tauri environment or on error.
+ */
+export async function invokeSafe<T = unknown>(
+  cmd: string,
+  args?: Record<string, unknown>,
+): Promise<T | null> {
+  if (!isTauriEnvironment()) {
+    return null;
+  }
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    return (await invoke(cmd, args)) as T;
+  } catch (e) {
+    console.error(`invokeSafe(${cmd}) failed:`, e);
+    return null;
+  }
+}
+
+/**
  * Send a desktop notification in a safe, environment-aware way.
  * - In Tauri: uses @tauri-apps/plugin-notification (requests permission if needed)
  * - In web preview: uses the browser Notification API if available and permitted
