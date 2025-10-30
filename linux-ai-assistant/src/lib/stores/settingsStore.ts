@@ -9,10 +9,15 @@ import {
   unregisterAllShortcutsSafe,
   invokeSafe,
 } from "../utils/tauri";
-import { applyTheme } from "../utils/theme";
+import { applyTheme, type ThemePref } from "../utils/theme";
+
+// Type guard to validate theme preference from database
+function isValidTheme(value: string | null): value is ThemePref {
+  return value === "light" || value === "dark" || value === "system";
+}
 
 interface SettingsState {
-  theme: "light" | "dark" | "system";
+  theme: ThemePref;
   defaultProvider: string;
   defaultModel: string;
   apiKeys: Record<string, string>;
@@ -22,7 +27,7 @@ interface SettingsState {
 
   // Actions
   loadSettings: () => Promise<void>;
-  setTheme: (theme: "light" | "dark" | "system") => Promise<void>;
+  setTheme: (theme: ThemePref) => Promise<void>;
   setDefaultProvider: (provider: string) => Promise<void>;
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
@@ -55,8 +60,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const allowCodeExecution =
         (await db.settings.get("allowCodeExecution")) === "true";
 
+      const validTheme = isValidTheme(theme) ? theme : "system";
+
       set({
-        theme: (theme as any) || "system",
+        theme: validTheme,
         defaultProvider: defaultProvider || "openai",
         defaultModel: defaultModel || "gpt-4",
         apiKeys: apiKeys || {},
@@ -66,13 +73,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       });
 
       try {
-        applyTheme(((theme as any) || "system") as any);
-      } catch (e) {
-        // ignore theme application errors
-        console.warn("applyTheme failed", e);
-      }
-
-      // If a project root is set, attempt to inform backend (best-effort)
+        applyTheme(validTheme);
+      } catch {}
+      // If a project root is set, attempt to start the watcher on launch (best-effort)
       if (projectRoot) {
         try {
           await invokeSafe("set_project_root", { path: projectRoot });
