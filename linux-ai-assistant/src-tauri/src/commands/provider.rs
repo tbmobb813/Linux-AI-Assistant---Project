@@ -344,7 +344,7 @@ pub fn provider_ollama_stream(
         let reader = std::io::BufReader::new(resp);
         use std::io::BufRead;
 
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             if line.trim().is_empty() {
                 continue;
             }
