@@ -18,11 +18,6 @@ export default function ChatInterface(): JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Helper to determine if provider is local for privacy indicators
-  const isLocalProvider = (provider: string) => {
-    return provider === "ollama" || provider === "local";
-  };
-
   useEffect(() => {
     if (currentConversation && currentConversation.id) {
       // focus the message input when conversation changes

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
-import { invokeSafe } from "../lib/utils/tauri";
 import { useUiStore } from "../lib/stores/uiStore";
+import { withErrorHandling } from "../lib/utils/errorHandler";
 
 type Props = {
   onClose?: () => void;
@@ -11,11 +11,7 @@ type Props = {
 export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
-  const { allowCodeExecution, setAllowCodeExecution } = useSettingsStore();
-  const { projectRoot, setProjectRoot, stopProjectWatch } = useSettingsStore();
-  const { defaultProvider, setDefaultProvider, defaultModel, setDefaultModel } =
-    useSettingsStore();
-  const { showAudit, showApiKeyModal } = useUiStore();
+  const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState<string>(globalShortcut);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -64,84 +60,6 @@ export default function Settings({ onClose }: Props): JSX.Element {
     }
 
     setSaving(false);
-  };
-
-  const handleExportConversations = async () => {
-    setExportProgress("Exporting conversations...");
-
-    const result = await withErrorHandling(
-      async () => {
-        const jsonData = await invokeSafe("export_conversations_json", {});
-        const filename = `ai_conversations_${new Date().toISOString().split("T")[0]}.json`;
-        const result = await invokeSafe("save_export_file", {
-          content: jsonData,
-          filename: filename,
-        });
-
-        setExportProgress(`Conversations exported to: ${result}`);
-        setTimeout(() => setExportProgress(null), 3000);
-
-        addToast({
-          message: "Conversations exported successfully",
-          type: "success",
-          ttl: 3000,
-        });
-
-        return result;
-      },
-      "Settings.handleExportConversations",
-      "Failed to export conversations",
-    );
-
-    if (result === null) {
-      setExportProgress("Export failed");
-      setTimeout(() => setExportProgress(null), 3000);
-    }
-  };
-
-  const handleImportConversations = async () => {
-    setImportProgress("Loading file...");
-
-    const result = await withErrorHandling(
-      async () => {
-        const fileContent = await invokeSafe("load_import_file", {});
-
-        setImportProgress("Importing conversations...");
-        const result = await invokeSafe("import_conversations_json", {
-          json_content: fileContent,
-        });
-
-        setImportProgress(String(result));
-        setTimeout(() => setImportProgress(null), 3000);
-
-        addToast({
-          message: "Conversations imported successfully",
-          type: "success",
-          ttl: 3000,
-        });
-
-        return result;
-      },
-      "Settings.handleImportConversations",
-      "Failed to import conversations",
-    );
-
-    if (result === null) {
-      setImportProgress("Import failed");
-      setTimeout(() => setImportProgress(null), 3000);
-    }
-  };
-
-  const handleManualCleanup = async () => {
-    setCleanupProgress("Cleaning up conversations...");
-    try {
-      const result = await performManualCleanup();
-      setCleanupProgress(result);
-      setTimeout(() => setCleanupProgress(null), 3000);
-    } catch (error) {
-      setCleanupProgress(`Cleanup failed: ${error}`);
-      setTimeout(() => setCleanupProgress(null), 3000);
-    }
   };
 
   return (
@@ -366,13 +284,6 @@ export default function Settings({ onClose }: Props): JSX.Element {
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
-
-      {/* Ollama Model Manager Modal */}
-      {showOllamaManager && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <OllamaModelManager onClose={() => setShowOllamaManager(false)} />
-        </div>
-      )}
     </div>
   );
 }

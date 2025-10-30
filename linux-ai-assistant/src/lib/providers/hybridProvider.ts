@@ -85,8 +85,9 @@ export class HybridRoutingProvider implements HybridProvider {
     model: string;
     isLocal: boolean;
   }> {
-    const { enableHybridRouting, preferLocal, defaultProvider, defaultModel } =
-      useSettingsStore.getState();
+    const { defaultProvider, defaultModel } = useSettingsStore.getState();
+    const enableHybridRouting = false; // Simplified: hybrid routing not yet implemented
+    const preferLocal = false; // Simplified: hybrid routing not yet implemented
 
     // If hybrid routing is disabled, use the default provider
     if (!enableHybridRouting) {

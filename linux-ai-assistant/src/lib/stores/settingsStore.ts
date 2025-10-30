@@ -7,7 +7,6 @@ import { useUiStore } from "./uiStore";
 import {
   registerGlobalShortcutSafe,
   unregisterAllShortcutsSafe,
-  invokeSafe,
 } from "../utils/tauri";
 import { applyTheme } from "../utils/theme";
 
@@ -195,57 +194,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         type: "error",
         ttl: 1600,
       });
-    }
-  },
-
-  setOllamaEndpoint: async (endpoint: string) => {
-    await db.settings.set("ollamaEndpoint", endpoint);
-    set({ ollamaEndpoint: endpoint });
-  },
-
-  setEnableHybridRouting: async (enable: boolean) => {
-    await db.settings.set("enableHybridRouting", String(enable));
-    set({ enableHybridRouting: enable });
-  },
-
-  setPreferLocal: async (prefer: boolean) => {
-    await db.settings.set("preferLocal", String(prefer));
-    set({ preferLocal: prefer });
-  },
-
-  setAutoCleanupEnabled: async (enabled: boolean) => {
-    await db.settings.set("autoCleanupEnabled", String(enabled));
-    set({ autoCleanupEnabled: enabled });
-  },
-
-  setMaxConversationAge: async (days: number) => {
-    await db.settings.set("maxConversationAge", String(days));
-    set({ maxConversationAge: days });
-  },
-
-  setMaxConversationCount: async (count: number) => {
-    await db.settings.set("maxConversationCount", String(count));
-    set({ maxConversationCount: count });
-  },
-
-  performManualCleanup: async (): Promise<string> => {
-    try {
-      const result = await invokeSafe("cleanup_conversations", {});
-      const resultMsg = String(result);
-      useUiStore.getState().addToast({
-        message: resultMsg,
-        type: "success",
-        ttl: 3000,
-      });
-      return resultMsg;
-    } catch (e) {
-      const errorMsg = String(e);
-      useUiStore.getState().addToast({
-        message: `Cleanup failed: ${errorMsg}`,
-        type: "error",
-        ttl: 3000,
-      });
-      throw e;
     }
   },
 }));

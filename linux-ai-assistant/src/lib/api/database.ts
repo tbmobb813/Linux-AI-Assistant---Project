@@ -17,6 +17,7 @@ async function callInvoke<T>(
   cmd: string,
   args?: Record<string, unknown>,
 ): Promise<T> {
+  const startTime = Date.now();
   // Simple in-memory settings store for web preview to support tests
   // and allow basic persistence during a session.
   // Note: module scope ensures a single instance per page.
