@@ -51,7 +51,7 @@ interface UiState {
   apiKeyModal: {
     open: boolean;
     title: string;
-    onSubmit?: (key: string) => void;
+    onSubmit: (key: string) => void;
   };
   showApiKeyModal: (title: string, onSubmit: (key: string) => void) => void;
   closeApiKeyModal: () => void;
