@@ -1,6 +1,13 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { database as db } from "../lib/api/database";
-import { vi, afterEach, expect, test } from "vitest";
+import { vi, afterEach, expect, test, beforeEach } from "vitest";
+import { setMockInvoke, setMockListen } from "../lib/tauri-shim";
+
+beforeEach(() => {
+  // Mock Tauri APIs to avoid "transformCallback" errors
+  setMockInvoke(async () => null as any);
+  setMockListen(async () => (() => {}) as any);
+});
 
 afterEach(() => {
   // reset store state
@@ -14,6 +21,8 @@ afterEach(() => {
 
   // restore mocks
   vi.restoreAllMocks();
+  setMockInvoke(undefined);
+  setMockListen(undefined);
 });
 
 test("sendMessage creates user and assistant messages and updates store", async () => {
@@ -46,6 +55,9 @@ test("sendMessage creates user and assistant messages and updates store", async 
   // Call sendMessage
   await useChatStore.getState().sendMessage("hello test");
 
+  // Wait a bit for async operations
+  await new Promise((r) => setTimeout(r, 100));
+
   // Expect db.messages.create to have been called twice (user + assistant)
   expect(createMock).toHaveBeenCalledTimes(2);
 
@@ -54,6 +66,8 @@ test("sendMessage creates user and assistant messages and updates store", async 
   expect(msgs[0].role).toBe("user");
   expect(msgs[0].content).toBe("hello test");
   expect(msgs[1].role).toBe("assistant");
-  // Content may be empty due to event listener mocking limitations, just verify structure
+  // mockProvider returns "AI response will go here"
+  // The assistant content should either be populated or empty if still processing
+  expect(msgs[1]).toBeDefined();
   expect(msgs[1].content).toBeDefined();
 });

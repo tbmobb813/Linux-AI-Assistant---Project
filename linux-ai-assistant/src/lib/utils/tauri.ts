@@ -88,13 +88,12 @@ export async function notifySafe(title: string, body?: string): Promise<void> {
     console.warn("notifySafe failed:", e);
   }
 }
-
 /**
  * Invoke a Tauri command safely; returns the result or null if unavailable.
  */
-export async function invokeSafe<T = any>(
+export async function invokeSafe<T = unknown>(
   cmd: string,
-  args?: Record<string, any>,
+  args?: Record<string, unknown>,
 ): Promise<T | null> {
   if (!isTauriEnvironment()) return null;
   try {
