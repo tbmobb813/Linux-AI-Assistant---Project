@@ -40,7 +40,7 @@ export default function CodeExecutionConfirmDialog() {
   };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-11/12 max-w-3xl bg-white dark:bg-gray-900 rounded shadow-lg p-6">
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">
