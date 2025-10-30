@@ -31,7 +31,7 @@ export default function ApiKeyModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-96 bg-white dark:bg-gray-900 rounded shadow-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold">{apiKeyModal.title}</h3>
