@@ -7,17 +7,20 @@ export default function ApiKeyModal() {
 
   if (!apiKeyModal.open) return null;
 
+  const resetAndClose = () => {
+    setKeyValue("");
+    closeApiKeyModal();
+  };
+
   const handleSubmit = () => {
     if (keyValue.trim()) {
       apiKeyModal.onSubmit?.(keyValue.trim());
-      setKeyValue("");
-      closeApiKeyModal();
+      resetAndClose();
     }
   };
 
   const handleCancel = () => {
-    setKeyValue("");
-    closeApiKeyModal();
+    resetAndClose();
   };
 
   return (
