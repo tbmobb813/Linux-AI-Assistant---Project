@@ -5,7 +5,7 @@ type Props = {
   onClose?: () => void;
 };
 
-// Minimal settings panel focused on the global shortcut
+// Minimal settings panel for global shortcut and theme selection
 export default function Settings({ onClose }: Props): JSX.Element {
   const { globalShortcut, setGlobalShortcut, theme, setTheme } =
     useSettingsStore();
