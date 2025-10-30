@@ -47,6 +47,20 @@ interface UiState {
   };
   showSuggestions: (items: string[]) => void;
   closeSuggestions: () => void;
+  // Code execution confirmation dialog
+  codeExecutionDialog: {
+    open: boolean;
+    code: string;
+    language: string;
+    onConfirm: (() => void) | null;
+  };
+  showCodeExecutionDialog: (
+    code: string,
+    language: string,
+    onConfirm: () => void,
+  ) => void;
+  closeCodeExecutionDialog: () => void;
+  confirmCodeExecution: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -112,4 +126,40 @@ export const useUiStore = create<UiState>((set) => ({
         timed_out: false,
       },
     })),
+  codeExecutionDialog: {
+    open: false,
+    code: "",
+    language: "",
+    onConfirm: null,
+  },
+  showCodeExecutionDialog: (
+    code: string,
+    language: string,
+    onConfirm: () => void,
+  ) =>
+    set(() => ({
+      codeExecutionDialog: {
+        open: true,
+        code,
+        language,
+        onConfirm,
+      },
+    })),
+  closeCodeExecutionDialog: () =>
+    set(() => ({
+      codeExecutionDialog: {
+        open: false,
+        code: "",
+        language: "",
+        onConfirm: null,
+      },
+    })),
+  confirmCodeExecution: () => {
+    const { codeExecutionDialog, closeCodeExecutionDialog } =
+      useUiStore.getState();
+    if (codeExecutionDialog.onConfirm) {
+      codeExecutionDialog.onConfirm();
+    }
+    closeCodeExecutionDialog();
+  },
 }));

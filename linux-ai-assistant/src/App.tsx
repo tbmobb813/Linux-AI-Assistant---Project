@@ -6,6 +6,7 @@ import Toaster from "./components/Toaster";
 import RunOutputModal from "./components/RunOutputModal";
 import ExecutionAuditModal from "./components/ExecutionAuditModal";
 import CommandSuggestionsModal from "./components/CommandSuggestionsModal";
+import CodeExecutionConfirmDialog from "./components/CodeExecutionConfirmDialog";
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import Settings from "./components/Settings";
 import { useChatStore } from "./lib/stores/chatStore";
@@ -281,6 +282,7 @@ export default function App() {
       <RunOutputModal />
       <ExecutionAuditModal />
       <CommandSuggestionsModal />
+      <CodeExecutionConfirmDialog />
     </div>
   );
 }
