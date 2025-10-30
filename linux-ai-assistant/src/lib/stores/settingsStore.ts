@@ -18,6 +18,7 @@ interface SettingsState {
   apiKeys: Record<string, string>;
   globalShortcut: string; // e.g., "CommandOrControl+Space"
   allowCodeExecution: boolean;
+  projectRoot?: string | null;
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -26,8 +27,10 @@ interface SettingsState {
   setDefaultModel: (model: string) => Promise<void>;
   setApiKey: (provider: string, key: string) => Promise<void>;
   setGlobalShortcut: (shortcut: string) => Promise<void>;
-  registerGlobalShortcut: (shortcut?: string) => Promise<void>;
   setAllowCodeExecution: (allow: boolean) => Promise<void>;
+  registerGlobalShortcut: (shortcut?: string) => Promise<void>;
+  setProjectRoot: (path: string) => Promise<void>;
+  stopProjectWatch: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -37,6 +40,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   apiKeys: {},
   globalShortcut: "CommandOrControl+Space",
   allowCodeExecution: false,
+  projectRoot: null,
 
   loadSettings: async () => {
     try {
@@ -47,8 +51,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         await db.settings.getJSON<Record<string, string>>("apiKeys");
       const globalShortcut =
         (await db.settings.get("globalShortcut")) || "CommandOrControl+Space";
-      const allowCodeExecution =
-        (await db.settings.get("allowCodeExecution")) === "true";
+      const allowRaw = await db.settings.get("allowCodeExecution");
+      const allowCodeExecution = allowRaw === "true";
+      const projectRoot = (await db.settings.get("projectRoot")) || null;
 
       set({
         theme: (theme as any) || "system",
@@ -57,10 +62,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         apiKeys: apiKeys || {},
         globalShortcut,
         allowCodeExecution,
+        projectRoot,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
       } catch {}
+      // If a project root is set, attempt to start the watcher on launch (best-effort)
+      if (projectRoot) {
+        try {
+          const { invokeSafe } = await import("../utils/tauri");
+          await invokeSafe("set_project_root", { path: projectRoot });
+        } catch (e) {
+          // non-fatal
+        }
+      }
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -88,7 +103,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set((state) => {
       const newApiKeys = { ...state.apiKeys, [provider]: key };
       db.settings.setJSON("apiKeys", newApiKeys);
-      return { apiKeys: newApiKeys } as any;
+      return { apiKeys: newApiKeys };
     });
   },
 
@@ -100,11 +115,24 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     await useSettingsStore.getState().registerGlobalShortcut(shortcut);
   },
 
+  setAllowCodeExecution: async (allow) => {
+    try {
+      await db.settings.set("allowCodeExecution", String(allow));
+    } catch (e) {
+      console.error("Failed to persist allowCodeExecution", e);
+    }
+    set({ allowCodeExecution: allow });
+  },
+
   registerGlobalShortcut: async (shortcutOptional) => {
     const shortcut =
       shortcutOptional || useSettingsStore.getState().globalShortcut;
     // Unregister all first to avoid duplicate binds
-    await unregisterAllShortcutsSafe();
+    try {
+      await unregisterAllShortcutsSafe();
+    } catch (e) {
+      // ignore
+    }
     try {
       const success = await registerGlobalShortcutSafe(shortcut, async () => {
         try {
@@ -130,9 +158,44 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }
   },
 
-  setAllowCodeExecution: async (allow) => {
-    await db.settings.set("allowCodeExecution", allow ? "true" : "false");
-    set({ allowCodeExecution: allow });
+  setProjectRoot: async (path: string) => {
+    try {
+      await db.settings.set("projectRoot", path);
+      set({ projectRoot: path });
+      const { invokeSafe } = await import("../utils/tauri");
+      await invokeSafe("set_project_root", { path });
+      useUiStore.getState().addToast({
+        message: "Watching project root",
+        type: "success",
+        ttl: 1400,
+      });
+    } catch (e) {
+      useUiStore.getState().addToast({
+        message: "Failed to watch project root",
+        type: "error",
+        ttl: 1600,
+      });
+    }
+  },
+
+  stopProjectWatch: async () => {
+    try {
+      const { invokeSafe } = await import("../utils/tauri");
+      await invokeSafe("stop_project_watch");
+      set({ projectRoot: null });
+      await db.settings.delete("projectRoot");
+      useUiStore.getState().addToast({
+        message: "Stopped watching project",
+        type: "info",
+        ttl: 1200,
+      });
+    } catch (e) {
+      useUiStore.getState().addToast({
+        message: "Failed to stop watcher",
+        type: "error",
+        ttl: 1600,
+      });
+    }
   },
 
   setOllamaEndpoint: async (endpoint: string) => {
