@@ -13,14 +13,24 @@ vi.mock("../lib/stores/uiStore", () => ({
   useUiStore: vi.fn(),
 }));
 
-describe("CommandSuggestionsModal component", () => {
+// set a default implementation so tests that don't explicitly configure the mock
+// don't blow up when selectors are called (they expect suggestionsModal to exist)
+beforeEach(async () => {
   const defaultState = {
-    suggestionsModal: { open: false, suggestions: [] },
+    suggestionsModal: { open: false, items: [] },
     closeSuggestions: vi.fn(),
     addToast: vi.fn(),
     showRunResult: vi.fn(),
   };
+  // useUiStore selectors are called like useUiStore(s => s.something)
+  // the mock should handle being called with a selector or without
+  const mod = await import("../lib/stores/uiStore");
+  (mod.useUiStore as any).mockImplementation((selector: any) =>
+    selector ? selector(defaultState) : defaultState,
+  );
+});
 
+describe("CommandSuggestionsModal component", () => {
   test("renders without crashing", () => {
     render(<CommandSuggestionsModal />);
     expect(true).toBeTruthy();
@@ -48,7 +58,7 @@ describe("CommandSuggestionsModal component", () => {
 
   test("component structure is valid when open", () => {
     const mockState = {
-      suggestionsModal: { open: true, suggestions: ["one"] },
+      suggestionsModal: { open: true, items: ["one"] },
       closeSuggestions: vi.fn(),
       addToast: vi.fn(),
       showRunResult: vi.fn(),
