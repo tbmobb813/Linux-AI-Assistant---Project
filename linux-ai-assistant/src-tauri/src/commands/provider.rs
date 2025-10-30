@@ -344,35 +344,33 @@ pub fn provider_ollama_stream(
         let reader = std::io::BufReader::new(resp);
         use std::io::BufRead;
 
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                if line.trim().is_empty() {
-                    continue;
+        for line in reader.lines().flatten() {
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&line) {
+                if let Some(response) = json["response"].as_str() {
+                    let payload = serde_json::json!({
+                        "session_id": session_id_clone,
+                        "chunk": response
+                    });
+
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit("provider-stream-chunk", payload);
+                    }
                 }
 
-                if let Ok(json) = serde_json::from_str::<serde_json::Value>(&line) {
-                    if let Some(response) = json["response"].as_str() {
-                        let payload = serde_json::json!({
-                            "session_id": session_id_clone,
-                            "chunk": response
-                        });
+                // Check if this is the final response
+                if json["done"].as_bool().unwrap_or(false) {
+                    let payload = serde_json::json!({
+                        "session_id": session_id_clone
+                    });
 
-                        if let Some(w) = app.get_webview_window("main") {
-                            let _ = w.emit("provider-stream-chunk", payload);
-                        }
+                    if let Some(w) = app.get_webview_window("main") {
+                        let _ = w.emit("provider-stream-end", payload);
                     }
-
-                    // Check if this is the final response
-                    if json["done"].as_bool().unwrap_or(false) {
-                        let payload = serde_json::json!({
-                            "session_id": session_id_clone
-                        });
-
-                        if let Some(w) = app.get_webview_window("main") {
-                            let _ = w.emit("provider-stream-end", payload);
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
         }
