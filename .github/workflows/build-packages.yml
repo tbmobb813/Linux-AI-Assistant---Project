@@ -3,13 +3,13 @@ name: Build and Release Packages
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       create_release:
-        description: 'Create GitHub Release'
+        description: "Create GitHub Release"
         required: true
-        default: 'true'
+        default: "true"
 
 jobs:
   build:
@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -36,7 +36,7 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: './linux-ai-assistant/src-tauri'
+          workspaces: "./linux-ai-assistant/src-tauri"
 
       - name: Install system dependencies
         run: |
@@ -167,9 +167,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            test-cmd: 'sudo apt install -y ./linux-ai-assistant_*.deb && linux-ai-assistant --version'
+            test-cmd: "sudo apt install -y ./linux-ai-assistant_*.deb && linux-ai-assistant --version"
           - os: ubuntu-20.04
-            test-cmd: 'sudo apt install -y ./linux-ai-assistant_*.deb && linux-ai-assistant --version'
+            test-cmd: "sudo apt install -y ./linux-ai-assistant_*.deb && linux-ai-assistant --version"
 
     steps:
       - name: Download artifacts
