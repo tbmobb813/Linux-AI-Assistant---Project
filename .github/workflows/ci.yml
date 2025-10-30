@@ -27,6 +27,18 @@ jobs:
       - name: Install dependencies (pnpm, frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: TypeScript type checking
+        run: pnpm --filter linux-ai-assistant run typecheck
+
+      - name: Rust formatting check
+        run: |
+          cd rust-ai-assistant
+          cargo fmt -- --check
+
+      - name: Rust linting (clippy)
+        run: |
+          cd rust-ai-assistant
+          cargo clippy -- -D warnings
       - name: Run tests with coverage (pnpm workspace)
         run: pnpm --filter linux-ai-assistant run test:coverage
 
