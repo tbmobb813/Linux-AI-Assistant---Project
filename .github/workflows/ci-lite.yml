@@ -9,7 +9,7 @@ on:
 
 jobs:
   quick-test:
-    name: Frontend tests + Rust tests + smoke
+    name: TypeScript + Rust checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Enable Corepack and pnpm
         run: |
@@ -87,7 +87,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Enable Corepack and pnpm
         run: |
