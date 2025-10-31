@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
 name: CI
 
 on:
@@ -12,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           # Use Node 22 for better IPC/worker stability and full toolchain compatibility
           node-version: "22"
@@ -72,5 +74,4 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: linux-ai-assistant/coverage/coverage-final.json
-          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true

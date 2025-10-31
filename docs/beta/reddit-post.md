@@ -1,4 +1,4 @@
-Title: Linux AI Assistant (L.A.I.A.) — Privacy-first desktop + CLI for Linux devs [Public Beta]
+# Title: Linux AI Assistant (L.A.I.A.) — Privacy-first desktop + CLI for Linux devs [Public Beta]
 
 We’re launching a public beta of L.A.I.A., a Linux-native AI assistant focused on developer workflows.
 
