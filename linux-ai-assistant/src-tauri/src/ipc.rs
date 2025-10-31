@@ -1,8 +1,9 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::{Arc, Mutex};
 use std::thread;
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 
 #[derive(serde::Deserialize, Debug)]
 struct IpcMessage {
@@ -12,6 +13,13 @@ struct IpcMessage {
     message: Option<String>,
     #[serde(default)]
     payload: Option<JsonValue>,
+}
+
+#[derive(serde::Serialize)]
+struct IpcResponse {
+    status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<JsonValue>,
 }
 
 fn handle_client(mut stream: TcpStream, app: AppHandle) {
@@ -31,6 +39,14 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                     match msg.kind.as_str() {
                         "notify" => {
                             let _ = app.emit("cli://notify", msg.message.unwrap_or_default());
+                            let response = IpcResponse {
+                                status: "ok".to_string(),
+                                data: None,
+                            };
+                            let _ = stream.write_all(
+                                format!("{}\n", serde_json::to_string(&response).unwrap())
+                                    .as_bytes(),
+                            );
                         }
                         "ask" => {
                             // Forward either the provided payload object, or the message string
@@ -39,13 +55,78 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             } else {
                                 let _ = app.emit("cli://ask", msg.message.unwrap_or_default());
                             }
+                            let response = IpcResponse {
+                                status: "ok".to_string(),
+                                data: None,
+                            };
+                            let _ = stream.write_all(
+                                format!("{}\n", serde_json::to_string(&response).unwrap())
+                                    .as_bytes(),
+                            );
+                        }
+                        "last" => {
+                            // Call the Tauri command directly
+                            let db = app.state::<crate::database::Database>();
+                            let result = tokio::runtime::Handle::current().block_on(async {
+                                crate::commands::messages::get_last_assistant_message(db).await
+                            });
+
+                            match result {
+                                Ok(Some(message)) => {
+                                    let response = IpcResponse {
+                                        status: "ok".to_string(),
+                                        data: Some(serde_json::to_value(&message).unwrap()),
+                                    };
+                                    let _ = stream.write_all(
+                                        format!("{}\n", serde_json::to_string(&response).unwrap())
+                                            .as_bytes(),
+                                    );
+                                }
+                                Ok(None) => {
+                                    let response = IpcResponse {
+                                        status: "error".to_string(),
+                                        data: Some(
+                                            serde_json::json!({"error": "No messages found"}),
+                                        ),
+                                    };
+                                    let _ = stream.write_all(
+                                        format!("{}\n", serde_json::to_string(&response).unwrap())
+                                            .as_bytes(),
+                                    );
+                                }
+                                Err(e) => {
+                                    let response = IpcResponse {
+                                        status: "error".to_string(),
+                                        data: Some(serde_json::json!({"error": e})),
+                                    };
+                                    let _ = stream.write_all(
+                                        format!("{}\n", serde_json::to_string(&response).unwrap())
+                                            .as_bytes(),
+                                    );
+                                }
+                            }
                         }
                         _ => {
                             // ignore unknown
+                            let response = IpcResponse {
+                                status: "ok".to_string(),
+                                data: None,
+                            };
+                            let _ = stream.write_all(
+                                format!("{}\n", serde_json::to_string(&response).unwrap())
+                                    .as_bytes(),
+                            );
                         }
                     }
+                } else {
+                    let response = IpcResponse {
+                        status: "error".to_string(),
+                        data: Some(serde_json::json!({"error": "Invalid JSON"})),
+                    };
+                    let _ = stream.write_all(
+                        format!("{}\n", serde_json::to_string(&response).unwrap()).as_bytes(),
+                    );
                 }
-                let _ = stream.write_all(b"ok\n");
             }
             Err(_) => break,
         }
