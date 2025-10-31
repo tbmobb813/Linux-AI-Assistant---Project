@@ -17,7 +17,8 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          # Pin Node to 18.x to improve compatibility with Vitest worker IPC on runners
+          node-version: "18"
 
       - name: Setup pnpm (Corepack)
         run: |
