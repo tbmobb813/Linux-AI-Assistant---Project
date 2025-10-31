@@ -1,8 +1,16 @@
+[![Beta](https://img.shields.io/badge/Beta-Program-blue?style=flat-square)](docs/beta/)
+
 # Linux AI Desktop Assistant - Project Documentation
 
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
+
+## Quick links
+
+- Beta program: [docs/beta/](docs/beta/)
+- Releases: https://github.com/tbmobb813/Linux-AI-Assistant---Project/releases
+- Documentation Index: [linux-ai-assistant/DOCUMENTATION_INDEX.md](linux-ai-assistant/DOCUMENTATION_INDEX.md)
 
 ## Documentation
 
@@ -14,6 +22,8 @@ The complete, up-to-date documentation lives inside `linux-ai-assistant/`:
 - Developer Guide: [linux-ai-assistant/DEVELOPER_GUIDE.md](linux-ai-assistant/DEVELOPER_GUIDE.md)
 - Troubleshooting: [linux-ai-assistant/TROUBLESHOOTING.md](linux-ai-assistant/TROUBLESHOOTING.md)
 
+Beta program: [docs/beta/](docs/beta/)
+
 Historical and phase summary documents have been archived under `docs/archive/`.
 
 ## Project Overview
@@ -21,8 +31,12 @@ Historical and phase summary documents have been archived under `docs/archive/`.
 Mission Statement
 Build a native Linux desktop AI assistant that provides first-class support for
 Linux users, addressing the platform neglect from major AI providers while
-delivering superior system integration, developer workflow optimization, and
-privacy-respecting architecture.
+
+# **Note**: The actual component structure is flatter than shown below for better maintainability.
+
+> All components exist as documented but are organized with naming conventions rather than deep folder nesting.
+> delivering superior system integration, developer workflow optimization, and
+> privacy-respecting architecture.
 
 Core Value Propositions
 Native Linux Experience: True desktop integration with system-level features
@@ -451,19 +465,19 @@ Nice-to-haves (Phase 5):
 - Model benchmarking against cloud providers
 - Advanced search across conversations with privacy modes
 
-Phase 6: Polish & Distribution (Weeks 16-18)
+Phase 6: Polish & Distribution (Weeks 16-18) - Phases 6.1-6.6 ✅
 Goal: Production-ready application
 
 Milestones:
 
-[x] Performance optimization and profiling ✅
-[x] Comprehensive error handling ✅
-[x] User documentation and help system ✅
-[x] Package for Snap, Flatpak, AppImage ✅
-[x] Create DEB and RPM packages ✅
-[x] Set up automatic updates ✅
-[x] APT PPA and Copr repositories ✅
-[ ] Beta testing with Linux community
+[x] Performance optimization and profiling ✅ (Phase 6.1)
+[x] Comprehensive error handling ✅ (Phase 6.2)
+[x] User documentation and help system ✅ (Phase 6.3)
+[x] Package for Snap, Flatpak, AppImage ✅ (Phase 6.4)
+[x] Create DEB and RPM packages ✅ (Phase 6.4)
+[x] Set up automatic updates ✅ (Phase 6.5)
+[x] APT PPA and Copr repositories ✅ (Phase 6.6)
+[ ] Beta testing with Linux community (Phase 6.7)
 Deliverable: Distributable packages on multiple channels with automatic updates
 and system package manager integration
 
