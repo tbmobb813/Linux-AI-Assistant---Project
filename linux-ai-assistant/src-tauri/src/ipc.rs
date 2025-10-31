@@ -77,14 +77,28 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
 
                             match result {
                                 Ok(Some(message)) => {
-                                    let response = IpcResponse {
-                                        status: "ok".to_string(),
-                                        data: Some(serde_json::to_value(&message).unwrap()),
-                                    };
-                                    let _ = stream.write_all(
-                                        format!("{}\n", serde_json::to_string(&response).unwrap())
-                                            .as_bytes(),
-                                    );
+                                    match serde_json::to_value(&message) {
+                                        Ok(json_message) => {
+                                            let response = IpcResponse {
+                                                status: "ok".to_string(),
+                                                data: Some(json_message),
+                                            };
+                                            let _ = stream.write_all(
+                                                format!("{}\n", serde_json::to_string(&response).unwrap())
+                                                    .as_bytes(),
+                                            );
+                                        }
+                                        Err(e) => {
+                                            let response = IpcResponse {
+                                                status: "error".to_string(),
+                                                data: Some(serde_json::json!({"error": format!("Serialization error: {}", e)})),
+                                            };
+                                            let _ = stream.write_all(
+                                                format!("{}\n", serde_json::to_string(&response).unwrap())
+                                                    .as_bytes(),
+                                            );
+                                        }
+                                    }
                                 }
                                 Ok(None) => {
                                     let response = IpcResponse {
