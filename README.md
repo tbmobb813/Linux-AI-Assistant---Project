@@ -1,7 +1,7 @@
 # Linux AI Desktop Assistant - Project Documentation
 
-[![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=fix/move-tauri-backend)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
+[![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
 
 ## Documentation
