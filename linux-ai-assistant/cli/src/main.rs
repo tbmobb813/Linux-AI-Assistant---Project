@@ -43,6 +43,7 @@ struct IpcResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct Message {
     id: String,
     conversation_id: String,
