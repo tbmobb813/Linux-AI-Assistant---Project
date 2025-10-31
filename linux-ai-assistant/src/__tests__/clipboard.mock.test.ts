@@ -2,7 +2,7 @@ import * as clipboardMock from "../mocks/clipboard";
 
 describe("mocks/clipboard", () => {
   // Save/restore any existing navigator.clipboard to avoid polluting other tests
-  const originalClipboard = (global as any).navigator?.clipboard;
+  const originalClipboard = (globalThis as any).navigator?.clipboard;
 
   beforeEach(() => {
     vi.resetModules();
@@ -11,62 +11,62 @@ describe("mocks/clipboard", () => {
 
   afterEach(() => {
     // @ts-ignore
-    if (originalClipboard) global.navigator.clipboard = originalClipboard;
-    else delete (global as any).navigator?.clipboard;
+    if (originalClipboard) globalThis.navigator.clipboard = originalClipboard;
+    else delete (globalThis as any).navigator?.clipboard;
   });
 
   it("readText returns text when navigator.clipboard.readText resolves", async () => {
     // @ts-ignore
-    global.navigator = global.navigator || {};
+    globalThis.navigator = globalThis.navigator || {};
     // @ts-ignore
-    global.navigator.clipboard = {
+    globalThis.navigator.clipboard = {
       readText: vi.fn().mockResolvedValue("hello"),
     };
 
     const text = await clipboardMock.readText();
     // @ts-ignore
-    expect(global.navigator.clipboard.readText).toHaveBeenCalled();
+    expect(globalThis.navigator.clipboard.readText).toHaveBeenCalled();
     expect(text).toBe("hello");
   });
 
   it("readText returns empty string when navigator.clipboard.readText throws", async () => {
     // @ts-ignore
-    global.navigator = global.navigator || {};
+    globalThis.navigator = globalThis.navigator || {};
     // @ts-ignore
-    global.navigator.clipboard = {
+    globalThis.navigator.clipboard = {
       readText: vi.fn().mockRejectedValue(new Error("denied")),
     };
 
     const text = await clipboardMock.readText();
     // @ts-ignore
-    expect(global.navigator.clipboard.readText).toHaveBeenCalled();
+    expect(globalThis.navigator.clipboard.readText).toHaveBeenCalled();
     expect(text).toBe("");
   });
 
   it("writeText calls navigator.clipboard.writeText when available", async () => {
     // @ts-ignore
-    global.navigator = global.navigator || {};
+    globalThis.navigator = globalThis.navigator || {};
     // @ts-ignore
-    global.navigator.clipboard = {
+    globalThis.navigator.clipboard = {
       writeText: vi.fn().mockResolvedValue(undefined),
     };
 
     await expect(clipboardMock.writeText("x")).resolves.toBeUndefined();
     // @ts-ignore
-    expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith("x");
+    expect(globalThis.navigator.clipboard.writeText).toHaveBeenCalledWith("x");
   });
 
   it("writeText does not throw when navigator.clipboard.writeText rejects", async () => {
     // @ts-ignore
-    global.navigator = global.navigator || {};
+    globalThis.navigator = globalThis.navigator || {};
     // @ts-ignore
-    global.navigator.clipboard = {
+    globalThis.navigator.clipboard = {
       writeText: vi.fn().mockRejectedValue(new Error("denied")),
     };
 
     // Should not throw
     await expect(clipboardMock.writeText("y")).resolves.toBeUndefined();
     // @ts-ignore
-    expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith("y");
+    expect(globalThis.navigator.clipboard.writeText).toHaveBeenCalledWith("y");
   });
 });
