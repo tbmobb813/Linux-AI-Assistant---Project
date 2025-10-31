@@ -39,8 +39,15 @@ jobs:
         run: |
           cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
-      - name: Run tests with coverage (pnpm workspace, single-threaded to avoid worker IPC issues)
-        run: pnpm --filter linux-ai-assistant run test:coverage -- --threads=false
+      - name: Run tests with coverage (pnpm workspace, single-threaded + isolate to avoid worker IPC issues)
+        run: pnpm --filter linux-ai-assistant run test:coverage -- --threads=false --isolate
+      - name: Save vitest debug log on failure
+        if: failure()
+        run: |
+          echo "---- vitest debug output ----" > vitest-debug.log || true
+          cat linux-ai-assistant/test-debug.log 2>/dev/null || true
+          echo "---- end vitest debug output ----" || true
+        continue-on-error: true
 
       - name: Show coverage dir
         run: |
