@@ -40,12 +40,11 @@ jobs:
         run: |
           cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
-      - name: Run tests (no coverage, pnpm workspace, single-threaded + isolate)
+      - name: Run tests with coverage (single-threaded + isolate)
         run: |
           set -o pipefail
-          # Run the normal test script (no coverage) to help isolate whether coverage finalization
-          # is the cause of the worker IPC/EPIPE crash. Capture output to a log file for post-mortem.
-          pnpm --filter linux-ai-assistant run test -- --threads=false --isolate 2>&1 | tee linux-ai-assistant/test-debug.log
+          # Run tests with coverage on Node 22, single-threaded to reduce worker pool IPC issues
+          pnpm --filter linux-ai-assistant run test:coverage -- --threads=false --isolate 2>&1 | tee linux-ai-assistant/test-debug.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload vitest debug log
