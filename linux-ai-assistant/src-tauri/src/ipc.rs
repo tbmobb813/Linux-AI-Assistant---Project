@@ -1,7 +1,6 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
-use std::sync::{Arc, Mutex};
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -65,11 +64,16 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             );
                         }
                         "last" => {
-                            // Call the Tauri command directly
+                            // Get the database and call the sync helper directly
                             let db = app.state::<crate::database::Database>();
-                            let result = tokio::runtime::Handle::current().block_on(async {
-                                crate::commands::messages::get_last_assistant_message(db).await
-                            });
+                            let result = match db.conn().lock() {
+                                Ok(conn) => {
+                                    crate::commands::messages::get_last_assistant_message_sync(
+                                        &conn,
+                                    )
+                                }
+                                Err(e) => Err(format!("Database lock error: {}", e)),
+                            };
 
                             match result {
                                 Ok(Some(message)) => {
