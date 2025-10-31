@@ -39,8 +39,8 @@ jobs:
         run: |
           cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
-      - name: Run tests with coverage (pnpm workspace)
-        run: pnpm --filter linux-ai-assistant run test:coverage
+      - name: Run tests with coverage (pnpm workspace, single-threaded to avoid worker IPC issues)
+        run: pnpm --filter linux-ai-assistant run test:coverage -- --threads=false
 
       - name: Show coverage dir
         run: |
