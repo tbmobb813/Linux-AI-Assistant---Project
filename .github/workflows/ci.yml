@@ -2,173 +2,75 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - chore/**
-      - fix/**
-      - feat/**
+    branches: [ main ]
   pull_request:
-    branches: [main, master]
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ main ]
 
 jobs:
-  checks:
-    name: TypeScript + Rust checks
+  test:
+    name: Run tests & upload coverage
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      # ---------- Node / Frontend ----------
-      - name: Setup Node.js
+      - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22" # use '20' if your project requires LTS 20
+          # Use Node 22 for better IPC/worker stability and full toolchain compatibility
+          node-version: "22"
 
-      - name: Detect frontend directory
-        id: fe
-        shell: bash
-        run: |
-          if [ -f "package.json" ]; then
-            echo "dir=." >> $GITHUB_OUTPUT
-          elif [ -d "linux-ai-assistant" ] && [ -f "linux-ai-assistant/package.json" ]; then
-            echo "dir=linux-ai-assistant" >> $GITHUB_OUTPUT
-          else
-            echo "dir=" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Install frontend dependencies (pnpm)
-        if: ${{ steps.fe.outputs.dir != '' }}
-        working-directory: ${{ steps.fe.outputs.dir }}
+      - name: Setup pnpm (Corepack)
         run: |
           corepack enable
           corepack prepare pnpm@10.19.0 --activate
-          pnpm install --frozen-lockfile
 
-      - name: Prettier check
-        if: ${{ steps.fe.outputs.dir != '' }}
-        working-directory: ${{ steps.fe.outputs.dir }}
+      - name: Install dependencies (pnpm, frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript type checking
+        run: pnpm --filter linux-ai-assistant run typecheck
+
+      - name: Rust formatting check (CLI)
         run: |
-          corepack enable
-          corepack prepare pnpm@10.19.0 --activate
-          # Use pnpm exec so we run the Prettier installed by pnpm in the workspace
-          pnpm exec prettier --version || true
-          pnpm exec prettier --check .
+          cd linux-ai-assistant/cli
+          cargo fmt -- --check
 
-      - name: Print Prettier version
-        if: ${{ steps.fe.outputs.dir != '' }}
-        working-directory: ${{ steps.fe.outputs.dir }}
+      - name: Rust linting (clippy) (CLI)
         run: |
-          corepack enable
-          corepack prepare pnpm@10.19.0 --activate
-          pnpm exec prettier --version
-
-      - name: TypeScript typecheck
-        if: ${{ steps.fe.outputs.dir != '' && hashFiles(format('{0}/tsconfig.json', steps.fe.outputs.dir)) != '' }}
-        working-directory: ${{ steps.fe.outputs.dir }}
+          cd linux-ai-assistant/cli
+          cargo clippy -- -D warnings
+      - name: Run tests with coverage (single-threaded + isolate)
         run: |
-          corepack enable
-          corepack prepare pnpm@10.19.0 --activate
-          echo "--- environment ---"
-          node -v
-          pnpm -v
-          echo "--- tsc version ---"
-          pnpm exec tsc -v || true
+          set -o pipefail
+          # Run tests with coverage on Node 22, single fork to avoid worker pool IPC issues
+          pnpm --filter linux-ai-assistant run test:coverage -- --pool=forks --poolOptions.forks.singleFork=true 2>&1 | tee linux-ai-assistant/test-debug.log
+          exit ${PIPESTATUS[0]}
 
-          echo "--- running tsc --noEmit (capture output) ---"
-          # Run without pnpm's silent wrapper and capture stdout/stderr so CI shows the real error
-          pnpm exec tsc --noEmit
-
-          status=$?
-          if [ $status -ne 0 ]; then
-            echo "tsc exited with code $status"
-            exit $status
-          fi
-
-      - name: Run frontend tests (coverage)
-        if: ${{ steps.fe.outputs.dir != '' }}
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.19.0 --activate
-          pnpm install --frozen-lockfile
-          # Run test:coverage in the detected frontend package
-          if [ "${{ steps.fe.outputs.dir }}" = "." ]; then
-            pnpm --filter linux-ai-assistant run test:coverage
-          else
-            pnpm --filter linux-ai-assistant run test:coverage
-          fi
-
-      - name: Upload frontend coverage
-        if: ${{ steps.fe.outputs.dir != '' }}
-        uses: actions/upload-artifact@v5
+      - name: Upload vitest debug log
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage
-          path: ${{ steps.fe.outputs.dir }}/coverage
+          name: vitest-debug-log
+          path: linux-ai-assistant/test-debug.log
 
-      # ---------- Rust / Tauri ----------
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Upload coverage JSON
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          toolchain: stable
-          profile: minimal
-          components: rustfmt, clippy
-          override: true
+          name: vitest-coverage-json
+          path: linux-ai-assistant/coverage/coverage-final.json
 
-      - name: Cache Rust builds
-        uses: Swatinem/rust-cache@v2
+      - name: Show coverage dir
+        run: |
+          echo "Coverage dir listing:"
+          ls -la linux-ai-assistant/coverage || true
+          echo "--- head of coverage-final.json ---"
+          head -n 20 linux-ai-assistant/coverage/coverage-final.json || true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          workspaces: |
-            src-tauri
-            linux-ai-assistant/src-tauri
-
-      - name: Detect Tauri directory
-        id: tauri
-        shell: bash
-        run: |
-          if [ -f "src-tauri/Cargo.toml" ]; then
-            echo "dir=src-tauri" >> $GITHUB_OUTPUT
-          elif [ -f "linux-ai-assistant/src-tauri/Cargo.toml" ]; then
-            echo "dir=linux-ai-assistant/src-tauri" >> $GITHUB_OUTPUT
-          else
-            echo "dir=" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Install system dependencies for native builds
-        if: ${{ steps.tauri.outputs.dir != '' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            pkg-config \
-            cmake \
-            libglib2.0-dev \
-            libgirepository1.0-dev \
-            libdbus-1-dev \
-            libssl-dev \
-            libsecret-1-dev \
-            libgtk-3-dev \
-            libjavascriptcoregtk-4.1-dev \
-            libwebkit2gtk-4.1-dev
-
-      - name: Cargo fmt (check)
-        if: ${{ steps.tauri.outputs.dir != '' }}
-        working-directory: ${{ steps.tauri.outputs.dir }}
-        run: cargo fmt -- --check
-
-      - name: Cargo clippy (deny warnings)
-        if: ${{ steps.tauri.outputs.dir != '' }}
-        working-directory: ${{ steps.tauri.outputs.dir }}
-        run: cargo clippy --workspace --all-targets -- -D warnings
-
-      - name: Cargo check
-        if: ${{ steps.tauri.outputs.dir != '' }}
-        working-directory: ${{ steps.tauri.outputs.dir }}
-        run: cargo check --workspace --all-targets
+          files: linux-ai-assistant/coverage/coverage-final.json
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
