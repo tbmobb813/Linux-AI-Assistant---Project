@@ -39,15 +39,26 @@ jobs:
         run: |
           cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
-      - name: Run tests with coverage (pnpm workspace, single-threaded + isolate to avoid worker IPC issues)
-        run: pnpm --filter linux-ai-assistant run test:coverage -- --threads=false --isolate
-      - name: Save vitest debug log on failure
-        if: failure()
+      - name: Run tests with coverage (pnpm workspace, single-threaded + isolate)
         run: |
-          echo "---- vitest debug output ----" > vitest-debug.log || true
-          cat linux-ai-assistant/test-debug.log 2>/dev/null || true
-          echo "---- end vitest debug output ----" || true
-        continue-on-error: true
+          set -o pipefail
+          # Capture all output to a log file for post-mortem analysis and still return the original exit code
+          pnpm --filter linux-ai-assistant run test:coverage -- --threads=false --isolate 2>&1 | tee linux-ai-assistant/test-debug.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload vitest debug log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-debug-log
+          path: linux-ai-assistant/test-debug.log
+
+      - name: Upload coverage JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-coverage-json
+          path: linux-ai-assistant/coverage/coverage-final.json
 
       - name: Show coverage dir
         run: |
