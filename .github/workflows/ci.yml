@@ -30,14 +30,14 @@ jobs:
       - name: TypeScript type checking
         run: pnpm --filter linux-ai-assistant run typecheck
 
-      - name: Rust formatting check
+      - name: Rust formatting check (CLI)
         run: |
-          cd rust-ai-assistant
+          cd linux-ai-assistant/cli
           cargo fmt -- --check
 
-      - name: Rust linting (clippy)
+      - name: Rust linting (clippy) (CLI)
         run: |
-          cd rust-ai-assistant
+          cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
       - name: Run tests with coverage (pnpm workspace)
         run: pnpm --filter linux-ai-assistant run test:coverage
