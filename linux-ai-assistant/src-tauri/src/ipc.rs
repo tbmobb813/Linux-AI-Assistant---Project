@@ -291,8 +291,7 @@ pub fn start_ipc_server(app: AppHandle) {
                     if let Ok(handle) = builder
                         .spawn(move || handle_client(s, (*app_clone).clone(), dev_mode_enabled))
                     {
-                        // Detach thread to avoid resource leaks
-                        let _ = handle.thread().id();
+                        // Thread is detached when JoinHandle is dropped
                     } else {
                         eprintln!("IPC: failed to spawn client thread");
                     }
