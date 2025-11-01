@@ -117,6 +117,22 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             }
                         }
                         "create" => {
+                            // This handler is intended for dev/test only. Require DEV_MODE to be set
+                            // to avoid accidental exposure in production environments.
+                            if std::env::var("DEV_MODE").is_err() {
+                                let response = IpcResponse {
+                                    status: "error".to_string(),
+                                    data: Some(
+                                        serde_json::json!({"error": "create handler disabled; set DEV_MODE=1 to enable"}),
+                                    ),
+                                };
+                                let _ = stream.write_all(
+                                    format!("{}\n", serde_json::to_string(&response).unwrap())
+                                        .as_bytes(),
+                                );
+                                continue;
+                            }
+
                             // Insert a conversation (if needed) and an assistant message.
                             // Payload can be an object with optional conversation_id and/or content.
                             {
