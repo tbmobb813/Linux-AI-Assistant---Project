@@ -224,7 +224,7 @@ fn send_ipc(
     // Read acknowledgment with buffered reader
     let mut reader = BufReader::with_capacity(BUFFER_SIZE, stream);
     let mut line = String::with_capacity(256);
-    let _ = reader.read_line(&mut line);
+    reader.read_line(&mut line).map_err(|e| e.to_string())?;
     Ok(())
 }
 
