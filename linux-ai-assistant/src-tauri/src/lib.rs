@@ -256,6 +256,7 @@ pub fn run() {
             commands::messages::get_conversation_messages,
             commands::messages::get_last_messages,
             commands::messages::search_messages,
+            commands::messages::update_message,
             commands::messages::delete_message,
             commands::messages::get_conversation_token_count,
             commands::messages::get_last_assistant_message,

@@ -31,7 +31,7 @@ export default function MessageBubble({
   const [showBranchDialog, setShowBranchDialog] = useState(false);
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
-  // const updateMessage = useChatStore((s) => s.updateMessage); // TODO: Implement backend
+  const updateMessage = useChatStore((s) => s.updateMessage);
   const addToast = useUiStore((s) => s.addToast);
 
   const handleEdit = () => {
@@ -46,12 +46,11 @@ export default function MessageBubble({
     }
 
     try {
-      // TODO: Implement updateMessage in backend
-      // await updateMessage(message.id, editContent.trim());
+      await updateMessage(message.id, editContent.trim());
       addToast({
-        message: "Message editing coming soon!",
-        type: "info",
-        ttl: 3000,
+        message: "Message updated successfully",
+        type: "success",
+        ttl: 2000,
       });
       setIsEditing(false);
     } catch (error) {
