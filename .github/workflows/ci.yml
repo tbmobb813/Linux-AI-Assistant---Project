@@ -50,8 +50,9 @@ jobs:
         shell: bash {0}
         run: |
           set -o pipefail
-          # Run tests with coverage on Node 22, single fork to avoid worker pool IPC issues
-          pnpm --filter linux-ai-assistant run test:coverage -- --pool=forks --poolOptions.forks.singleFork=true 2>&1 | tee linux-ai-assistant/test-debug.log
+          # Run tests with coverage on Node 22. Disable worker threads to avoid worker pool IPC (EPIPE) issues.
+          # This runs tests in the main process so child-worker IPC is not used.
+          pnpm --filter linux-ai-assistant run test:coverage -- --threads=false 2>&1 | tee linux-ai-assistant/test-debug.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload vitest debug log
