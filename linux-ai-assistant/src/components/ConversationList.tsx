@@ -4,7 +4,8 @@ import ConversationItemModern from "./ConversationItemModern";
 import TagFilter from "./TagFilter";
 import { AdvancedSearchModal } from "./AdvancedSearchModal";
 import { SearchSuggestions } from "./SearchSuggestions";
-import { Search, X, Filter, Tag, Settings } from "lucide-react";
+import { AnimatedButton, StaggerContainer, FadeIn } from "./Animations";
+import { Search, X, Tag, Settings } from "lucide-react";
 
 export default function ConversationList() {
   const {
@@ -96,22 +97,16 @@ export default function ConversationList() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Conversations
           </h2>
-          <button
-            className="
-              flex items-center space-x-2 px-3 py-2 rounded-lg
-              bg-blue-500 hover:bg-blue-600 active:bg-blue-700
-              text-white text-sm font-medium
-              transition-all duration-200
-              shadow-sm hover:shadow-md
-            "
+          <AnimatedButton
             onClick={async () => {
               await createConversation("New conversation", "gpt-4", "local");
             }}
-            title="Create new conversation (Ctrl+N)"
+            variant="primary"
+            size="sm"
           >
             <span className="text-base">✨</span>
             <span>New</span>
-          </button>
+          </AnimatedButton>
         </div>
 
         {/* Enhanced Search */}
@@ -252,28 +247,35 @@ export default function ConversationList() {
         )}
 
         {!isLoading && filteredConversations.length === 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <div className="text-4xl mb-3">💬</div>
-            <div className="text-sm font-medium mb-1">
-              {searchQuery ? "No conversations found" : "No conversations yet"}
+          <FadeIn delay={300}>
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-4xl mb-3">💬</div>
+              <div className="text-sm font-medium mb-1">
+                {searchQuery
+                  ? "No conversations found"
+                  : "No conversations yet"}
+              </div>
+              <div className="text-xs">
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Create your first conversation to get started"}
+              </div>
             </div>
-            <div className="text-xs">
-              {searchQuery
-                ? "Try a different search term"
-                : "Create your first conversation to get started"}
-            </div>
-          </div>
+          </FadeIn>
         )}
 
-        {!isLoading &&
-          filteredConversations.map((c) => (
-            <ConversationItemModern
-              key={c.id}
-              conversation={c}
-              selected={currentConversation?.id === c.id}
-              onSelect={(id: string) => selectConversation(id)}
-            />
-          ))}
+        {!isLoading && filteredConversations.length > 0 && (
+          <StaggerContainer staggerDelay={50}>
+            {filteredConversations.map((c) => (
+              <ConversationItemModern
+                key={c.id}
+                conversation={c}
+                selected={currentConversation?.id === c.id}
+                onSelect={(id: string) => selectConversation(id)}
+              />
+            ))}
+          </StaggerContainer>
+        )}
       </div>
 
       {/* Advanced Search Modal */}

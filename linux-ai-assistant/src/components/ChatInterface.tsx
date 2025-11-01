@@ -3,6 +3,7 @@ import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import MessageSearch from "./MessageSearch";
+import { AnimatedButton, LoadingSpinner, FadeIn } from "./Animations";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
@@ -113,36 +114,70 @@ export default function ChatInterface(): JSX.Element {
 
   if (!currentConversation) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400">
-        Select or create a conversation to get started.
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+            <span className="text-2xl">💬</span>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Ready to Chat
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+            Select an existing conversation from the sidebar or create a new one
+            to get started.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="border-b border-gray-300 dark:border-gray-800 p-4 flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">
-            {currentConversation.title || "Untitled"}
-          </h3>
-          <div className="flex items-center gap-3">
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {currentConversation.model} • {currentConversation.provider}
-            </div>
-            {gitContext && gitContext.is_repo && (
-              <div className="text-xs text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800">
-                <strong className="mr-1">{gitContext.branch || "HEAD"}</strong>
-                {gitContext.dirty ? (
-                  <span className="text-red-400">●</span>
-                ) : (
-                  <span className="text-green-400">●</span>
-                )}
+    <div className="flex-1 flex flex-col bg-white/50 dark:bg-gray-900/50">
+      {/* Modern Chat Header */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white text-lg">🤖</span>
               </div>
-            )}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {currentConversation.title || "Untitled Conversation"}
+                </h3>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-xs font-medium">
+                      {currentConversation.model}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-xs font-medium">
+                      {currentConversation.provider}
+                    </span>
+                  </div>
+                  {gitContext && gitContext.is_repo && (
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-200 dark:border-green-700">
+                      <span className="text-xs font-medium text-green-800 dark:text-green-300">
+                        {gitContext.branch || "HEAD"}
+                      </span>
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          gitContext.dirty
+                            ? "bg-red-400 animate-pulse"
+                            : "bg-green-400"
+                        }`}
+                        title={
+                          gitContext.dirty
+                            ? "Uncommitted changes"
+                            : "Clean working directory"
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div>
           <button
             onClick={async () => {
               try {
@@ -151,18 +186,26 @@ export default function ChatInterface(): JSX.Element {
                 console.error("failed to toggle window", e);
               }
             }}
-            className="text-sm px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
+            className="
+              flex items-center space-x-2 px-3 py-2 rounded-lg
+              bg-gray-100 dark:bg-gray-800 
+              text-gray-700 dark:text-gray-300 
+              hover:bg-gray-200 dark:hover:bg-gray-700
+              transition-all duration-200
+              text-sm font-medium
+            "
             title="Toggle window"
             aria-label="Toggle window"
           >
-            Toggle Window
+            <span>🪟</span>
+            <span className="hidden md:inline">Toggle</span>
           </button>
         </div>
       </div>
 
-      {/* Message Search */}
+      {/* Enhanced Message Search */}
       {messages.length > 0 && (
-        <div className="border-b border-gray-200 dark:border-gray-700 p-3">
+        <div className="bg-gray-50/50 dark:bg-gray-800/30 border-b border-gray-200/50 dark:border-gray-700/50 p-3">
           <MessageSearch
             messages={messages}
             onMessageSelect={(messageId) => {
@@ -182,13 +225,19 @@ export default function ChatInterface(): JSX.Element {
         </div>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
+      {/* Modern Messages Container */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-transparent to-gray-50/30 dark:to-gray-900/30"
+      >
         {isLoading && messages.length === 0 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`max-w-[60%] px-4 py-3 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse`}
+                className={`max-w-[70%] px-4 py-3 rounded-2xl bg-gray-200/60 dark:bg-gray-800/60 animate-pulse h-16 ${
+                  i % 2 === 0 ? "ml-auto" : ""
+                }`}
               />
             ))}
           </div>
@@ -203,16 +252,28 @@ export default function ChatInterface(): JSX.Element {
             />
           ))}
         {!isLoading && messages.length === 0 && (
-          <div className="text-sm text-gray-400">
-            No messages yet — send the first message!
-          </div>
+          <FadeIn delay={300}>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                <span className="text-2xl">✨</span>
+              </div>
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Start the Conversation
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
+                Ask a question, request help with code, or start a discussion.
+                Your AI assistant is ready to help!
+              </p>
+            </div>
+          </FadeIn>
         )}
         {isLoading &&
           messages.length > 0 &&
           messages.map((m) => <MessageBubble key={m.id} message={m} />)}
       </div>
 
-      <div className="p-4 border-t border-gray-300 dark:border-gray-800">
+      {/* Modern Input Area */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-700/50 p-4">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -274,144 +335,230 @@ export default function ChatInterface(): JSX.Element {
             }
           }}
         >
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handlePasteFromClipboard}
-              className="px-3 py-2 rounded-md flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-              disabled={isLoading}
-              title="Paste from clipboard (Ctrl+Shift+V)"
-              aria-label="Paste from clipboard"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div className="flex items-end space-x-3">
+            {/* Action Buttons */}
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={handlePasteFromClipboard}
+                className="
+                  p-3 rounded-xl
+                  bg-gray-100 dark:bg-gray-800 
+                  text-gray-600 dark:text-gray-400
+                  hover:bg-gray-200 dark:hover:bg-gray-700 
+                  hover:text-gray-800 dark:hover:text-gray-200
+                  transition-all duration-200
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+                disabled={isLoading}
+                title="Paste from clipboard (Ctrl+Shift+V)"
+                aria-label="Paste from clipboard"
               >
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                const lastUser = [...messages]
-                  .reverse()
-                  .find((m) => m.role === "user");
-                const base = lastUser?.content || value.trim();
-                if (!base) return;
-                const provider = getProvider();
-                const project = useProjectStore.getState();
-                const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
-                const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
-                try {
-                  const resp = await provider.generateResponse(
-                    currentConversation?.id || "suggestions",
-                    [{ role: "user", content: prompt }],
-                  );
-                  const items = resp
-                    .split(/\r?\n/)
-                    .map((s) => s.replace(/^[-•]\s*/, "").trim())
-                    .filter(Boolean)
-                    .slice(0, 5);
-                  useUiStore.getState().showSuggestions(items);
-                } catch (e) {
-                  addToast({
-                    message: "Failed to get suggestions",
-                    type: "error",
-                    ttl: 1600,
-                  });
-                }
-              }}
-              className="px-3 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white"
-              disabled={isLoading}
-              title="Suggest terminal commands"
-              aria-label="Suggest terminal commands"
-            >
-              Suggest
-            </button>
-            <input
-              ref={inputRef}
-              className="flex-1 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
-              value={value}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setValue(newValue);
-
-                // Show slash command suggestions
-                if (newValue.startsWith("/")) {
-                  const suggestions = getSlashCommandSuggestions(newValue);
-                  setSlashSuggestions(suggestions);
-                } else {
-                  setSlashSuggestions([]);
-                }
-              }}
-              placeholder="Type a message or /help for commands..."
-              disabled={isLoading}
-              aria-label="Message input"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-60 flex items-center gap-2"
-              disabled={isLoading}
-              aria-label="Send message"
-            >
-              {isLoading && (
                 <svg
-                  className="w-4 h-4 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  ></path>
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                 </svg>
-              )}
-              <span>{isLoading ? "Sending..." : "Send"}</span>
-            </button>
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const lastUser = [...messages]
+                    .reverse()
+                    .find((m) => m.role === "user");
+                  const base = lastUser?.content || value.trim();
+                  if (!base) return;
+                  const provider = getProvider();
+                  const project = useProjectStore.getState();
+                  const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
+                  const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
+                  try {
+                    const resp = await provider.generateResponse(
+                      currentConversation?.id || "suggestions",
+                      [{ role: "user", content: prompt }],
+                    );
+                    const items = resp
+                      .split(/\r?\n/)
+                      .map((s) => s.replace(/^[-•]\s*/, "").trim())
+                      .filter(Boolean)
+                      .slice(0, 5);
+                    useUiStore.getState().showSuggestions(items);
+                  } catch (e) {
+                    addToast({
+                      message: "Failed to get suggestions",
+                      type: "error",
+                      ttl: 1600,
+                    });
+                  }
+                }}
+                className="
+                  p-3 rounded-xl
+                  bg-purple-100 dark:bg-purple-900/30 
+                  text-purple-600 dark:text-purple-400
+                  hover:bg-purple-200 dark:hover:bg-purple-900/50 
+                  hover:text-purple-700 dark:hover:text-purple-300
+                  transition-all duration-200
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+                disabled={isLoading}
+                title="Suggest terminal commands"
+                aria-label="Suggest terminal commands"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Enhanced Input Field */}
+            <div className="flex-1 relative">
+              <textarea
+                ref={inputRef as any}
+                className="
+                  w-full px-4 py-3 pr-12
+                  border border-gray-300 dark:border-gray-600
+                  rounded-xl bg-white dark:bg-gray-800
+                  text-gray-900 dark:text-white
+                  placeholder-gray-500 dark:placeholder-gray-400
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  transition-all duration-200
+                  resize-none min-h-[3rem] max-h-32
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+                value={value}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setValue(newValue);
+
+                  // Show slash command suggestions
+                  if (newValue.startsWith("/")) {
+                    const suggestions = getSlashCommandSuggestions(newValue);
+                    setSlashSuggestions(suggestions);
+                  } else {
+                    setSlashSuggestions([]);
+                  }
+
+                  // Auto-resize textarea
+                  const textarea = e.target;
+                  textarea.style.height = "auto";
+                  textarea.style.height =
+                    Math.min(textarea.scrollHeight, 128) + "px";
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    e.currentTarget.form?.requestSubmit();
+                  }
+                }}
+                placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                disabled={isLoading}
+                aria-label="Message input"
+                rows={1}
+              />
+
+              {/* Send Button Overlay - Enhanced with Micro-interactions */}
+              <div className="absolute right-2 bottom-2">
+                <AnimatedButton
+                  onClick={() => {
+                    // Button is within form, so this just provides enhanced UI
+                  }}
+                  variant={value.trim() ? "primary" : "secondary"}
+                  size="sm"
+                  isLoading={isLoading}
+                  className={`
+                    p-2 !px-3 !py-2
+                    ${!value.trim() && !isLoading ? "!bg-gray-200 dark:!bg-gray-700 !text-gray-500 dark:!text-gray-400" : ""}
+                  `}
+                >
+                  {isLoading ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m22 2-7 20-4-9-9-4Z" />
+                      <path d="M22 2 11 13" />
+                    </svg>
+                  )}
+                </AnimatedButton>
+                {/* Hidden submit button for form functionality */}
+                <button
+                  type="submit"
+                  className="hidden"
+                  disabled={isLoading || !value.trim()}
+                  aria-label="Send message"
+                />
+              </div>
+            </div>
           </div>
         </form>
 
-        {/* Slash command suggestions dropdown */}
+        {/* Modern Slash Command Suggestions */}
         {slashSuggestions.length > 0 && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-            {slashSuggestions.map((command) => (
+          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+            {slashSuggestions.map((command, index) => (
               <button
                 key={command.name}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
+                className={`
+                  w-full text-left px-4 py-3 
+                  hover:bg-gray-100/50 dark:hover:bg-gray-800/50 
+                  transition-colors duration-200
+                  ${index !== slashSuggestions.length - 1 ? "border-b border-gray-200/30 dark:border-gray-700/30" : ""}
+                `}
                 onClick={() => {
                   setValue(command.name + " ");
                   setSlashSuggestions([]);
                   inputRef.current?.focus();
                 }}
               >
-                <div className="font-medium text-blue-600">{command.name}</div>
-                <div className="text-sm text-gray-600">
-                  {command.description}
-                </div>
-                {command.parameters && (
-                  <div className="text-xs text-gray-500">
-                    Parameters: {command.parameters}
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 dark:text-blue-400 text-sm">
+                      ⚡
+                    </span>
                   </div>
-                )}
+                  <div className="flex-1">
+                    <div className="font-medium text-blue-600 dark:text-blue-400 text-sm">
+                      {command.name}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      {command.description}
+                    </div>
+                    {command.parameters && (
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Parameters: {command.parameters}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </button>
             ))}
           </div>
