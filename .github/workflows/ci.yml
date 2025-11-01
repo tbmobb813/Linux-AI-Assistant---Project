@@ -44,7 +44,8 @@ jobs:
           cargo clippy -- -D warnings
       - name: Run tests with coverage (single-threaded + isolate)
         # Ensure this step runs under bash so PIPESTATUS is available (zsh does not support it)
-        shell: bash -lc
+        # Use a shell format string with '{0}' so GitHub Actions can inject the command script.
+        shell: bash -lc {0}
         run: |
           set -o pipefail
           # Run tests with coverage on Node 22, single fork to avoid worker pool IPC issues
