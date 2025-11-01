@@ -286,7 +286,7 @@ pub fn start_ipc_server(app: AppHandle) {
                     // Spawn thread with optimized stack size for better memory usage
                     let builder = thread::Builder::new()
                         .name("ipc-client".to_string())
-                        .stack_size(256 * 1024); // 256KB stack, smaller than default
+                        .stack_size(2 * 1024 * 1024); // 2MB stack, default size
 
                     if let Ok(handle) = builder
                         .spawn(move || handle_client(s, (*app_clone).clone(), dev_mode_enabled))
