@@ -22,7 +22,7 @@ struct IpcResponse {
     data: Option<JsonValue>,
 }
 
-fn handle_client(mut stream: TcpStream, app: AppHandle) {
+fn handle_client(mut stream: TcpStream, app: AppHandle, dev_mode_enabled: bool) {
     let peer = stream.peer_addr().ok();
     let mut reader = BufReader::new(stream.try_clone().unwrap());
     let mut line = String::new();
@@ -104,6 +104,107 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                                             .as_bytes(),
                                     );
                                 }
+                            }
+                        }
+                        "create" => {
+                            // Only allow create command in dev mode
+                            if !dev_mode_enabled {
+                                let response = IpcResponse {
+                                    status: "error".to_string(),
+                                    data: Some(
+                                        serde_json::json!({"error": "create command only available in DEV_MODE"}),
+                                    ),
+                                };
+                                let _ = stream.write_all(
+                                    format!("{}\n", serde_json::to_string(&response).unwrap())
+                                        .as_bytes(),
+                                );
+                                continue;
+                            }
+
+                            if let Some(payload) = msg.payload {
+                                let content = payload
+                                    .get("content")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("Test message")
+                                    .to_string();
+
+                                let conversation_id = payload
+                                    .get("conversation_id")
+                                    .and_then(|v| v.as_str())
+                                    .map(|s| s.to_string());
+
+                                let db = app.state::<crate::database::Database>();
+                                let result = tokio::runtime::Handle::current().block_on(async {
+                                    // If no conversation_id provided, create a new conversation
+                                    let conv_id = if let Some(cid) = conversation_id {
+                                        cid
+                                    } else {
+                                        let conn = db.conn().lock().map_err(|e| e.to_string())?;
+                                        let new_conv =
+                                            crate::database::conversations::NewConversation {
+                                                title: "Dev Test Conversation".to_string(),
+                                                model: "dev-model".to_string(),
+                                                provider: "dev-provider".to_string(),
+                                                system_prompt: None,
+                                            };
+                                        let conv =
+                                            crate::database::conversations::Conversation::create(
+                                                &conn, new_conv,
+                                            )
+                                            .map_err(|e| e.to_string())?;
+                                        conv.id
+                                    };
+
+                                    crate::commands::messages::create_message(
+                                        db,
+                                        conv_id,
+                                        "assistant".to_string(),
+                                        content,
+                                        None,
+                                    )
+                                    .await
+                                });
+
+                                match result {
+                                    Ok(message) => {
+                                        let response = IpcResponse {
+                                            status: "ok".to_string(),
+                                            data: Some(serde_json::to_value(&message).unwrap()),
+                                        };
+                                        let _ = stream.write_all(
+                                            format!(
+                                                "{}\n",
+                                                serde_json::to_string(&response).unwrap()
+                                            )
+                                            .as_bytes(),
+                                        );
+                                    }
+                                    Err(e) => {
+                                        let response = IpcResponse {
+                                            status: "error".to_string(),
+                                            data: Some(serde_json::json!({"error": e})),
+                                        };
+                                        let _ = stream.write_all(
+                                            format!(
+                                                "{}\n",
+                                                serde_json::to_string(&response).unwrap()
+                                            )
+                                            .as_bytes(),
+                                        );
+                                    }
+                                }
+                            } else {
+                                let response = IpcResponse {
+                                    status: "error".to_string(),
+                                    data: Some(
+                                        serde_json::json!({"error": "No payload provided for create command"}),
+                                    ),
+                                };
+                                let _ = stream.write_all(
+                                    format!("{}\n", serde_json::to_string(&response).unwrap())
+                                        .as_bytes(),
+                                );
                             }
                         }
                         _ => {
