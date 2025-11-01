@@ -261,4 +261,23 @@ export const database = {
       return callInvoke("get_full_performance_snapshot");
     },
   },
+
+  // Shortcuts management
+  shortcuts: {
+    getConfig: async () => {
+      return callInvoke("get_shortcut_config");
+    },
+
+    updateConfig: async (config: any) => {
+      return callInvoke("update_shortcut_config", { config });
+    },
+
+    validateShortcut: async (shortcut: string) => {
+      return callInvoke("validate_shortcut", { shortcut });
+    },
+
+    getAvailableActions: async () => {
+      return callInvoke("get_available_actions");
+    },
+  },
 };

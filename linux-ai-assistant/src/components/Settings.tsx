@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { withErrorHandling } from "../lib/utils/errorHandler";
-import { FileText, Activity } from "lucide-react";
+import { FileText, Activity, Keyboard } from "lucide-react";
 import FileWatcherSettings from "./FileWatcherSettings";
 import PerformanceDashboard from "./PerformanceDashboard";
+import ShortcutSettings from "./ShortcutSettings";
 
 type Props = {
   onClose?: () => void;
@@ -21,6 +22,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
   const [showFileWatcherSettings, setShowFileWatcherSettings] = useState(false);
   const [showPerformanceDashboard, setShowPerformanceDashboard] =
     useState(false);
+  const [showShortcutSettings, setShowShortcutSettings] = useState(false);
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -128,6 +130,14 @@ export default function Settings({ onClose }: Props): JSX.Element {
       {/* File Watcher Settings Button */}
       <div className="pt-2 space-y-2">
         <button
+          onClick={() => setShowShortcutSettings(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
+        >
+          <Keyboard className="w-4 h-4" />
+          Global Shortcuts
+        </button>
+
+        <button
           onClick={() => setShowFileWatcherSettings(true)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
         >
@@ -161,6 +171,13 @@ export default function Settings({ onClose }: Props): JSX.Element {
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
+
+      {/* Shortcut Settings Modal */}
+      {showShortcutSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <ShortcutSettings onClose={() => setShowShortcutSettings(false)} />
+        </div>
+      )}
 
       {/* File Watcher Settings Modal */}
       {showFileWatcherSettings && (

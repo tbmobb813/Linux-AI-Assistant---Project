@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
-use sysinfo::{MemoryRefreshKind, Pid, ProcessRefreshKind, RefreshKind, System};
+use sysinfo::{CpuRefreshKind, MemoryRefreshKind, Pid, ProcessRefreshKind, RefreshKind, System};
 
 static SYSTEM: OnceLock<Mutex<System>> = OnceLock::new();
 static LAST_UPDATE: OnceLock<Mutex<Instant>> = OnceLock::new();
@@ -45,7 +44,7 @@ fn init_system() -> &'static Mutex<System> {
     SYSTEM.get_or_init(|| {
         let sys = System::new_with_specifics(
             RefreshKind::new()
-                .with_cpu()
+                .with_cpu(CpuRefreshKind::everything())
                 .with_memory(MemoryRefreshKind::new().with_ram().with_swap())
                 .with_processes(ProcessRefreshKind::new()),
         );
@@ -101,9 +100,9 @@ pub fn get_system_metrics() -> Result<SystemMetrics, String> {
             pid: current_pid,
             cpu_usage: process.cpu_usage(),
             memory_usage: process.memory(),
-            thread_count: process.tasks.len(),
+            thread_count: process.tasks().map(|tasks| tasks.len()).unwrap_or(0),
         },
-        uptime: system.uptime(),
+        uptime: System::uptime(),
         timestamp: std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()

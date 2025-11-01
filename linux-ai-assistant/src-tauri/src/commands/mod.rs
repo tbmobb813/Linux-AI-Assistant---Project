@@ -12,6 +12,7 @@ pub mod project;
 pub mod provider;
 pub mod run;
 pub mod settings;
+pub mod shortcuts;
 pub mod updater;
 pub mod window;
 

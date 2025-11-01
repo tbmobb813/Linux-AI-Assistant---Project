@@ -188,6 +188,9 @@ pub fn run() {
 
             println!("Database initialized successfully!");
 
+            // Initialize shortcut manager
+            commands::shortcuts::initialize_shortcut_manager(app.handle().clone());
+
             // Start CLI IPC server
             crate::ipc::start_ipc_server(app.handle().clone());
             Ok(())
@@ -254,6 +257,11 @@ pub fn run() {
             commands::performance::get_performance_metrics,
             commands::performance::get_database_metrics,
             commands::performance::get_full_performance_snapshot,
+            // shortcuts
+            commands::shortcuts::get_shortcut_config,
+            commands::shortcuts::update_shortcut_config,
+            commands::shortcuts::validate_shortcut,
+            commands::shortcuts::get_available_actions,
             // updater
             commands::updater::check_for_updates,
             commands::updater::download_and_install_update,
