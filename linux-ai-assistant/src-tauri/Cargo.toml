@@ -37,9 +37,9 @@ tempfile = "3"
 keyring = "2"
 chrono = { version = "0.4", features = ["serde"] }
 dirs = "5"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 # Performance and size optimizations
 [profile.release]
