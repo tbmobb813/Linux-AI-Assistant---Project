@@ -237,55 +237,111 @@ export default function App(): JSX.Element {
 
   return (
     <AppErrorBoundary>
-      <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
         <ConversationList />
-        <main className="flex-1 flex flex-col relative">
-          {/* Small toggle button to demonstrate invoking the window toggle command */}
-          <button
-            onClick={async () => {
-              try {
-                await database.window.toggle();
-              } catch (e) {
-                console.error("failed to toggle window", e);
-              }
-            }}
-            className="absolute right-4 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Toggle window"
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Modern Header Bar */}
+          <header
+            className="
+            bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg
+            border-b border-gray-200/50 dark:border-gray-700/50
+            px-6 py-3
+            flex items-center justify-between
+            relative z-30
+            shadow-sm
+          "
           >
-            Toggle
-          </button>
+            {/* Left side - App branding */}
+            <div className="flex items-center space-x-4">
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">
+                Linux AI Assistant
+              </h1>
+              <div className="text-xs text-gray-500 dark:text-gray-400 hidden md:block">
+                {useChatStore((state) => state.currentConversation?.title) ||
+                  "No conversation"}
+              </div>
+            </div>
 
-          {/* Settings button and panel */}
-          <button
-            onClick={() => setShowSettings((s) => !s)}
-            className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Settings"
-          >
-            Settings
-          </button>
+            {/* Right side - Action buttons */}
+            <div className="flex items-center space-x-2">
+              {/* Project Context Button */}
+              <button
+                onClick={() => setShowProjectContext((s) => !s)}
+                className={`
+                  relative flex items-center space-x-2 px-3 py-2 rounded-lg
+                  text-sm font-medium transition-all duration-200
+                  ${
+                    showProjectContext
+                      ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }
+                `}
+                title="Project Context"
+              >
+                <span className="text-base">📁</span>
+                <span className="hidden sm:inline">Context</span>
+                {events.filter((event) => Date.now() - event.ts < 5 * 60 * 1000)
+                  .length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                )}
+              </button>
+
+              {/* Settings Button */}
+              <button
+                onClick={() => setShowSettings((s) => !s)}
+                className={`
+                  flex items-center space-x-2 px-3 py-2 rounded-lg
+                  text-sm font-medium transition-all duration-200
+                  ${
+                    showSettings
+                      ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }
+                `}
+                title="Settings (Ctrl+,)"
+              >
+                <span className="text-base">⚙️</span>
+                <span className="hidden sm:inline">Settings</span>
+              </button>
+
+              {/* Window Toggle Button */}
+              <button
+                onClick={async () => {
+                  try {
+                    await database.window.toggle();
+                  } catch (e) {
+                    console.error("failed to toggle window", e);
+                  }
+                }}
+                className="
+                  flex items-center space-x-2 px-3 py-2 rounded-lg
+                  text-sm font-medium transition-all duration-200
+                  bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 
+                  hover:bg-gray-200 dark:hover:bg-gray-700
+                "
+                title="Toggle Window"
+              >
+                <span className="text-base">🪟</span>
+                <span className="hidden lg:inline">Toggle</span>
+              </button>
+            </div>
+          </header>
+
+          {/* Settings Panel */}
           {showSettings && (
-            <div className="absolute right-4 top-12 z-50">
+            <div className="absolute right-6 top-20 z-50 shadow-xl">
               <Settings onClose={() => setShowSettings(false)} />
             </div>
           )}
 
-          {/* Project Context button and panel */}
-          <button
-            onClick={() => setShowProjectContext((s) => !s)}
-            className="absolute right-32 top-4 bg-blue-600 hover:bg-blue-700 text-sm px-3 py-1 rounded relative"
-            title="Project Context"
-          >
-            📁
-            {events.filter((event) => Date.now() - event.ts < 5 * 60 * 1000)
-              .length > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            )}
-          </button>
+          {/* Project Context Panel */}
           {showProjectContext && (
             <Suspense fallback={null}>
-              <ProjectContextPanel
-                onClose={() => setShowProjectContext(false)}
-              />
+              <div className="absolute right-6 top-20 z-50">
+                <ProjectContextPanel
+                  onClose={() => setShowProjectContext(false)}
+                />
+              </div>
             </Suspense>
           )}
 
