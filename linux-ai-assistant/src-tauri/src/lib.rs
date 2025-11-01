@@ -249,6 +249,7 @@ pub fn run() {
             // project watcher
             commands::project::set_project_root,
             commands::project::stop_project_watch,
+            commands::project::update_ignore_patterns,
             // updater
             commands::updater::check_for_updates,
             commands::updater::download_and_install_update,

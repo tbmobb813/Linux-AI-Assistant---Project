@@ -18,6 +18,7 @@ interface SettingsState {
   globalShortcut: string; // e.g., "CommandOrControl+Space"
   allowCodeExecution: boolean;
   projectRoot?: string | null;
+  fileWatcherIgnorePatterns: string[]; // gitignore-style patterns
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -30,6 +31,7 @@ interface SettingsState {
   registerGlobalShortcut: (shortcut?: string) => Promise<void>;
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
+  setFileWatcherIgnorePatterns: (patterns: string[]) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -40,6 +42,16 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   globalShortcut: "CommandOrControl+Space",
   allowCodeExecution: false,
   projectRoot: null,
+  fileWatcherIgnorePatterns: [
+    "node_modules/**",
+    ".git/**",
+    "target/**",
+    "dist/**",
+    "build/**",
+    "*.log",
+    ".DS_Store",
+    "Thumbs.db",
+  ],
 
   loadSettings: async () => {
     try {
@@ -53,6 +65,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const allowRaw = await db.settings.get("allowCodeExecution");
       const allowCodeExecution = allowRaw === "true";
       const projectRoot = (await db.settings.get("projectRoot")) || null;
+      const ignorePatterns = await db.settings.getJSON<string[]>(
+        "fileWatcherIgnorePatterns",
+      );
 
       set({
         theme: (theme as any) || "system",
@@ -62,6 +77,16 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         globalShortcut,
         allowCodeExecution,
         projectRoot,
+        fileWatcherIgnorePatterns: ignorePatterns || [
+          "node_modules/**",
+          ".git/**",
+          "target/**",
+          "dist/**",
+          "build/**",
+          "*.log",
+          ".DS_Store",
+          "Thumbs.db",
+        ],
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -70,7 +95,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       if (projectRoot) {
         try {
           const { invokeSafe } = await import("../utils/tauri");
-          await invokeSafe("set_project_root", { path: projectRoot });
+          const patterns = ignorePatterns || [
+            "node_modules/**",
+            ".git/**",
+            "target/**",
+            "dist/**",
+            "build/**",
+            "*.log",
+            ".DS_Store",
+            "Thumbs.db",
+          ];
+          await invokeSafe("set_project_root", {
+            path: projectRoot,
+            patterns,
+          });
         } catch (e) {
           // non-fatal
         }
@@ -162,7 +200,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       await db.settings.set("projectRoot", path);
       set({ projectRoot: path });
       const { invokeSafe } = await import("../utils/tauri");
-      await invokeSafe("set_project_root", { path });
+      const { fileWatcherIgnorePatterns } = useSettingsStore.getState();
+      await invokeSafe("set_project_root", {
+        path,
+        patterns: fileWatcherIgnorePatterns,
+      });
       useUiStore.getState().addToast({
         message: "Watching project root",
         type: "success",
@@ -191,6 +233,32 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     } catch (e) {
       useUiStore.getState().addToast({
         message: "Failed to stop watcher",
+        type: "error",
+        ttl: 1600,
+      });
+    }
+  },
+
+  setFileWatcherIgnorePatterns: async (patterns: string[]) => {
+    try {
+      await db.settings.setJSON("fileWatcherIgnorePatterns", patterns);
+      set({ fileWatcherIgnorePatterns: patterns });
+
+      // Update the watcher with new patterns if project is being watched
+      const { projectRoot } = useSettingsStore.getState();
+      if (projectRoot) {
+        const { invokeSafe } = await import("../utils/tauri");
+        await invokeSafe("update_ignore_patterns", { patterns });
+      }
+
+      useUiStore.getState().addToast({
+        message: "Updated ignore patterns",
+        type: "success",
+        ttl: 1400,
+      });
+    } catch (e) {
+      useUiStore.getState().addToast({
+        message: "Failed to update ignore patterns",
         type: "error",
         ttl: 1600,
       });
