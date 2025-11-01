@@ -1,7 +1,7 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
-use std::sync::{Arc, Mutex};
+// std::sync imports removed (Arc/Mutex were unused); add back if needed in future
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager};
 

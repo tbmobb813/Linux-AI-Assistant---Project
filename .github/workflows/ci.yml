@@ -43,6 +43,8 @@ jobs:
           cd linux-ai-assistant/cli
           cargo clippy -- -D warnings
       - name: Run tests with coverage (single-threaded + isolate)
+        # Ensure this step runs under bash so PIPESTATUS is available (zsh does not support it)
+        shell: bash -lc
         run: |
           set -o pipefail
           # Run tests with coverage on Node 22, single fork to avoid worker pool IPC issues
