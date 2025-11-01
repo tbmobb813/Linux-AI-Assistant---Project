@@ -71,23 +71,14 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             // creating a new Runtime if necessary.
                             let db = app.state::<crate::database::Database>();
 
-                            let result = match tokio::runtime::Handle::try_current() {
-                                Ok(handle) => handle.block_on(async {
+                            // Create a short-lived runtime for this synchronous call. Using
+                            // a fresh runtime avoids depending on a Tokio reactor in the
+                            // current thread (the IPC server runs on plain threads).
+                            let result = match tokio::runtime::Runtime::new() {
+                                Ok(rt) => rt.block_on(async {
                                     crate::commands::messages::get_last_assistant_message(db).await
                                 }),
-                                Err(_) => {
-                                    // Create a short-lived runtime for this synchronous call.
-                                    let rt = tokio::runtime::Runtime::new();
-                                    match rt {
-                                        Ok(rt) => rt.block_on(async {
-                                            crate::commands::messages::get_last_assistant_message(
-                                                db,
-                                            )
-                                            .await
-                                        }),
-                                        Err(e) => Err(format!("failed to create runtime: {}", e)),
-                                    }
-                                }
+                                Err(e) => Err(format!("failed to create runtime: {}", e)),
                             };
 
                             match result {
