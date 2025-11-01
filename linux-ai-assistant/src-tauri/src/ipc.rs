@@ -1,7 +1,7 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
-use std::sync::{Arc, Mutex};
+// std sync imports were unused here previously
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -65,11 +65,30 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             );
                         }
                         "last" => {
-                            // Call the Tauri command directly
+                            // Call the Tauri command directly. The IPC server runs in its own
+                            // thread and may not have a Tokio runtime associated with the
+                            // current thread. Try using the current handle and fall back to
+                            // creating a new Runtime if necessary.
                             let db = app.state::<crate::database::Database>();
-                            let result = tokio::runtime::Handle::current().block_on(async {
-                                crate::commands::messages::get_last_assistant_message(db).await
-                            });
+
+                            let result = match tokio::runtime::Handle::try_current() {
+                                Ok(handle) => handle.block_on(async {
+                                    crate::commands::messages::get_last_assistant_message(db).await
+                                }),
+                                Err(_) => {
+                                    // Create a short-lived runtime for this synchronous call.
+                                    let rt = tokio::runtime::Runtime::new();
+                                    match rt {
+                                        Ok(rt) => rt.block_on(async {
+                                            crate::commands::messages::get_last_assistant_message(
+                                                db,
+                                            )
+                                            .await
+                                        }),
+                                        Err(e) => Err(format!("failed to create runtime: {}", e)),
+                                    }
+                                }
+                            };
 
                             match result {
                                 Ok(Some(message)) => {
