@@ -46,6 +46,6 @@ bash dev/smoke_test_ipc.sh
 
 Notes:
 
-- This script requires Python 3 and the builtin `sqlite3` module (available in the standard library).
+- This script requires Python 3 and the built-in `sqlite3` module (available in the standard library).
 - The script is intentionally under `dev/` and should not be included in release builds.
 - Dev features require `DEV_MODE=1` to be set in the environment.
