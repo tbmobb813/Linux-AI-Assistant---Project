@@ -126,5 +126,42 @@ pub async fn get_last_assistant_message(
     db: State<'_, Database>,
 ) -> Result<Option<Message>, String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    get_last_assistant_message_sync(&conn)
+
+    // Get the most recently updated conversation
+    let conversations = crate::database::conversations::Conversation::get_all(&conn, 1)
+        .map_err(|e| e.to_string())?;
+
+    if conversations.is_empty() {
+        return Ok(None);
+    }
+
+    // Get messages from that conversation, filtered by role='assistant'
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, conversation_id, role, content, timestamp, tokens_used
+         FROM messages
+         WHERE conversation_id = ?1 AND role = 'assistant' AND deleted = 0
+         ORDER BY timestamp DESC
+         LIMIT 1",
+        )
+        .map_err(|e| e.to_string())?;
+
+    let mut messages = stmt
+        .query_map([&conversations[0].id], |row| {
+            Ok(Message {
+                id: row.get(0)?,
+                conversation_id: row.get(1)?,
+                role: row.get(2)?,
+                content: row.get(3)?,
+                timestamp: row.get(4)?,
+                tokens_used: row.get(5)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    match messages.next() {
+        Some(Ok(msg)) => Ok(Some(msg)),
+        Some(Err(e)) => Err(e.to_string()),
+        None => Ok(None),
+    }
 }

@@ -1,6 +1,7 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
+// std::sync imports removed (Arc/Mutex were unused); add back if needed in future
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -64,41 +65,22 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                             );
                         }
                         "last" => {
-                            // Get the database and call the sync helper directly
+                            // Call the Tauri command directly
                             let db = app.state::<crate::database::Database>();
-                            let result = match db.conn().lock() {
-                                Ok(conn) => {
-                                    crate::commands::messages::get_last_assistant_message_sync(
-                                        &conn,
-                                    )
-                                }
-                                Err(e) => Err(format!("Database lock error: {}", e)),
-                            };
+                            let result = tokio::runtime::Handle::current().block_on(async {
+                                crate::commands::messages::get_last_assistant_message(db).await
+                            });
 
                             match result {
                                 Ok(Some(message)) => {
-                                    match serde_json::to_value(&message) {
-                                        Ok(json_message) => {
-                                            let response = IpcResponse {
-                                                status: "ok".to_string(),
-                                                data: Some(json_message),
-                                            };
-                                            let _ = stream.write_all(
-                                                format!("{}\n", serde_json::to_string(&response).unwrap())
-                                                    .as_bytes(),
-                                            );
-                                        }
-                                        Err(e) => {
-                                            let response = IpcResponse {
-                                                status: "error".to_string(),
-                                                data: Some(serde_json::json!({"error": format!("Serialization error: {}", e)})),
-                                            };
-                                            let _ = stream.write_all(
-                                                format!("{}\n", serde_json::to_string(&response).unwrap())
-                                                    .as_bytes(),
-                                            );
-                                        }
-                                    }
+                                    let response = IpcResponse {
+                                        status: "ok".to_string(),
+                                        data: Some(serde_json::to_value(&message).unwrap()),
+                                    };
+                                    let _ = stream.write_all(
+                                        format!("{}\n", serde_json::to_string(&response).unwrap())
+                                            .as_bytes(),
+                                    );
                                 }
                                 Ok(None) => {
                                     let response = IpcResponse {
