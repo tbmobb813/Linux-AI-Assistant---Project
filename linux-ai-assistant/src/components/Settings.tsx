@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { withErrorHandling } from "../lib/utils/errorHandler";
-import { FileText } from "lucide-react";
+import { FileText, Activity } from "lucide-react";
 import FileWatcherSettings from "./FileWatcherSettings";
+import PerformanceDashboard from "./PerformanceDashboard";
 
 type Props = {
   onClose?: () => void;
@@ -18,6 +19,8 @@ export default function Settings({ onClose }: Props): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showFileWatcherSettings, setShowFileWatcherSettings] = useState(false);
+  const [showPerformanceDashboard, setShowPerformanceDashboard] =
+    useState(false);
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -123,13 +126,21 @@ export default function Settings({ onClose }: Props): JSX.Element {
       </div>
 
       {/* File Watcher Settings Button */}
-      <div className="pt-2">
+      <div className="pt-2 space-y-2">
         <button
           onClick={() => setShowFileWatcherSettings(true)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
         >
           <FileText className="w-4 h-4" />
           File Watcher Settings
+        </button>
+
+        <button
+          onClick={() => setShowPerformanceDashboard(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
+        >
+          <Activity className="w-4 h-4" />
+          Performance Dashboard
         </button>
       </div>
 
@@ -156,6 +167,15 @@ export default function Settings({ onClose }: Props): JSX.Element {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <FileWatcherSettings
             onClose={() => setShowFileWatcherSettings(false)}
+          />
+        </div>
+      )}
+
+      {/* Performance Dashboard Modal */}
+      {showPerformanceDashboard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <PerformanceDashboard
+            onClose={() => setShowPerformanceDashboard(false)}
           />
         </div>
       )}

@@ -7,6 +7,7 @@ pub mod export;
 pub mod git;
 pub mod health;
 pub mod messages;
+pub mod performance;
 pub mod project;
 pub mod provider;
 pub mod run;

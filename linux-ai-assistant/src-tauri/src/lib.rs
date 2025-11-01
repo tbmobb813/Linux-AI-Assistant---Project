@@ -250,6 +250,10 @@ pub fn run() {
             commands::project::set_project_root,
             commands::project::stop_project_watch,
             commands::project::update_ignore_patterns,
+            // performance monitoring
+            commands::performance::get_performance_metrics,
+            commands::performance::get_database_metrics,
+            commands::performance::get_full_performance_snapshot,
             // updater
             commands::updater::check_for_updates,
             commands::updater::download_and_install_update,

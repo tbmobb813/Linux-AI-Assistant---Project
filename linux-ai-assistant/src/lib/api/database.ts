@@ -246,4 +246,19 @@ export const database = {
       return value ? JSON.parse(value) : null;
     },
   },
+
+  // Performance monitoring
+  performance: {
+    getSystemMetrics: async () => {
+      return callInvoke("get_performance_metrics");
+    },
+
+    getDatabaseMetrics: async () => {
+      return callInvoke("get_database_metrics");
+    },
+
+    getFullSnapshot: async () => {
+      return callInvoke("get_full_performance_snapshot");
+    },
+  },
 };
