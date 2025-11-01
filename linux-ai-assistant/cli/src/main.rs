@@ -34,6 +34,14 @@ enum Commands {
     },
     /// Get the last assistant response
     Last,
+    /// Create an assistant message (dev/test)
+    Create {
+        /// Message content to insert
+        message: String,
+        /// Optional conversation id to insert into (if omitted a conversation will be created)
+        #[arg(long)]
+        conversation_id: Option<String>,
+    },
 }
 
 #[derive(Deserialize)]
@@ -43,6 +51,7 @@ struct IpcResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct Message {
     id: String,
     conversation_id: String,
@@ -114,6 +123,40 @@ fn main() {
                 std::process::exit(1);
             }
         },
+        Commands::Create {
+            message,
+            conversation_id,
+        } => {
+            let mut payload = serde_json::Map::new();
+            payload.insert(
+                "content".to_string(),
+                serde_json::Value::String(message.clone()),
+            );
+            if let Some(cid) = conversation_id {
+                payload.insert(
+                    "conversation_id".to_string(),
+                    serde_json::Value::String(cid.clone()),
+                );
+            }
+            if let Err(e) = send_ipc("create", None, Some(serde_json::Value::Object(payload))) {
+                eprintln!("Failed to send create: {}", e);
+                std::process::exit(1);
+            } else {
+                // Ask for the created message back and print it
+                match send_ipc_with_response("last", None, None) {
+                    Ok(resp) => {
+                        if resp.status == "ok" {
+                            if let Some(data) = resp.data {
+                                if let Ok(msg) = serde_json::from_value::<Message>(data) {
+                                    println!("{}", msg.content);
+                                }
+                            }
+                        }
+                    }
+                    Err(_) => {}
+                }
+            }
+        }
     }
 }
 
