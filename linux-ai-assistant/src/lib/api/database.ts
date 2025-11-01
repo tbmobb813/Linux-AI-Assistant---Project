@@ -174,6 +174,22 @@ export const database = {
     toggle: async (): Promise<void> => {
       return callInvoke<void>("toggle_main_window");
     },
+
+    saveState: async (): Promise<void> => {
+      return callInvoke<void>("save_window_state");
+    },
+
+    restoreState: async (): Promise<void> => {
+      return callInvoke<void>("restore_window_state");
+    },
+
+    getState: async () => {
+      return callInvoke("get_window_state");
+    },
+
+    resetState: async (): Promise<void> => {
+      return callInvoke<void>("reset_window_state");
+    },
   },
 
   // Message operations

@@ -191,7 +191,50 @@ pub fn run() {
             // Initialize shortcut manager
             commands::shortcuts::initialize_shortcut_manager(app.handle().clone());
 
-            // Start CLI IPC server
+            // Restore window state on startup
+            let app_handle = app.handle().clone();
+            let db_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Some(db_state) = db_handle.try_state::<database::Database>() {
+                    if let Err(e) =
+                        commands::window::restore_window_state(app_handle.clone(), db_state).await
+                    {
+                        eprintln!("Failed to restore window state: {}", e);
+                    }
+                }
+            });
+
+            // Set up window event listeners for automatic state saving
+            if let Some(window) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+
+                window.on_window_event(move |event| {
+                    match event {
+                        tauri::WindowEvent::Moved(_) | tauri::WindowEvent::Resized(_) => {
+                            let app_handle_clone = app_handle.clone();
+
+                            // Debounce saves - only save after 500ms of no changes
+                            tauri::async_runtime::spawn(async move {
+                                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                                let app_handle_for_state = app_handle_clone.clone();
+                                if let Some(db_state) =
+                                    app_handle_for_state.try_state::<database::Database>()
+                                {
+                                    if let Err(e) = commands::window::save_window_state(
+                                        app_handle_clone,
+                                        db_state,
+                                    )
+                                    .await
+                                    {
+                                        eprintln!("Failed to save window state: {}", e);
+                                    }
+                                }
+                            });
+                        }
+                        _ => {}
+                    }
+                });
+            } // Start CLI IPC server
             crate::ipc::start_ipc_server(app.handle().clone());
             Ok(())
         })
@@ -221,6 +264,10 @@ pub fn run() {
             commands::settings::delete_setting,
             // window
             commands::window::toggle_main_window,
+            commands::window::save_window_state,
+            commands::window::restore_window_state,
+            commands::window::get_window_state,
+            commands::window::reset_window_state,
             // health
             commands::health::ping,
             // provider
