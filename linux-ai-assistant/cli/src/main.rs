@@ -143,17 +143,14 @@ fn main() {
                 std::process::exit(1);
             } else {
                 // Ask for the created message back and print it
-                match send_ipc_with_response("last", None, None) {
-                    Ok(resp) => {
-                        if resp.status == "ok" {
-                            if let Some(data) = resp.data {
-                                if let Ok(msg) = serde_json::from_value::<Message>(data) {
-                                    println!("{}", msg.content);
-                                }
+                if let Ok(resp) = send_ipc_with_response("last", None, None) {
+                    if resp.status == "ok" {
+                        if let Some(data) = resp.data {
+                            if let Ok(msg) = serde_json::from_value::<Message>(data) {
+                                println!("{}", msg.content);
                             }
                         }
                     }
-                    Err(_) => {}
                 }
             }
         }
