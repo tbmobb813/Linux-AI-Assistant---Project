@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
+import MessageSearch from "./MessageSearch";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
@@ -15,6 +16,9 @@ export default function ChatInterface(): JSX.Element {
     useChatStore();
   const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState("");
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null,
+  );
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -149,6 +153,28 @@ export default function ChatInterface(): JSX.Element {
         </div>
       </div>
 
+      {/* Message Search */}
+      {messages.length > 0 && (
+        <div className="border-b border-gray-200 dark:border-gray-700 p-3">
+          <MessageSearch
+            messages={messages}
+            onMessageSelect={(messageId) => {
+              setSelectedMessageId(messageId);
+              // Scroll to the selected message
+              const messageElement = document.getElementById(
+                `message-${messageId}`,
+              );
+              if (messageElement) {
+                messageElement.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }
+            }}
+          />
+        </div>
+      )}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         {isLoading && messages.length === 0 && (
           <div className="space-y-3">
@@ -162,7 +188,13 @@ export default function ChatInterface(): JSX.Element {
         )}
 
         {!isLoading &&
-          messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+          messages.map((m) => (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              isHighlighted={selectedMessageId === m.id}
+            />
+          ))}
         {!isLoading && messages.length === 0 && (
           <div className="text-sm text-gray-400">
             No messages yet — send the first message!

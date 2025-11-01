@@ -17,9 +17,13 @@ function formatTime(ts?: number) {
 
 interface Props {
   message: ApiMessage;
+  isHighlighted?: boolean;
 }
 
-export default function MessageBubble({ message }: Props) {
+export default function MessageBubble({
+  message,
+  isHighlighted = false,
+}: Props) {
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
   const addToast = useUiStore((s) => s.addToast);
@@ -40,7 +44,14 @@ export default function MessageBubble({ message }: Props) {
   };
 
   return (
-    <div className={`my-2 flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <div
+      id={`message-${message.id}`}
+      className={`my-2 flex ${isUser ? "justify-end" : "justify-start"} ${
+        isHighlighted
+          ? "bg-yellow-100 dark:bg-yellow-900 p-2 rounded-lg transition-colors"
+          : ""
+      }`}
+    >
       <div
         className={`max-w-[80%] px-4 py-2 rounded-lg whitespace-pre-wrap ${
           isUser

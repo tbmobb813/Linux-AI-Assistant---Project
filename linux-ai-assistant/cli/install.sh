@@ -49,13 +49,13 @@ print_info() {
 
 check_requirements() {
     print_step "Checking system requirements..."
-    
+
     # Check if running on Linux
     if [[ "$OSTYPE" != "linux-gnu"* ]]; then
         print_error "This installer is for Linux systems only"
         exit 1
     fi
-    
+
     # Check for required commands
     for cmd in curl tar; do
         if ! command -v $cmd &> /dev/null; then
@@ -63,13 +63,13 @@ check_requirements() {
             exit 1
         fi
     done
-    
+
     print_success "System requirements met"
 }
 
 detect_architecture() {
     print_step "Detecting system architecture..."
-    
+
     local arch=$(uname -m)
     case $arch in
         x86_64)
@@ -84,13 +84,13 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    
+
     print_success "Architecture: $ARCH"
 }
 
 check_permissions() {
     print_step "Checking installation permissions..."
-    
+
     if [[ ! -w "$INSTALL_DIR" ]]; then
         print_info "Installation requires sudo privileges for $INSTALL_DIR"
         if ! sudo -n true 2>/dev/null; then
@@ -101,44 +101,44 @@ check_permissions() {
 
 download_binary() {
     print_step "Downloading CLI binary..."
-    
+
     # Create temporary directory
     local temp_dir=$(mktemp -d)
     cd "$temp_dir"
-    
+
     # For now, we'll build from source since releases don't exist yet
     # TODO: Update this when releases are available
     print_info "Building from source (releases not yet available)..."
-    
+
     # Clone the repository
     if ! git clone "https://github.com/$REPO.git" --depth 1 &>/dev/null; then
         print_error "Failed to clone repository"
         exit 1
     fi
-    
+
     cd "Linux-AI-Assistant---Project/linux-ai-assistant/cli"
-    
+
     # Check if Rust is installed
     if ! command -v cargo &> /dev/null; then
         print_error "Rust/Cargo is required to build from source"
         print_info "Install Rust from: https://rustup.rs/"
         exit 1
     fi
-    
+
     # Build the binary
     print_step "Building CLI binary with Cargo..."
     if ! cargo build --release; then
         print_error "Failed to build CLI binary"
         exit 1
     fi
-    
+
     # Copy the binary
     BINARY_PATH="target/release/$BINARY_NAME"
     if [[ ! -f "$BINARY_PATH" ]]; then
         print_error "Built binary not found at $BINARY_PATH"
         exit 1
     fi
-    
+
     print_success "Binary built successfully"
     echo "$temp_dir/Linux-AI-Assistant---Project/linux-ai-assistant/cli/$BINARY_PATH"
 }
@@ -146,30 +146,30 @@ download_binary() {
 install_binary() {
     local binary_path="$1"
     print_step "Installing CLI binary..."
-    
+
     # Install the binary
     if [[ -w "$INSTALL_DIR" ]]; then
         cp "$binary_path" "$INSTALL_DIR/$CLI_NAME"
     else
         sudo cp "$binary_path" "$INSTALL_DIR/$CLI_NAME"
     fi
-    
+
     # Make it executable
     if [[ -w "$INSTALL_DIR/$CLI_NAME" ]]; then
         chmod +x "$INSTALL_DIR/$CLI_NAME"
     else
         sudo chmod +x "$INSTALL_DIR/$CLI_NAME"
     fi
-    
+
     print_success "Binary installed to $INSTALL_DIR/$CLI_NAME"
 }
 
 setup_config() {
     print_step "Setting up configuration directory..."
-    
+
     # Create config directory
     mkdir -p "$CONFIG_DIR"
-    
+
     # Create default configuration file
     cat > "$CONFIG_DIR/config.toml" << EOF
 # Linux AI Assistant CLI Configuration
@@ -191,18 +191,18 @@ timeout = 10
 color = true
 timestamps = false
 EOF
-    
+
     print_success "Configuration created at $CONFIG_DIR/config.toml"
 }
 
 verify_installation() {
     print_step "Verifying installation..."
-    
+
     # Check if binary is in PATH
     if command -v $CLI_NAME &> /dev/null; then
         local version=$($CLI_NAME --version 2>/dev/null || echo "unknown")
         print_success "CLI installed successfully: $version"
-        
+
         # Test basic functionality
         print_step "Testing CLI functionality..."
         if $CLI_NAME --help &>/dev/null; then
@@ -241,18 +241,18 @@ show_usage() {
 
 main() {
     print_header
-    
+
     # Set up cleanup trap
     trap cleanup EXIT
-    
+
     check_requirements
     detect_architecture
     check_permissions
-    
+
     local binary_path=$(download_binary)
     install_binary "$binary_path"
     setup_config
-    
+
     if verify_installation; then
         show_usage
     else
@@ -281,7 +281,7 @@ case "${1:-}" in
     --uninstall)
         print_header
         print_step "Uninstalling Linux AI Assistant CLI..."
-        
+
         if [[ -f "$INSTALL_DIR/$CLI_NAME" ]]; then
             if [[ -w "$INSTALL_DIR" ]]; then
                 rm "$INSTALL_DIR/$CLI_NAME"
@@ -292,7 +292,7 @@ case "${1:-}" in
         else
             print_info "CLI binary not found at $INSTALL_DIR/$CLI_NAME"
         fi
-        
+
         if [[ -d "$CONFIG_DIR" ]]; then
             read -p "Remove configuration directory $CONFIG_DIR? (y/N): " -n 1 -r
             echo
@@ -301,7 +301,7 @@ case "${1:-}" in
                 print_success "Configuration removed"
             fi
         fi
-        
+
         print_success "Uninstallation complete"
         exit 0
         ;;

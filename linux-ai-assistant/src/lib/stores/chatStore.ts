@@ -19,6 +19,11 @@ interface ChatState {
   isLoading: boolean;
   error: string | null;
 
+  // Search state
+  searchQuery: string;
+  searchResults: Conversation[];
+  isSearching: boolean;
+
   // Actions
   loadConversations: () => Promise<void>;
   createConversation: (
@@ -29,6 +34,10 @@ interface ChatState {
   selectConversation: (id: string) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
+
+  // Search actions
+  searchConversations: (query: string) => Promise<void>;
+  clearSearch: () => void;
 
   sendMessage: (content: string) => Promise<void>;
   retryMessage: (id: string) => Promise<void>;
@@ -43,6 +52,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   error: null,
+
+  // Search state
+  searchQuery: "",
+  searchResults: [],
+  isSearching: false,
 
   loadConversations: async () => {
     try {
@@ -412,6 +426,26 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       set({ error: String(error) });
     }
+  },
+
+  // Search functions
+  searchConversations: async (query) => {
+    if (!query.trim()) {
+      set({ searchQuery: "", searchResults: [], isSearching: false });
+      return;
+    }
+
+    try {
+      set({ isSearching: true, searchQuery: query });
+      const results = await db.conversations.search(query, 20);
+      set({ searchResults: results, isSearching: false });
+    } catch (error) {
+      set({ error: String(error), isSearching: false });
+    }
+  },
+
+  clearSearch: () => {
+    set({ searchQuery: "", searchResults: [], isSearching: false });
   },
 
   clearError: () => set({ error: null }),

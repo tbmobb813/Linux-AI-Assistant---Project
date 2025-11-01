@@ -17,7 +17,7 @@ Linux AI Assistant CLI provides command-line access to the desktop AI assistant.
 
 Examples:
   lai ask \"How do I optimize this SQL query?\"
-  lai notify \"Build completed successfully\"  
+  lai notify \"Build completed successfully\"
   lai last
   DEV_MODE=1 lai create \"Test assistant message\"
 
