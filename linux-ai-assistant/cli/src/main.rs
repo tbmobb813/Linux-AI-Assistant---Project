@@ -143,13 +143,23 @@ fn main() {
                 std::process::exit(1);
             } else {
                 // Ask for the created message back and print it
-                if let Ok(resp) = send_ipc_with_response("last", None, None) {
-                    if resp.status == "ok" {
-                        if let Some(data) = resp.data {
-                            if let Ok(msg) = serde_json::from_value::<Message>(data) {
-                                println!("{}", msg.content);
+                match send_ipc_with_response("last", None, None) {
+                    Ok(resp) => {
+                        if resp.status == "ok" {
+                            if let Some(data) = resp.data {
+                                match serde_json::from_value::<Message>(data) {
+                                    Ok(msg) => println!("{}", msg.content),
+                                    Err(e) => eprintln!("Failed to parse message: {}", e),
+                                }
+                            } else {
+                                eprintln!("No message data returned after creation.");
                             }
+                        } else {
+                            eprintln!("Failed to fetch last message: status '{}'", resp.status);
                         }
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to fetch last message: {}", e);
                     }
                 }
             }
