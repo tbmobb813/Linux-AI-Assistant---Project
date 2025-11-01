@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 
@@ -32,8 +32,25 @@ enum Commands {
         /// Message to display
         message: String,
     },
-    /// Get the last response
+    /// Get the last assistant response
     Last,
+}
+
+#[derive(Deserialize)]
+struct IpcResponse {
+    status: String,
+    data: Option<serde_json::Value>,
+}
+
+#[derive(Deserialize)]
+#[allow(dead_code)]
+struct Message {
+    id: String,
+    conversation_id: String,
+    role: String,
+    content: String,
+    timestamp: i64,
+    tokens_used: Option<i64>,
 }
 
 fn main() {
@@ -63,10 +80,41 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Commands::Last => {
-            println!("Getting last response...");
-            println!("CLI tool ready for implementation!");
-        }
+        Commands::Last => match send_ipc_with_response("last", None, None) {
+            Ok(response) => {
+                if response.status == "ok" {
+                    if let Some(data) = response.data {
+                        match serde_json::from_value::<Message>(data) {
+                            Ok(message) => {
+                                println!("{}", message.content);
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to parse message: {}", e);
+                                std::process::exit(1);
+                            }
+                        }
+                    } else {
+                        eprintln!("No data returned");
+                        std::process::exit(1);
+                    }
+                } else {
+                    if let Some(data) = response.data {
+                        if let Some(error) = data.get("error") {
+                            eprintln!("Error: {}", error);
+                        } else {
+                            eprintln!("Error: {}", data);
+                        }
+                    } else {
+                        eprintln!("Unknown error");
+                    }
+                    std::process::exit(1);
+                }
+            }
+            Err(e) => {
+                eprintln!("Failed to get last response: {}", e);
+                std::process::exit(1);
+            }
+        },
     }
 }
 
@@ -102,4 +150,28 @@ fn send_ipc(
     let mut line = String::new();
     let _ = reader.read_line(&mut line);
     Ok(())
+}
+
+fn send_ipc_with_response(
+    kind: &str,
+    message: Option<&str>,
+    payload: Option<serde_json::Value>,
+) -> Result<IpcResponse, String> {
+    let addr = "127.0.0.1:39871";
+    let mut stream =
+        TcpStream::connect(addr).map_err(|e| format!("connect {} failed: {}", addr, e))?;
+    let body = IpcMessage {
+        kind,
+        message,
+        payload,
+    };
+    let json = serde_json::to_string(&body).map_err(|e| e.to_string())?;
+    stream
+        .write_all(format!("{}\n", json).as_bytes())
+        .map_err(|e| e.to_string())?;
+    // Read response
+    let mut reader = BufReader::new(stream);
+    let mut line = String::new();
+    reader.read_line(&mut line).map_err(|e| e.to_string())?;
+    serde_json::from_str(&line).map_err(|e| format!("Failed to parse response: {}", e))
 }

@@ -210,6 +210,7 @@ pub fn run() {
             commands::messages::search_messages,
             commands::messages::delete_message,
             commands::messages::get_conversation_token_count,
+            commands::messages::get_last_assistant_message,
             // settings
             commands::settings::set_setting,
             commands::settings::get_setting,

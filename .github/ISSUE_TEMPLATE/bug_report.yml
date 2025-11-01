@@ -1,0 +1,87 @@
+name: Bug report
+description: File a bug report for L.A.I.A. beta
+labels: [bug]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please provide as much detail as possible.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Release tag or commit hash
+      placeholder: v1.0.0-beta.1
+    validations:
+      required: true
+  - type: dropdown
+    id: distro
+    attributes:
+      label: Linux distribution
+      options:
+        - Ubuntu
+        - Debian
+        - Fedora
+        - Arch
+        - openSUSE
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: distro_version
+    attributes:
+      label: Distro version
+      placeholder: 24.04 / 40 / etc.
+  - type: input
+    id: desktop_env
+    attributes:
+      label: Desktop environment
+      placeholder: GNOME / KDE / Other
+  - type: input
+    id: kernel
+    attributes:
+      label: Kernel version
+      placeholder: output of `uname -r`
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      description: One sentence description
+      placeholder: App crashes when opening settings
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Be specific; include files/commands if helpful
+      placeholder: |
+        1. Open app
+        2. Click Settings
+        3. Toggle X
+        4. Crash occurs
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Redact secrets; attach relevant snippets
+  - type: textarea
+    id: providers
+    attributes:
+      label: Provider/model in use
+      placeholder: OpenAI gpt-4o / Ollama llama3 / etc.
