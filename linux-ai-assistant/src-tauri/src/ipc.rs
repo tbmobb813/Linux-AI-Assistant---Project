@@ -169,7 +169,7 @@ fn handle_message(
     let _ = write_response(stream, &response);
 }
 
-/// Optimized last message handler with connection pooling
+/// Optimized last message handler
 fn handle_last_message(app: &AppHandle) -> IpcResponse {
     let db = app.state::<crate::database::Database>();
 
