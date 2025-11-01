@@ -40,6 +40,7 @@ dirs = "5"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 
 [dev-dependencies]
+# dev-dependencies kept minimal
 
 # Performance and size optimizations
 [profile.release]

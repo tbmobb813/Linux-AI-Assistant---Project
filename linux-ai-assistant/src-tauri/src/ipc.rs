@@ -1,7 +1,7 @@
 use serde_json::Value as JsonValue;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
-// std sync imports were unused here previously
+// std::sync imports removed (Arc/Mutex were unused); add back if needed in future
 use std::thread;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -22,7 +22,7 @@ struct IpcResponse {
     data: Option<JsonValue>,
 }
 
-fn handle_client(mut stream: TcpStream, app: AppHandle, dev_mode_enabled: bool) {
+fn handle_client(mut stream: TcpStream, app: AppHandle) {
     let peer = stream.peer_addr().ok();
     let mut reader = BufReader::new(stream.try_clone().unwrap());
     let mut line = String::new();
@@ -65,21 +65,11 @@ fn handle_client(mut stream: TcpStream, app: AppHandle, dev_mode_enabled: bool) 
                             );
                         }
                         "last" => {
-                            // Call the Tauri command directly. The IPC server runs in its own
-                            // thread and may not have a Tokio runtime associated with the
-                            // current thread. Try using the current handle and fall back to
-                            // creating a new Runtime if necessary.
+                            // Call the Tauri command directly
                             let db = app.state::<crate::database::Database>();
-
-                            // Create a short-lived runtime for this synchronous call. Using
-                            // a fresh runtime avoids depending on a Tokio reactor in the
-                            // current thread (the IPC server runs on plain threads).
-                            let result = match tokio::runtime::Runtime::new() {
-                                Ok(rt) => rt.block_on(async {
-                                    crate::commands::messages::get_last_assistant_message(db).await
-                                }),
-                                Err(e) => Err(format!("failed to create runtime: {}", e)),
-                            };
+                            let result = tokio::runtime::Handle::current().block_on(async {
+                                crate::commands::messages::get_last_assistant_message(db).await
+                            });
 
                             match result {
                                 Ok(Some(message)) => {
@@ -113,148 +103,6 @@ fn handle_client(mut stream: TcpStream, app: AppHandle, dev_mode_enabled: bool) 
                                         format!("{}\n", serde_json::to_string(&response).unwrap())
                                             .as_bytes(),
                                     );
-                                }
-                            }
-                        }
-                        "create" if dev_mode_enabled => {
-                            // Insert a conversation (if needed) and an assistant message.
-                            // Payload can be an object with optional conversation_id and/or content.
-                            {
-                                // Use a short inner scope so the MutexGuard drops before the
-                                // temporary State is dropped and we don't run into borrow issues.
-                                let db_state = app.state::<crate::database::Database>();
-                                let conn = match db_state.conn().lock() {
-                                    Ok(g) => g,
-                                    Err(e) => {
-                                        let response = IpcResponse {
-                                            status: "error".to_string(),
-                                            data: Some(
-                                                serde_json::json!({"error": format!("failed to lock db conn: {}", e)}),
-                                            ),
-                                        };
-                                        let _ = stream.write_all(
-                                            format!(
-                                                "{}\n",
-                                                serde_json::to_string(&response).unwrap()
-                                            )
-                                            .as_bytes(),
-                                        );
-                                        continue;
-                                    }
-                                };
-
-                                // Determine content and optional conversation id
-                                let mut content_opt: Option<String> = None;
-                                let mut conv_id_opt: Option<String> = None;
-                                if let Some(p) = msg.payload {
-                                    if let Some(obj) = p.as_object() {
-                                        if let Some(c) = obj.get("content") {
-                                            if c.is_string() {
-                                                content_opt = c.as_str().map(|s| s.to_string());
-                                            }
-                                        }
-                                        if let Some(cid) = obj.get("conversation_id") {
-                                            if cid.is_string() {
-                                                conv_id_opt = cid.as_str().map(|s| s.to_string());
-                                            }
-                                        }
-                                    }
-                                }
-                                if content_opt.is_none() {
-                                    content_opt = msg.message.clone();
-                                }
-
-                                let content = match content_opt {
-                                    Some(c) => c,
-                                    None => {
-                                        let response = IpcResponse {
-                                            status: "error".to_string(),
-                                            data: Some(
-                                                serde_json::json!({"error": "no content provided"}),
-                                            ),
-                                        };
-                                        let _ = stream.write_all(
-                                            format!(
-                                                "{}\n",
-                                                serde_json::to_string(&response).unwrap()
-                                            )
-                                            .as_bytes(),
-                                        );
-                                        continue;
-                                    }
-                                };
-
-                                // Ensure we have a conversation id; if not, create one
-                                let final_conv_id = match conv_id_opt {
-                                    Some(cid) => cid,
-                                    None => {
-                                        let new_conv =
-                                            crate::database::conversations::NewConversation {
-                                                title: "CLI Test Conversation".to_string(),
-                                                model: "gpt-test".to_string(),
-                                                provider: "local".to_string(),
-                                                system_prompt: None,
-                                            };
-                                        match crate::database::conversations::Conversation::create(
-                                            &conn, new_conv,
-                                        ) {
-                                            Ok(conv) => conv.id,
-                                            Err(e) => {
-                                                let response = IpcResponse {
-                                                    status: "error".to_string(),
-                                                    data: Some(
-                                                        serde_json::json!({"error": format!("failed to create conversation: {}", e)}),
-                                                    ),
-                                                };
-                                                let _ = stream.write_all(
-                                                    format!(
-                                                        "{}\n",
-                                                        serde_json::to_string(&response).unwrap()
-                                                    )
-                                                    .as_bytes(),
-                                                );
-                                                continue;
-                                            }
-                                        }
-                                    }
-                                };
-
-                                // Create assistant message
-                                let new_msg = crate::database::messages::NewMessage {
-                                    conversation_id: final_conv_id.clone(),
-                                    role: "assistant".to_string(),
-                                    content: content.clone(),
-                                    tokens_used: None,
-                                };
-                                match crate::database::messages::Message::create(&conn, new_msg) {
-                                    Ok(msg) => {
-                                        let response = IpcResponse {
-                                            status: "ok".to_string(),
-                                            data: Some(serde_json::to_value(&msg).unwrap()),
-                                        };
-                                        let _ = stream.write_all(
-                                            format!(
-                                                "{}\n",
-                                                serde_json::to_string(&response).unwrap()
-                                            )
-                                            .as_bytes(),
-                                        );
-                                    }
-                                    Err(e) => {
-                                        let response = IpcResponse {
-                                            status: "error".to_string(),
-                                            data: Some(
-                                                serde_json::json!({"error": format!("failed to create message: {}", e)}),
-                                            ),
-                                        };
-                                        let _ = stream.write_all(
-                                            format!(
-                                                "{}\n",
-                                                serde_json::to_string(&response).unwrap()
-                                            )
-                                            .as_bytes(),
-                                        );
-                                    }
                                 }
                             }
                         }
