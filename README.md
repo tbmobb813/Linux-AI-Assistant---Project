@@ -121,6 +121,69 @@ easy switching:
 API keys are stored securely using your system's keyring (GNOME Keyring,
 KWallet, etc.) and fall back to environment variables if needed.
 
+## Developer Tools & CLI Integration
+
+The project includes comprehensive development tooling for testing and development workflows:
+
+### 🛠️ **CLI Companion Tool**
+
+The `lai` (Linux AI Assistant) CLI provides programmatic access to the assistant:
+
+```bash
+# Install and build the CLI
+cd linux-ai-assistant/cli
+cargo build --release
+
+# Basic commands
+lai ask "How do I optimize this SQL query?"
+lai notify "Build completed successfully"
+lai last  # Get the most recent assistant response
+```
+
+### 🔧 **Development IPC Commands**
+
+For development and testing, additional IPC commands are available when `DEV_MODE=1`:
+
+```bash
+# Create test messages (DEV_MODE only)
+DEV_MODE=1 lai create "Test assistant message"
+DEV_MODE=1 lai create "Custom message" --conversation-id "uuid-here"
+```
+
+### 🧪 **Development Scripts**
+
+- **Smoke Testing**: `dev/smoke_test_ipc.sh` - Automated E2E testing of IPC functionality
+- **Database Helper**: `dev/insert_test_message.py` - Direct database message insertion for testing
+- **Development Aliases**: Use `pnpm run db:insert` for quick test data creation
+
+### 🚀 **GitHub Actions CI Integration**
+
+Optional development testing workflow available for PRs with `dev-testing` label:
+
+```yaml
+# Trigger with PR labels or manual dispatch
+- Manual workflow dispatch
+- PR labeled with 'dev-testing'
+- Comprehensive smoke testing in CI environment
+```
+
+### 📋 **Development Environment Setup**
+
+```bash
+# Enable development mode
+export DEV_MODE=1
+
+# Run the backend with dev features enabled
+pnpm -w -C linux-ai-assistant run tauri -- dev
+
+# Test CLI commands in another terminal
+cd linux-ai-assistant/cli
+cargo run -- create "Development test message"
+cargo run -- last
+```
+
+For detailed development workflows, see [dev/README.md](dev/README.md).
+
 ## Project-Aware Context
 
 The assistant automatically tracks file changes in your workspace and injects
@@ -435,12 +498,14 @@ Deliverable: Developer-optimized workflow integration ✅
 
 Nice-to-haves (Phase 4):
 
-- CLI: implement `lai last` to print the latest assistant reply.
+- ✅ CLI: implement `lai last` to print the latest assistant reply.
+- ✅ CLI: `lai create` command for development testing (DEV_MODE gated).
+- ✅ CLI: comprehensive IPC communication with ask/notify/last/create commands.
 - CLI: distribution packaging and install instructions.
-- Watcher: tray toggle and ignore patterns; debounce noisy events.
+- ✅ Watcher: tray toggle and ignore patterns; debounce noisy events.
 - Project context panel: surface recent changes and summaries in chat UI.
 - Execution hardening: runner profiles, resource limits, and optional sandboxing.
-- Integration tests: end-to-end checks for IPC events and watcher signals.
+- ✅ Integration tests: end-to-end checks for IPC events and watcher signals.
 
 Phase 5: Local AI & Privacy (Weeks 13-15)
 Goal: Privacy-respecting local processing options

@@ -1,493 +1,443 @@
 # Linux AI Assistant - CLI Guide
 
-The `lai` command-line companion tool provides powerful ways to interact with the Linux AI Assistant from your terminal.
+The `lai` (Linux AI Assistant) command-line tool provides terminal-based access to the desktop assistant through IPC (Inter-Process Communication).
 
 ## Installation & Setup
 
-The CLI tool is automatically installed with the Linux AI Assistant.
+The CLI tool is built alongside the main application and provides core functionality for automation and development workflows.
 
-**Location:**
-
-- Binary: `/opt/linux-ai-assistant/lai` or available in PATH
-- Configuration: `~/.config/linux-ai-assistant/cli.conf`
-
-**Verify Installation:**
+**Building the CLI:**
 
 ```bash
-lai --version
+cd linux-ai-assistant/cli
+cargo build --release
+# Binary available at: target/release/linux-ai-cli
 ```
 
-## Basic Usage
+**Prerequisites:**
 
-### Starting a Chat Session
+- Linux AI Assistant desktop app must be running
+- IPC server listens on `127.0.0.1:39871` (automatic when app starts)
+
+## Core Commands
+
+### Ask Command
+
+Send messages to the AI assistant:
 
 ```bash
-# Interactive chat mode (opens GUI chat window)
-lai chat
+# Basic question
+lai ask "How do I optimize this SQL query?"
 
-# Send a single message
-lai "What is the capital of France?"
+# With custom model
+lai ask "Explain async/await" --model gpt-4
 
-# Start chat with context
-lai chat --context "You are a Python expert"
+# With custom provider
+lai ask "Review this code" --provider anthropic
+
+# Force new conversation
+lai ask "Start fresh topic" --new
 ```
 
-### Viewing Recent Responses
+### Last Command
+
+Retrieve the most recent assistant response:
 
 ```bash
-# Show last response
+# Get last response
 lai last
 
-# Show last N responses
-lai last --count 5
-
-# Show last response from specific conversation
-lai last --conversation "Python Debugging"
+# Perfect for scripting
+response=$(lai last)
+echo "AI says: $response"
 ```
 
-### Managing Conversations
+### Notify Command
+
+Send desktop notifications through the app:
 
 ```bash
-# List all conversations
-lai list
+# Simple notification
+lai notify "Build completed successfully"
 
-# Search conversations
-lai search "keyword"
-
-# Show specific conversation
-lai show <conversation-id>
-
-# Create new conversation
-lai new --title "My Topic"
-
-# Delete conversation
-lai delete <conversation-id>
-
-# Archive conversation
-lai archive <conversation-id>
-
-# Unarchive conversation
-lai unarchive <conversation-id>
-```
-
-### Exporting Data
-
-```bash
-# Export conversation as JSON
-lai export <conversation-id> --format json --output ~/conversation.json
-
-# Export conversation as Markdown
-lai export <conversation-id> --format markdown --output ~/conversation.md
-
-# Export all conversations
-lai export-all --format markdown --output ~/my-conversations/
-
-# Export as PDF (future)
-lai export <conversation-id> --format pdf --output ~/conversation.pdf
-```
-
-### Importing Data
-
-```bash
-# Import conversation from JSON
-lai import ~/conversation.json
-
-# Import with merge
-lai import ~/conversation.json --merge
-
-# Import with new title
-lai import ~/conversation.json --title "Imported Topic"
-```
-
-## Advanced Features
-
-### Project Context
-
-```bash
-# Set project root
-lai project set ~/my-project
-
-# View project settings
-lai project show
-
-# Reset project context
-lai project reset
-
-# Watch project for changes (automatic in GUI)
-lai project watch
-```
-
-### Model & Provider Management
-
-```bash
-# List available models
-lai models list
-
-# Show model details
-lai models info <model-name>
-
-# Set default model
-lai models set-default <model-name>
-
-# Download new model (Ollama)
-lai models download <model-name>
-
-# Remove model
-lai models remove <model-name>
-
-# List available providers
-lai providers list
-
-# Set default provider
-lai providers set-default <provider-name>
-```
-
-### Settings & Configuration
-
-```bash
-# Show all settings
-lai settings show
-
-# Set a setting
-lai settings set <key> <value>
-
-# Reset to defaults
-lai settings reset
-
-# Show specific setting
-lai settings show <key>
-
-# List available keys
-lai settings list-keys
-```
-
-**Common Settings:**
-
-```bash
-lai settings set theme dark
-lai settings set default-provider ollama
-lai settings set max-tokens 2000
-lai settings set temperature 0.7
-lai settings set global-hotkey "Ctrl+Alt+A"
-```
-
-### Execution & Code Running
-
-```bash
-# Run code snippet (stdin)
-echo "print('Hello')" | lai run --language python
-
-# Run from file
-lai run --file script.py --language python
-
-# Run with timeout
-lai run --file command.sh --timeout 30
-
-# Execute suggested command (with confirmation)
-lai exec "npm install"
-```
-
-### Integration & Piping
-
-```bash
-# Get last response and pipe to another command
-lai last --format text | less
-
-# Use in scripts
-response=$(lai "What's the weather?")
-echo "Response: $response"
-
-# Git integration - analyze diff
-git diff | lai "What changed here?"
-
-# Pipe command output for analysis
-ls -la | lai "Explain what files these are"
-
-# Process logs
-tail -f logfile.log | lai "Highlight any errors"
-```
-
-## Scripting & Automation
-
-### Batch Processing
-
-```bash
-#!/bin/bash
-
-# Ask multiple questions
-questions=(
-  "What is Python?"
-  "How do you install packages?"
-  "Show me a hello world example"
-)
-
-for q in "${questions[@]}"; do
-  echo "Q: $q"
-  lai "$q"
-  echo "---"
-done
-```
-
-### Conditional Logic
-
-```bash
-#!/bin/bash
-
-# Check if response is satisfactory
-response=$(lai "Explain recursion")
-
-if [[ $response == *"function calls itself"* ]]; then
-  echo "Good response!"
+# Script integration
+if make build; then
+    lai notify "✅ Build successful"
 else
-  echo "Try again with different phrasing"
-  lai "Explain recursion in detail"
+    lai notify "❌ Build failed"
 fi
 ```
 
-### Integration with Development Workflow
+### Create Command (Development Only)
+
+Insert test messages for development and testing (requires `DEV_MODE=1`):
+
+```bash
+# Enable development mode
+export DEV_MODE=1
+
+# Create test assistant message
+lai create "This is a test response from the assistant"
+
+# Create in specific conversation
+lai create "Follow-up message" --conversation-id "uuid-here"
+
+# Verify creation
+lai last
+```
+
+## Development Workflows
+
+### Testing & Development
+
+```bash
+# Start backend in dev mode
+export DEV_MODE=1
+cd linux-ai-assistant
+pnpm run tauri -- dev
+
+# In another terminal, test CLI functionality
+cd linux-ai-assistant/cli
+
+# Test basic IPC communication
+cargo run -- notify "Development test"
+
+# Create test data
+cargo run -- create "Sample assistant response"
+
+# Verify test data
+cargo run -- last
+
+# Test full ask flow (requires running backend)
+cargo run -- ask "What is 2+2?"
+```
+
+### Automation Scripts
+
+**Git Integration:**
 
 ```bash
 #!/bin/bash
+# git-ai-commit.sh - AI-powered commit messages
 
-# Pre-commit hook: Ask AI for commit message
-staged_changes=$(git diff --cached)
-commit_msg=$(echo "$staged_changes" | lai "Generate a concise commit message")
-git commit -m "$commit_msg"
+# Get staged changes
+diff=$(git diff --cached)
 
-# Review code with AI
-code_file=$1
-lai "Review this code and suggest improvements" < "$code_file"
+if [ -z "$diff" ]; then
+    echo "No staged changes"
+    exit 1
+fi
 
-# Analyze test failures
-test_output=$(./run_tests.sh 2>&1)
-lai "Why might these tests be failing?" < <(echo "$test_output")
+# Ask AI for commit message
+lai ask "Generate a concise git commit message for these changes: $diff" --new
+
+# Get the response
+commit_msg=$(lai last)
+
+echo "Suggested commit message:"
+echo "$commit_msg"
+
+read -p "Use this message? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    git commit -m "$commit_msg"
+fi
 ```
 
-## Output Formats
+**Build Notifications:**
 
 ```bash
-# Human-readable (default)
-lai "Question"
+#!/bin/bash
+# notify-build.sh - Build status notifications
 
-# JSON format (for parsing)
-lai "Question" --format json
+start_time=$(date +%s)
 
-# Plain text (no formatting)
-lai "Question" --format text
-
-# CSV (for logging)
-lai list --format csv > conversations.csv
-
-# Markdown
-lai last --format markdown
+if make build; then
+    end_time=$(date +%s)
+    duration=$((end_time - start_time))
+    lai notify "✅ Build completed successfully in ${duration}s"
+else
+    lai notify "❌ Build failed - check logs"
+    exit 1
+fi
 ```
 
-## Performance & Optimization
+**Code Review Assistant:**
 
 ```bash
-# Use local models for speed
-lai settings set default-provider ollama
+#!/bin/bash
+# code-review.sh - AI code review
 
-# Reduce token limit for faster responses
-lai settings set max-tokens 500
+if [ -z "$1" ]; then
+    echo "Usage: $0 <file>"
+    exit 1
+fi
 
-# Set lower temperature for consistent results
-lai settings set temperature 0.3
+file="$1"
+content=$(cat "$file")
 
-# Use smaller models for speed
-lai models set-default mistral-7b
+lai ask "Please review this code for potential issues, improvements, and best practices:
+
+\`\`\`$(file --mime-type -b "$file" | cut -d'/' -f2)
+$content
+\`\`\`" --new
+
+echo "Review complete. Response:"
+lai last
 ```
 
-## Troubleshooting
+## IPC Communication Details
 
-### Command Not Found
+The CLI communicates with the desktop app via TCP IPC on localhost:39871.
 
-```bash
-# Ensure CLI is in PATH
-export PATH="/opt/linux-ai-assistant:$PATH"
+**Message Format:**
 
-# Or use full path
-/opt/linux-ai-assistant/lai --version
+```json
+{
+  "type": "ask|notify|last|create",
+  "message": "optional string",
+  "payload": {
+    "prompt": "user message",
+    "model": "optional model override",
+    "provider": "optional provider override",
+    "new": false
+  }
+}
 ```
 
-### Connection Issues
+**Response Format:**
 
-```bash
-# Check if daemon is running
-lai health
-
-# Restart daemon
-lai daemon restart
-
-# Check configuration
-lai config show
-```
-
-### Performance Issues
-
-```bash
-# Run in offline mode
-lai --offline
-
-# Use smaller response sizes
-lai settings set max-tokens 500
-
-# Clear cache
-lai cache clear
-```
-
-## Configuration File
-
-Location: `~/.config/linux-ai-assistant/cli.conf`
-
-**Example:**
-
-```toml
-[default]
-provider = "ollama"
-model = "mistral:latest"
-temperature = 0.7
-max_tokens = 2000
-
-[providers]
-openai_api_key = "sk-..."
-anthropic_api_key = "..."
-gemini_api_key = "..."
-ollama_endpoint = "http://localhost:11434"
-
-[behavior]
-auto_copy = true
-confirm_execute = true
-save_history = true
+```json
+{
+  "status": "ok|error",
+  "data": {
+    "id": "message-uuid",
+    "content": "response text",
+    "conversation_id": "conv-uuid",
+    "role": "assistant",
+    "timestamp": 1698765432,
+    "tokens_used": 150
+  }
+}
 ```
 
 ## Environment Variables
 
 ```bash
-# Override default provider
-export LAI_PROVIDER=ollama
+# Enable development features
+export DEV_MODE=1
 
-# Override default model
-export LAI_MODEL=mistral
+# Custom IPC endpoint (if needed)
+export LAI_IPC_HOST=127.0.0.1
+export LAI_IPC_PORT=39871
 
-# Override settings file location
-export LAI_CONFIG_DIR=~/.config/lai
-
-# Enable debug output
-export LAI_DEBUG=1
-
-# Set response timeout
-export LAI_TIMEOUT=30
+# Debug logging
+export RUST_LOG=debug
 ```
 
-## Aliases & Shortcuts
+## Error Handling
 
-Add to `~/.bashrc` or `~/.zshrc`:
+**Common Issues:**
 
 ```bash
-# Quick question
-alias ask='lai'
+# Connection refused - app not running
+lai ask "test"
+# Error: connect 127.0.0.1:39871 failed: Connection refused
 
-# Show last response
-alias last='lai last'
+# Solution: Start the desktop app first
+pnpm -w -C linux-ai-assistant run tauri -- dev
 
-# List conversations
-alias laic='lai list'
+# DEV_MODE required for create command
+lai create "test"
+# Error: create command only available in DEV_MODE
 
-# Export last conversation
-alias export-last='lai last --format markdown | tee ~/exports/$(date +%s).md'
-
-# Python helper
-alias py-help='lai "Python expert" chat'
-
-# Git helper
-alias git-help='lai "Git expert" chat'
+# Solution: Enable dev mode
+export DEV_MODE=1
+lai create "test"
 ```
 
-## Common Workflows
-
-### Daily Development Routine
+**Debugging:**
 
 ```bash
-#!/bin/bash
+# Enable debug logging
+RUST_LOG=debug lai ask "test question"
 
-# Start day - review yesterday's work
-yesterday_convo=$(lai search "$(date -d yesterday +%Y-%m-%d)" | head -1)
-lai show $yesterday_convo
+# Check if IPC server is listening
+ss -ltnp | grep 39871
 
-# Get current tasks from notes
-tasks=$(cat TODO.txt)
-lai "Prioritize these tasks and suggest approach:" < TODO.txt
-
-# End of day - summarize progress
-lai new --title "Daily Standup $(date +%Y-%m-%d)"
-lai "Summarize what I accomplished today on [project]"
+# Test basic connectivity
+echo '{"type":"notify","message":"test"}' | nc 127.0.0.1 39871
 ```
 
-### Code Review Assistant
+## Testing Framework Integration
+
+**Automated Smoke Testing:**
 
 ```bash
-#!/bin/bash
+# Run comprehensive E2E tests
+./dev/smoke_test_ipc.sh
 
-file=$1
-echo "Reviewing $file..."
-
-lai << EOF
-Review this code for:
-1. Security issues
-2. Performance problems
-3. Code style improvements
-4. Potential bugs
-
-Code:
-$(cat "$file")
-EOF
+# Test output:
+# [smoke] ✅ All tests passed!
+# - Backend started successfully with DEV_MODE=1
+# - IPC server bound to port 39871
+# - CLI create command inserted message
+# - CLI last command retrieved correct message
 ```
 
-### Learning Assistant
+**Custom Test Scripts:**
 
 ```bash
 #!/bin/bash
+# test-cli-integration.sh
 
-topic=$1
-lai new --title "Learning: $topic"
-lai "Explain $topic in simple terms for a beginner"
-lai "Give me 3 practical examples of $topic"
-lai "What are common mistakes beginners make with $topic?"
+set -e
+
+echo "Testing CLI integration..."
+
+# Start backend in background
+export DEV_MODE=1
+pnpm -w -C linux-ai-assistant run tauri -- dev &
+BACKEND_PID=$!
+
+# Wait for startup
+sleep 5
+
+# Test notify
+if lai notify "Test notification"; then
+    echo "✅ Notify command works"
+else
+    echo "❌ Notify command failed"
+    exit 1
+fi
+
+# Test create/last flow
+if lai create "Test message for integration"; then
+    response=$(lai last)
+    if [[ "$response" == "Test message for integration" ]]; then
+        echo "✅ Create/Last commands work"
+    else
+        echo "❌ Create/Last mismatch"
+        exit 1
+    fi
+else
+    echo "❌ Create command failed"
+    exit 1
+fi
+
+# Cleanup
+kill $BACKEND_PID
+echo "✅ All CLI integration tests passed"
 ```
 
-## Tips & Best Practices
+## Performance Considerations
 
-1. **Use piping** for natural language processing of system output
-2. **Leverage the search** feature to find relevant past solutions
-3. **Create conversation templates** for common tasks
-4. **Combine with aliases** for quick access to common queries
-5. **Use exit codes** for scripting (0 = success, 1 = error)
-6. **Enable confirmation prompts** for destructive operations
-7. **Save useful one-liners** in your shell history or script library
-8. **Use local models** for privacy-sensitive operations
-9. **Batch operations** with loops for efficiency
-10. **Monitor usage** with `lai stats` to track API costs
+**Response Times:**
+
+- IPC roundtrip: ~1-5ms
+- Simple commands (notify/last): ~10-50ms
+- AI requests: Variable (depends on provider/model)
+
+**Memory Usage:**
+
+- CLI binary: ~5-10MB RAM when running
+- Minimal impact on system resources
+
+**Concurrency:**
+
+- Multiple CLI instances can run simultaneously
+- IPC server handles concurrent connections
+- Responses are properly isolated per request
+
+## Use Cases & Examples
+
+**1. Development Workflow Automation:**
+
+```bash
+# Pre-commit hook
+#!/bin/bash
+export DEV_MODE=1
+lai create "Starting commit review process"
+# ... other pre-commit logic
+lai notify "Pre-commit checks completed"
+```
+
+**2. CI/CD Integration:**
+
+```bash
+# In GitHub Actions or similar
+- name: Notify AI Assistant
+  run: |
+    if [ "${{ job.status }}" == "success" ]; then
+      lai notify "✅ CI pipeline completed successfully"
+    else
+      lai notify "❌ CI pipeline failed"
+    fi
+```
+
+**3. Monitoring & Alerting:**
+
+```bash
+# System monitoring script
+cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | awk -F'%' '{print $1}')
+
+if (( $(echo "$cpu_usage > 80" | bc -l) )); then
+    lai notify "⚠️ High CPU usage detected: ${cpu_usage}%"
+fi
+```
+
+**4. Learning & Documentation:**
+
+```bash
+# Quick learning helper
+learn() {
+    lai ask "Explain $1 in simple terms with examples" --new
+    lai last | tee "~/notes/$(date +%Y%m%d)-$1.md"
+}
+
+# Usage: learn "docker containers"
+```
+
+## Best Practices
+
+1. **Check app status** before CLI operations
+2. **Use DEV_MODE judiciously** - only for development/testing
+3. **Handle errors gracefully** in scripts
+4. **Leverage last command** for response processing
+5. **Combine with system tools** for powerful workflows
+6. **Use meaningful notification messages** for debugging
+7. **Test IPC connectivity** before complex operations
+
+## Future Enhancements
+
+Planned improvements for the CLI tool:
+
+- **Configuration file support** (`~/.config/lai/cli.toml`)
+- **Conversation management** (list, switch, delete)
+- **Response formatting options** (json, markdown, plain)
+- **Batch operation support** (multiple questions)
+- **Local model integration** (direct Ollama access)
+- **Plugin system** for custom commands
 
 ## Getting Help
 
 ```bash
-# Show help
+# Show usage information
 lai --help
 
-# Show command-specific help
-lai <command> --help
+# Check specific command help
+lai ask --help
+lai create --help
 
-# List all commands
-lai commands
+# Verify installation
+lai --version  # (when implemented)
 
-# Show version and system info
-lai --version
-lai --system-info
+# Test connectivity
+lai notify "CLI test message"
 ```
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: October 2025  
-**See Also**: USER_GUIDE.md, DEVELOPER_GUIDE.md
+**Version**: 2.0 (IPC-based)  
+**Last Updated**: November 2025  
+**See Also**: [dev/README.md](../dev/README.md), [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)

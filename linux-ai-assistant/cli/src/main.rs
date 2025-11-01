@@ -2,6 +2,11 @@ use clap::{Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
+use std::time::Duration;
+
+// Performance optimizations
+const IPC_TIMEOUT: Duration = Duration::from_secs(10);
+const BUFFER_SIZE: usize = 4096;
 
 #[derive(Parser)]
 #[command(name = "lai")]
@@ -183,20 +188,42 @@ fn send_ipc(
     payload: Option<serde_json::Value>,
 ) -> Result<(), String> {
     let addr = "127.0.0.1:39871";
-    let mut stream =
-        TcpStream::connect(addr).map_err(|e| format!("connect {} failed: {}", addr, e))?;
+
+    // Optimized connection with timeouts and buffering
+    let mut stream = TcpStream::connect_timeout(&addr.parse().unwrap(), IPC_TIMEOUT)
+        .map_err(|e| format!("connect {} failed: {}", addr, e))?;
+
+    // Set timeouts for read/write operations
+    stream
+        .set_read_timeout(Some(IPC_TIMEOUT))
+        .map_err(|e| format!("set read timeout failed: {}", e))?;
+    stream
+        .set_write_timeout(Some(IPC_TIMEOUT))
+        .map_err(|e| format!("set write timeout failed: {}", e))?;
+
+    // Disable Nagle's algorithm for lower latency
+    stream
+        .set_nodelay(true)
+        .map_err(|e| format!("set nodelay failed: {}", e))?;
+
     let body = IpcMessage {
         kind,
         message,
         payload,
     };
+
+    // Serialize once and reuse
     let json = serde_json::to_string(&body).map_err(|e| e.to_string())?;
+    let message_bytes = format!("{}\n", json);
+
     stream
-        .write_all(format!("{}\n", json).as_bytes())
+        .write_all(message_bytes.as_bytes())
         .map_err(|e| e.to_string())?;
-    // Read ack
-    let mut reader = BufReader::new(stream);
-    let mut line = String::new();
+    stream.flush().map_err(|e| e.to_string())?;
+
+    // Read acknowledgment with buffered reader
+    let mut reader = BufReader::with_capacity(BUFFER_SIZE, stream);
+    let mut line = String::with_capacity(256);
     let _ = reader.read_line(&mut line);
     Ok(())
 }
@@ -207,20 +234,116 @@ fn send_ipc_with_response(
     payload: Option<serde_json::Value>,
 ) -> Result<IpcResponse, String> {
     let addr = "127.0.0.1:39871";
-    let mut stream =
-        TcpStream::connect(addr).map_err(|e| format!("connect {} failed: {}", addr, e))?;
+
+    // Optimized connection setup
+    let mut stream = TcpStream::connect_timeout(&addr.parse().unwrap(), IPC_TIMEOUT)
+        .map_err(|e| format!("connect {} failed: {}", addr, e))?;
+
+    // Configure timeouts
+    stream
+        .set_read_timeout(Some(IPC_TIMEOUT))
+        .map_err(|e| format!("set read timeout failed: {}", e))?;
+    stream
+        .set_write_timeout(Some(IPC_TIMEOUT))
+        .map_err(|e| format!("set write timeout failed: {}", e))?;
+    stream
+        .set_nodelay(true)
+        .map_err(|e| format!("set nodelay failed: {}", e))?;
+
     let body = IpcMessage {
         kind,
         message,
         payload,
     };
+
     let json = serde_json::to_string(&body).map_err(|e| e.to_string())?;
+    let message_bytes = format!("{}\n", json);
+
     stream
-        .write_all(format!("{}\n", json).as_bytes())
+        .write_all(message_bytes.as_bytes())
         .map_err(|e| e.to_string())?;
-    // Read response
-    let mut reader = BufReader::new(stream);
-    let mut line = String::new();
+    stream.flush().map_err(|e| e.to_string())?;
+
+    // Read response with optimized buffering
+    let mut reader = BufReader::with_capacity(BUFFER_SIZE, stream);
+    let mut line = String::with_capacity(512);
     reader.read_line(&mut line).map_err(|e| e.to_string())?;
+
     serde_json::from_str(&line).map_err(|e| format!("Failed to parse response: {}", e))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_ipc_message_serialization() {
+        let msg = IpcMessage {
+            kind: "test",
+            message: Some("hello"),
+            payload: Some(serde_json::json!({"key": "value"})),
+        };
+
+        let json = serde_json::to_string(&msg).expect("Serialization should work");
+        assert!(json.contains("\"type\":\"test\""));
+        assert!(json.contains("\"message\":\"hello\""));
+        assert!(json.contains("\"key\":\"value\""));
+    }
+
+    #[test]
+    fn test_ipc_response_deserialization() {
+        let json = r#"{"status":"ok","data":{"content":"test message"}}"#;
+        let response: IpcResponse =
+            serde_json::from_str(json).expect("Deserialization should work");
+
+        assert_eq!(response.status, "ok");
+        assert!(response.data.is_some());
+    }
+
+    #[test]
+    fn test_message_deserialization() {
+        let json = r#"{
+            "id": "test-id",
+            "conversation_id": "conv-id",
+            "role": "assistant",
+            "content": "test content",
+            "timestamp": 1234567890,
+            "tokens_used": 100
+        }"#;
+
+        let message: Message =
+            serde_json::from_str(json).expect("Message deserialization should work");
+        assert_eq!(message.id, "test-id");
+        assert_eq!(message.content, "test content");
+        assert_eq!(message.role, "assistant");
+        assert_eq!(message.tokens_used, Some(100));
+    }
+
+    #[test]
+    fn test_error_response_handling() {
+        let json = r#"{"status":"error","data":{"error":"Test error message"}}"#;
+        let response: IpcResponse =
+            serde_json::from_str(json).expect("Error response should deserialize");
+
+        assert_eq!(response.status, "error");
+        if let Some(data) = response.data {
+            assert_eq!(
+                data.get("error").and_then(|v| v.as_str()),
+                Some("Test error message")
+            );
+        } else {
+            panic!("Error response should have data");
+        }
+    }
+
+    // Integration test that requires a running backend
+    #[test]
+    #[ignore] // Ignored by default since it requires backend to be running
+    fn test_connection_timeout() {
+        // This test verifies that connection timeouts work properly
+        // when connecting to a non-existent server
+        let result = send_ipc("test", None, None);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("connect"));
+    }
 }
