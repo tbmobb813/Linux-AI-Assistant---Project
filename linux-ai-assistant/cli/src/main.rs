@@ -10,7 +10,19 @@ const BUFFER_SIZE: usize = 4096;
 
 #[derive(Parser)]
 #[command(name = "lai")]
-#[command(about = "Linux AI Assistant CLI", long_about = None)]
+#[command(about = "Linux AI Assistant CLI - Terminal companion for the Linux AI Desktop Assistant")]
+#[command(version = env!("CARGO_PKG_VERSION"))]
+#[command(long_about = "
+Linux AI Assistant CLI provides command-line access to the desktop AI assistant.
+
+Examples:
+  lai ask \"How do I optimize this SQL query?\"
+  lai notify \"Build completed successfully\"  
+  lai last
+  DEV_MODE=1 lai create \"Test assistant message\"
+
+For more information, see: https://github.com/tbmobb813/Linux-AI-Assistant---Project
+")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -18,32 +30,33 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Send a message to the AI
+    /// Send a question to the AI assistant
     Ask {
-        /// The question to ask
+        /// The question or prompt to send to the AI
         message: String,
-        /// Override model (optional)
+        /// Override the default model (e.g., gpt-4, claude-sonnet)
         #[arg(long)]
         model: Option<String>,
-        /// Override provider (optional)
+        /// Override the default provider (e.g., openai, anthropic, ollama)
         #[arg(long)]
         provider: Option<String>,
-        /// Force a new conversation
+        /// Start a new conversation instead of continuing the current one
         #[arg(long, default_value_t = false)]
         new: bool,
     },
-    /// Show a desktop notification via app
+    /// Send a desktop notification through the assistant app
     Notify {
-        /// Message to display
+        /// Message to display in the notification
         message: String,
     },
-    /// Get the last assistant response
+    /// Retrieve the most recent assistant response
     Last,
-    /// Create an assistant message (dev/test)
+    /// Create a test assistant message (development/testing only)
+    #[command(hide = !cfg!(debug_assertions))]
     Create {
-        /// Message content to insert
+        /// Message content to insert as assistant response
         message: String,
-        /// Optional conversation id to insert into (if omitted a conversation will be created)
+        /// Specific conversation ID to insert into (creates new if omitted)
         #[arg(long)]
         conversation_id: Option<String>,
     },
