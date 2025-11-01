@@ -1,8 +1,40 @@
 {
   "name": "linux-ai-assistant",
   "version": "0.1.0",
-  "description": "A native Linux desktop AI assistant",
+  "description": "A native Linux desktop AI assistant with multi-provider support and privacy-focused local processing",
   "type": "module",
+  "homepage": "https://github.com/tbmobb813/Linux-AI-Assistant---Project",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbmobb813/Linux-AI-Assistant---Project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tbmobb813/Linux-AI-Assistant---Project/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "tbmobb813",
+    "url": "https://github.com/tbmobb813"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "linux",
+    "desktop",
+    "tauri",
+    "rust",
+    "react",
+    "chatgpt",
+    "claude",
+    "gemini",
+    "ollama",
+    "privacy",
+    "local-ai",
+    "multi-provider",
+    "cli",
+    "ipc",
+    "development-tools"
+  ],
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
