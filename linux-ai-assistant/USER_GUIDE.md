@@ -66,6 +66,24 @@ The main chat area where you interact with AI models.
 - `Ctrl+A` - Select all in input
 - `Ctrl+V` - Paste from clipboard
 
+**Slash Commands:**
+
+Type `/` in the chat input to access powerful shortcuts:
+
+- `/clear` - Clear current conversation instantly
+- `/export` - Export conversation with format selection (JSON, Markdown, HTML, PDF)
+- `/new` - Start a new conversation
+- `/help` - Show available commands and usage examples
+- `/docs <query>` - Search project documents and files
+- `/run <command>` - Execute terminal commands safely with AI analysis
+- `/profile <name>` - Switch to a different conversation profile
+
+**Tips:**
+
+- Start typing `/` to see autocomplete suggestions
+- Commands are processed instantly without sending to AI
+- Use `/help` for detailed usage examples
+
 ### 2. Conversation Management
 
 Keep your AI conversations organized and accessible.
@@ -84,6 +102,38 @@ Keep your AI conversations organized and accessible.
 - Start related topics in the same conversation for context continuity
 - Archive completed discussions to keep active list manageable
 - Use search to find specific conversations
+
+### 2.5. Document Search & Project Integration
+
+Search across your project files and documents instantly.
+
+**Features:**
+
+- **Full-text search** across 40+ file types (code, docs, configs)
+- **Smart indexing** with ignore pattern support (.gitignore + custom)
+- **Instant results** with file preview and content highlighting
+- **Project awareness** - automatically detects project boundaries
+
+**Supported File Types:**
+
+- Source code: `.py`, `.js`, `.ts`, `.rs`, `.go`, `.c`, `.cpp`, `.java`
+- Documentation: `.md`, `.txt`, `.rst`, `.adoc`
+- Configuration: `.json`, `.yaml`, `.toml`, `.xml`, `.env`
+- Web files: `.html`, `.css`, `.scss`
+
+**How to Use:**
+
+1. Use `/docs <query>` slash command for quick search
+2. Use `Ctrl+Shift+F` global shortcut from anywhere
+3. Click the document search icon in the chat interface
+4. Search results show file path, matching content, and relevance
+
+**Search Tips:**
+
+- Use quotes for exact phrases: `"error handling"`
+- Search by file type: `filetype:py async`
+- Combine terms: `database connection error`
+- Use wildcard patterns: `test_*.py`
 
 ### 3. Provider Selection
 
@@ -125,20 +175,30 @@ Download and manage AI models for local processing.
 
 ### 5. Export & Import
 
-Share conversations and preserve your work.
+Share conversations and preserve your work with multiple formats.
 
 **Export Formats:**
 
-- **JSON**: Complete conversation with metadata (for reimport)
-- **Markdown**: Formatted document for sharing or publishing
-- **PDF** (coming soon): Professional document format
+- **JSON**: Complete conversation with metadata (perfect for reimport and backups)
+- **Markdown**: Clean, readable format for documentation and sharing
+- **HTML**: Rich formatted document with styling and navigation
+- **PDF**: Professional document format with proper typography
+
+**Export Methods:**
+
+- **Slash Command**: Type `/export` in chat for quick format selection
+- **Individual Export**: Click export buttons (📄 JSON, 📝 Markdown) on conversation items
+- **Bulk Export**: Export all conversations from Settings → Export
+- **Global Shortcut**: Use `Ctrl+E` to export current conversation
 
 **Export Features:**
 
-- Export individual conversations or all conversations
+- Choose from 4 professional formats
 - Include/exclude metadata (timestamps, models used, etc.)
-- Choose export location
-- Automatic backup scheduling (future)
+- Rich HTML styling with syntax highlighting
+- Professional PDF layout with proper formatting
+- Native file picker integration
+- Preserved conversation structure
 
 **Import Features:**
 
@@ -146,6 +206,42 @@ Share conversations and preserve your work.
 - Merge imported conversations with existing ones
 - Validate imported data before importing
 - Handle duplicate conversations automatically
+- Maintain original timestamps and IDs
+
+### 6. Profile System
+
+Organize conversations by context with intelligent profile management.
+
+**What are Profiles?**
+
+Profiles are conversation contexts that remember your project settings, preferences, and working environment. Perfect for separating work contexts like "React Development", "Python Projects", or "Research".
+
+**Key Features:**
+
+- **Context Isolation**: Each profile maintains separate conversation history
+- **Custom Settings**: Profile-specific AI provider, model, and preferences
+- **Quick Switching**: Switch profiles instantly with `/profile <name>` or `Ctrl+P`
+- **Project Awareness**: Profiles can be linked to specific project directories
+- **Memory System**: Profiles remember your working patterns and preferences
+
+**Profile Management:**
+
+- **Create**: Click "+" in profile selector or use Settings → Profiles
+- **Switch**: Use dropdown, `/profile <name>` command, or global shortcut
+- **Edit**: Modify profile settings, context, and preferences
+- **Delete**: Remove profiles with confirmation (conversations preserved)
+
+**Best Practices:**
+
+- Create profiles for different projects or work contexts
+- Use descriptive names like "Frontend Development" or "Data Analysis"
+- Set appropriate AI models per profile (local for sensitive, cloud for complex)
+- Leverage profile switching for context-specific conversations
+
+**Profile Shortcuts:**
+
+- `Ctrl+P` - Toggle profile selection menu
+- `/profile <name>` - Switch to named profile instantly
 
 ## Workflow Guide
 
@@ -237,16 +333,49 @@ Use AI to accelerate your learning process.
 
 ### Keyboard & Hotkeys
 
-**Global Hotkey:**
+**Global Shortcuts:**
 
-- Default: `Ctrl+Alt+A`
-- Customizable to your preference
-- Quickly bring application to focus
+The assistant includes a comprehensive global shortcut system with 12 configurable shortcuts organized by category:
 
-**Custom Shortcuts:**
+**Window & Focus:**
 
-- Configure additional shortcuts for common actions
-- View all shortcuts with `Ctrl+?`
+- `Ctrl+Space` - Toggle main window visibility (default)
+- `Ctrl+Shift+I` - Focus chat input field
+- `Ctrl+Shift+Space` - Quick capture input without showing window
+
+**Conversation:**
+
+- `Ctrl+N` - Start new conversation
+- `Ctrl+Delete` - Clear current conversation
+
+**Export:**
+
+- `Ctrl+E` - Export current conversation
+- `Ctrl+Shift+E` - Quick export in default format
+
+**Profiles:**
+
+- `Ctrl+P` - Toggle profile selection menu
+
+**Search:**
+
+- `Ctrl+Shift+F` - Open document search interface
+
+**System:**
+
+- `Ctrl+Comma` - Open settings panel
+- `Ctrl+Shift+P` - Show performance metrics
+
+**Recording:**
+
+- `Ctrl+R` - Toggle voice recording (when available)
+
+**Customization:**
+
+- All shortcuts are configurable in Settings → Global Shortcuts
+- Shortcuts are organized by category for easy management
+- Conflict detection prevents duplicate key bindings
+- Real-time shortcut capture for easy configuration
 
 ## Advanced Features
 
@@ -268,6 +397,53 @@ The assistant can analyze your project structure and recent changes.
 - Analyze git diffs for context
 - Better code review assistance
 - Faster debugging with current codebase context
+
+### Terminal Integration
+
+Safely execute terminal commands with AI analysis and error handling.
+
+**Features:**
+
+- **Safe Command Execution**: Commands are validated before execution
+- **AI Error Analysis**: Automatic analysis of command output and errors
+- **Command History**: Track and learn from previous command executions
+- **Project Context**: Commands are aware of your current project structure
+
+**How to Use:**
+
+1. **Slash Command**: Type `/run <command>` in chat
+2. **CLI Tool**: Use `linux-ai-assistant capture "command"` from terminal
+3. **Security Validation**: Dangerous commands are flagged and require confirmation
+
+**Examples:**
+
+```bash
+/run npm test                    # Run tests with AI analysis
+/run git status                  # Check git status
+/run pip install requests        # Install Python package
+/run grep -r "TODO" src/         # Search for TODO comments
+```
+
+**Safety Features:**
+
+- Command validation prevents dangerous operations
+- Sandbox environment for untrusted commands
+- User confirmation for destructive actions
+- Error pattern recognition and suggestions
+- Integration with project .gitignore for safe file operations
+
+**CLI Integration:**
+
+The companion CLI tool provides additional terminal capture capabilities:
+
+```bash
+# Install CLI tool (from project root)
+cd linux-ai-assistant/cli && cargo build --release
+
+# Capture command output with AI analysis
+linux-ai-assistant capture "npm run build"
+linux-ai-assistant capture "python test.py" --analyze
+```
 
 ### Code Execution & Testing
 

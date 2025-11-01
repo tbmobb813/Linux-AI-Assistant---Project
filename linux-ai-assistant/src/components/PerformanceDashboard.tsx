@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import {
   Activity,
   Database,
@@ -43,15 +43,13 @@ interface PerformanceDashboardProps {
   onClose?: () => void;
 }
 
-export default function PerformanceDashboard({
-  onClose,
-}: PerformanceDashboardProps) {
+function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     try {
       setError(null);
       const data =
@@ -62,11 +60,11 @@ export default function PerformanceDashboard({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMetrics();
-  }, []);
+  }, [fetchMetrics]);
 
   useEffect(() => {
     if (!autoRefresh) return;
@@ -76,17 +74,17 @@ export default function PerformanceDashboard({
     }, 2000); // Refresh every 2 seconds
 
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, fetchMetrics]);
 
-  const formatBytes = (bytes: number): string => {
+  const formatBytes = useCallback((bytes: number): string => {
     if (bytes === 0) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
-  };
+  }, []);
 
-  const formatUptime = (seconds: number): string => {
+  const formatUptime = useCallback((seconds: number): string => {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -94,19 +92,19 @@ export default function PerformanceDashboard({
     if (days > 0) return `${days}d ${hours}h ${minutes}m`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
-  };
+  }, []);
 
-  const getStatusColor = (percentage: number) => {
+  const getStatusColor = useCallback((percentage: number) => {
     if (percentage < 50) return "text-green-600 dark:text-green-400";
     if (percentage < 80) return "text-yellow-600 dark:text-yellow-400";
     return "text-red-600 dark:text-red-400";
-  };
+  }, []);
 
-  const getProgressColor = (percentage: number) => {
+  const getProgressColor = useCallback((percentage: number) => {
     if (percentage < 50) return "bg-green-500";
     if (percentage < 80) return "bg-yellow-500";
     return "bg-red-500";
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -330,3 +328,5 @@ export default function PerformanceDashboard({
     </div>
   );
 }
+
+export default memo(PerformanceDashboard);

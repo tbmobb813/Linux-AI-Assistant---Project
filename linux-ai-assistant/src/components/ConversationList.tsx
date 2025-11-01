@@ -1,7 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import ConversationItem from "./ConversationItem";
-import { Search, X, Filter } from "lucide-react";
+import TagFilter from "./TagFilter";
+import { AdvancedSearchModal } from "./AdvancedSearchModal";
+import { SearchSuggestions } from "./SearchSuggestions";
+import { Search, X, Filter, Tag, Settings } from "lucide-react";
 
 export default function ConversationList() {
   const {
@@ -22,6 +25,10 @@ export default function ConversationList() {
   const [dateFilter, setDateFilter] = useState<
     "all" | "today" | "week" | "month"
   >("all");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showTagFilter, setShowTagFilter] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
 
   useEffect(() => {
     loadConversations();
@@ -41,7 +48,7 @@ export default function ConversationList() {
     return () => clearTimeout(timeoutId);
   }, [localSearchQuery, searchConversations, clearSearch]);
 
-  // Filter conversations by date
+  // Filter conversations by date (tag filtering will be implemented separately)
   const filteredConversations = useMemo(() => {
     const conversationsToFilter = searchQuery ? searchResults : conversations;
 
@@ -60,6 +67,25 @@ export default function ConversationList() {
   const handleClearSearch = () => {
     setLocalSearchQuery("");
     clearSearch();
+    setShowSearchSuggestions(false);
+  };
+
+  const handleSearchFocus = () => {
+    setShowSearchSuggestions(true);
+  };
+
+  const handleSearchBlur = () => {
+    // Delay hiding suggestions to allow clicks
+    setTimeout(() => setShowSearchSuggestions(false), 200);
+  };
+
+  const handleSuggestionSelect = (suggestion: any) => {
+    setLocalSearchQuery(suggestion.text);
+    setShowSearchSuggestions(false);
+
+    if (suggestion.type === "conversation" && suggestion.data) {
+      selectConversation(suggestion.data.id);
+    }
   };
 
   return (
@@ -86,15 +112,34 @@ export default function ConversationList() {
             placeholder="Search conversations..."
             value={localSearchQuery}
             onChange={(e) => setLocalSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-8 py-2 text-sm border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+            onFocus={handleSearchFocus}
+            onBlur={handleSearchBlur}
+            className="w-full pl-8 pr-16 py-2 text-sm border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           />
-          {localSearchQuery && (
+          <div className="absolute right-2 top-2 flex items-center space-x-1">
+            {localSearchQuery && (
+              <button
+                onClick={handleClearSearch}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
             <button
-              onClick={handleClearSearch}
-              className="absolute right-2 top-2.5 text-gray-400 hover:text-gray-600"
+              onClick={() => setShowAdvancedSearch(true)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              title="Advanced search"
             >
-              <X className="h-4 w-4" />
+              <Settings className="h-4 w-4" />
             </button>
+          </div>
+
+          {/* Search Suggestions */}
+          {showSearchSuggestions && (
+            <SearchSuggestions
+              query={localSearchQuery}
+              onSuggestionSelect={handleSuggestionSelect}
+            />
           )}
         </div>
 
@@ -111,7 +156,46 @@ export default function ConversationList() {
             <option value="week">This week</option>
             <option value="month">This month</option>
           </select>
+
+          {/* Tag Filter Toggle */}
+          <button
+            onClick={() => setShowTagFilter(!showTagFilter)}
+            className={`p-1 rounded-md transition-colors ${
+              showTagFilter || selectedTags.length > 0
+                ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            }`}
+            title="Filter by tags"
+          >
+            <Tag className="h-4 w-4" />
+          </button>
         </div>
+
+        {/* Tag Filter Component */}
+        {showTagFilter && (
+          <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-gray-50 dark:bg-gray-800">
+            <TagFilter
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+            />
+          </div>
+        )}
+
+        {/* Active Tag Filter Display */}
+        {selectedTags.length > 0 && !showTagFilter && (
+          <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+            <span>
+              {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"}{" "}
+              applied
+            </span>
+            <button
+              onClick={() => setSelectedTags([])}
+              className="hover:text-blue-800 dark:hover:text-blue-300"
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         {/* Search Results Info */}
         {searchQuery && (
@@ -153,6 +237,21 @@ export default function ConversationList() {
             />
           ))}
       </div>
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={showAdvancedSearch}
+        onClose={() => setShowAdvancedSearch(false)}
+        onSelectConversation={(id) => {
+          selectConversation(id);
+          setShowAdvancedSearch(false);
+        }}
+        onSelectMessage={(conversationId, _messageId) => {
+          selectConversation(conversationId);
+          setShowAdvancedSearch(false);
+          // Could add message highlighting logic here
+        }}
+      />
     </aside>
   );
 }

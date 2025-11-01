@@ -4,13 +4,21 @@ use std::sync::{Arc, Mutex};
 use tauri::AppHandle;
 
 // Define available shortcut actions
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub enum ShortcutAction {
     ToggleWindow,
     NewConversation,
     OpenSettings,
     QuickCapture,
     FocusInput,
+    ClearConversation,
+    ExportCurrent,
+    ToggleProfileMenu,
+    SearchDocuments,
+    ShowPerformance,
+    ToggleRecording,
+    QuickExport,
 }
 
 impl ShortcutAction {
@@ -21,6 +29,13 @@ impl ShortcutAction {
             ShortcutAction::OpenSettings => "Open Settings",
             ShortcutAction::QuickCapture => "Quick Capture",
             ShortcutAction::FocusInput => "Focus Input",
+            ShortcutAction::ClearConversation => "Clear Conversation",
+            ShortcutAction::ExportCurrent => "Export Current",
+            ShortcutAction::ToggleProfileMenu => "Toggle Profile Menu",
+            ShortcutAction::SearchDocuments => "Search Documents",
+            ShortcutAction::ShowPerformance => "Show Performance",
+            ShortcutAction::ToggleRecording => "Toggle Recording",
+            ShortcutAction::QuickExport => "Quick Export",
         }
     }
 
@@ -31,6 +46,13 @@ impl ShortcutAction {
             ShortcutAction::OpenSettings => "Open the settings panel",
             ShortcutAction::QuickCapture => "Quick capture input without showing window",
             ShortcutAction::FocusInput => "Focus the chat input field",
+            ShortcutAction::ClearConversation => "Clear the current conversation",
+            ShortcutAction::ExportCurrent => "Export current conversation to file",
+            ShortcutAction::ToggleProfileMenu => "Open/close the profile selection menu",
+            ShortcutAction::SearchDocuments => "Open document search interface",
+            ShortcutAction::ShowPerformance => "Display performance metrics",
+            ShortcutAction::ToggleRecording => "Start/stop voice recording",
+            ShortcutAction::QuickExport => "Quick export in default format",
         }
     }
 
@@ -41,6 +63,27 @@ impl ShortcutAction {
             ShortcutAction::OpenSettings => "CommandOrControl+Comma",
             ShortcutAction::QuickCapture => "CommandOrControl+Shift+Space",
             ShortcutAction::FocusInput => "CommandOrControl+Shift+I",
+            ShortcutAction::ClearConversation => "CommandOrControl+Delete",
+            ShortcutAction::ExportCurrent => "CommandOrControl+E",
+            ShortcutAction::ToggleProfileMenu => "CommandOrControl+P",
+            ShortcutAction::SearchDocuments => "CommandOrControl+Shift+F",
+            ShortcutAction::ShowPerformance => "CommandOrControl+Shift+P",
+            ShortcutAction::ToggleRecording => "CommandOrControl+R",
+            ShortcutAction::QuickExport => "CommandOrControl+Shift+E",
+        }
+    }
+
+    pub fn category(&self) -> &'static str {
+        match self {
+            ShortcutAction::ToggleWindow
+            | ShortcutAction::FocusInput
+            | ShortcutAction::QuickCapture => "Window & Focus",
+            ShortcutAction::NewConversation | ShortcutAction::ClearConversation => "Conversation",
+            ShortcutAction::ExportCurrent | ShortcutAction::QuickExport => "Export",
+            ShortcutAction::ToggleProfileMenu => "Profiles",
+            ShortcutAction::SearchDocuments => "Search",
+            ShortcutAction::OpenSettings | ShortcutAction::ShowPerformance => "System",
+            ShortcutAction::ToggleRecording => "Recording",
         }
     }
 
@@ -51,6 +94,13 @@ impl ShortcutAction {
             ShortcutAction::OpenSettings,
             ShortcutAction::QuickCapture,
             ShortcutAction::FocusInput,
+            ShortcutAction::ClearConversation,
+            ShortcutAction::ExportCurrent,
+            ShortcutAction::ToggleProfileMenu,
+            ShortcutAction::SearchDocuments,
+            ShortcutAction::ShowPerformance,
+            ShortcutAction::ToggleRecording,
+            ShortcutAction::QuickExport,
         ]
     }
 }
@@ -94,6 +144,41 @@ impl Default for ShortcutConfig {
                 GlobalShortcut {
                     action: ShortcutAction::FocusInput,
                     shortcut: "CommandOrControl+Shift+I".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::ClearConversation,
+                    shortcut: "CommandOrControl+Delete".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::ExportCurrent,
+                    shortcut: "CommandOrControl+E".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::ToggleProfileMenu,
+                    shortcut: "CommandOrControl+P".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::SearchDocuments,
+                    shortcut: "CommandOrControl+Shift+F".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::ShowPerformance,
+                    shortcut: "CommandOrControl+Shift+P".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::ToggleRecording,
+                    shortcut: "CommandOrControl+R".to_string(),
+                    enabled: false,
+                },
+                GlobalShortcut {
+                    action: ShortcutAction::QuickExport,
+                    shortcut: "CommandOrControl+Shift+E".to_string(),
                     enabled: false,
                 },
             ],

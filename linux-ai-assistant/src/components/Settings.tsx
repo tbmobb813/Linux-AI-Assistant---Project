@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { withErrorHandling } from "../lib/utils/errorHandler";
-import { FileText, Activity, Keyboard, Monitor } from "lucide-react";
-import FileWatcherSettings from "./FileWatcherSettings";
-import PerformanceDashboard from "./PerformanceDashboard";
-import ShortcutSettings from "./ShortcutSettings";
-import WindowPositionSettings from "./WindowPositionSettings";
+import {
+  FileText,
+  Activity,
+  Keyboard,
+  Monitor,
+  Search,
+  User,
+  BarChart3,
+} from "lucide-react";
+
+// Lazy load heavy components to improve initial load time
+const FileWatcherSettings = lazy(() => import("./FileWatcherSettings"));
+const PerformanceDashboard = lazy(() => import("./PerformanceDashboard"));
+const ShortcutSettings = lazy(() => import("./ShortcutSettings"));
+const WindowPositionSettings = lazy(() => import("./WindowPositionSettings"));
+const DocumentSearchModal = lazy(() => import("./DocumentSearchModal"));
+const ProfileSettings = lazy(() => import("./ProfileSettings"));
+const UsageAnalyticsDashboard = lazy(() => import("./UsageAnalyticsDashboard"));
 
 type Props = {
   onClose?: () => void;
@@ -26,6 +39,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
   const [showShortcutSettings, setShowShortcutSettings] = useState(false);
   const [showWindowPositionSettings, setShowWindowPositionSettings] =
     useState(false);
+  const [showDocumentSearch, setShowDocumentSearch] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [showUsageAnalytics, setShowUsageAnalytics] = useState(false);
 
   const validate = (s: string): string | null => {
     if (!s.trim()) return "Shortcut can't be empty";
@@ -133,6 +149,14 @@ export default function Settings({ onClose }: Props): JSX.Element {
       {/* File Watcher Settings Button */}
       <div className="pt-2 space-y-2">
         <button
+          onClick={() => setShowProfileSettings(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
+        >
+          <User className="w-4 h-4" />
+          Profile Settings
+        </button>
+
+        <button
           onClick={() => setShowShortcutSettings(true)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
         >
@@ -157,11 +181,27 @@ export default function Settings({ onClose }: Props): JSX.Element {
         </button>
 
         <button
+          onClick={() => setShowDocumentSearch(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
+        >
+          <Search className="w-4 h-4" />
+          Document Search
+        </button>
+
+        <button
           onClick={() => setShowPerformanceDashboard(true)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
         >
           <Activity className="w-4 h-4" />
           Performance Dashboard
+        </button>
+
+        <button
+          onClick={() => setShowUsageAnalytics(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-50 hover:bg-blue-100 dark:bg-blue-900 dark:hover:bg-blue-800 border border-blue-300 dark:border-blue-600 rounded-md text-blue-700 dark:text-blue-300"
+        >
+          <BarChart3 className="w-4 h-4" />
+          Usage Analytics
         </button>
       </div>
 
@@ -193,34 +233,148 @@ export default function Settings({ onClose }: Props): JSX.Element {
       {/* Shortcut Settings Modal */}
       {showShortcutSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <ShortcutSettings onClose={() => setShowShortcutSettings(false)} />
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading shortcuts...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <ShortcutSettings onClose={() => setShowShortcutSettings(false)} />
+          </Suspense>
         </div>
       )}
 
       {/* Window Position Settings Modal */}
       {showWindowPositionSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <WindowPositionSettings
-            onClose={() => setShowWindowPositionSettings(false)}
-          />
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading window settings...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <WindowPositionSettings
+              onClose={() => setShowWindowPositionSettings(false)}
+            />
+          </Suspense>
         </div>
       )}
 
       {/* File Watcher Settings Modal */}
       {showFileWatcherSettings && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <FileWatcherSettings
-            onClose={() => setShowFileWatcherSettings(false)}
-          />
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading file watcher...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <FileWatcherSettings
+              onClose={() => setShowFileWatcherSettings(false)}
+            />
+          </Suspense>
         </div>
       )}
 
       {/* Performance Dashboard Modal */}
       {showPerformanceDashboard && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <PerformanceDashboard
-            onClose={() => setShowPerformanceDashboard(false)}
-          />
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading performance dashboard...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <PerformanceDashboard
+              onClose={() => setShowPerformanceDashboard(false)}
+            />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Document Search Modal */}
+      {showDocumentSearch && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading document search...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <DocumentSearchModal onClose={() => setShowDocumentSearch(false)} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Profile Settings Modal */}
+      {showProfileSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading profile settings...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <ProfileSettings onClose={() => setShowProfileSettings(false)} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Usage Analytics Dashboard */}
+      {showUsageAnalytics && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Suspense
+            fallback={
+              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600 dark:text-gray-400">
+                    Loading usage analytics...
+                  </span>
+                </div>
+              </div>
+            }
+          >
+            <UsageAnalyticsDashboard
+              onClose={() => setShowUsageAnalytics(false)}
+            />
+          </Suspense>
         </div>
       )}
     </div>

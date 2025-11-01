@@ -16,6 +16,13 @@ interface ShortcutAction {
   OpenSettings: any;
   QuickCapture: any;
   FocusInput: any;
+  ClearConversation: any;
+  ExportCurrent: any;
+  ToggleProfileMenu: any;
+  SearchDocuments: any;
+  ShowPerformance: any;
+  ToggleRecording: any;
+  QuickExport: any;
 }
 
 interface GlobalShortcut {
@@ -38,6 +45,13 @@ const actionDisplayNames: Record<keyof ShortcutAction, string> = {
   OpenSettings: "Open Settings",
   QuickCapture: "Quick Capture",
   FocusInput: "Focus Input",
+  ClearConversation: "Clear Conversation",
+  ExportCurrent: "Export Current",
+  ToggleProfileMenu: "Toggle Profile Menu",
+  SearchDocuments: "Search Documents",
+  ShowPerformance: "Show Performance",
+  ToggleRecording: "Toggle Recording",
+  QuickExport: "Quick Export",
 };
 
 const actionDescriptions: Record<keyof ShortcutAction, string> = {
@@ -46,6 +60,13 @@ const actionDescriptions: Record<keyof ShortcutAction, string> = {
   OpenSettings: "Open the settings panel",
   QuickCapture: "Quick capture input without showing window",
   FocusInput: "Focus the chat input field",
+  ClearConversation: "Clear the current conversation",
+  ExportCurrent: "Export current conversation to file",
+  ToggleProfileMenu: "Open/close the profile selection menu",
+  SearchDocuments: "Open document search interface",
+  ShowPerformance: "Display performance metrics",
+  ToggleRecording: "Start/stop voice recording",
+  QuickExport: "Quick export in default format",
 };
 
 const defaultShortcuts: Record<keyof ShortcutAction, string> = {
@@ -54,6 +75,28 @@ const defaultShortcuts: Record<keyof ShortcutAction, string> = {
   OpenSettings: "CommandOrControl+Comma",
   QuickCapture: "CommandOrControl+Shift+Space",
   FocusInput: "CommandOrControl+Shift+I",
+  ClearConversation: "CommandOrControl+Delete",
+  ExportCurrent: "CommandOrControl+E",
+  ToggleProfileMenu: "CommandOrControl+P",
+  SearchDocuments: "CommandOrControl+Shift+F",
+  ShowPerformance: "CommandOrControl+Shift+P",
+  ToggleRecording: "CommandOrControl+R",
+  QuickExport: "CommandOrControl+Shift+E",
+};
+
+const actionCategories: Record<keyof ShortcutAction, string> = {
+  ToggleWindow: "Window & Focus",
+  FocusInput: "Window & Focus",
+  QuickCapture: "Window & Focus",
+  NewConversation: "Conversation",
+  ClearConversation: "Conversation",
+  ExportCurrent: "Export",
+  QuickExport: "Export",
+  ToggleProfileMenu: "Profiles",
+  SearchDocuments: "Search",
+  OpenSettings: "System",
+  ShowPerformance: "System",
+  ToggleRecording: "Recording",
 };
 
 export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
@@ -237,7 +280,11 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
   }
 
   return (
-    <div className="w-[700px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl">
+    <div
+      className="w-[800px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl"
+      onKeyDown={handleKeyDown}
+      tabIndex={-1}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
@@ -311,90 +358,115 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
         </div>
 
         {/* Shortcuts List */}
-        <div className="space-y-3">
-          {config.shortcuts.map((shortcut) => (
-            <div
-              key={shortcut.action}
-              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => toggleShortcut(shortcut.action)}
-                    className={`p-1 rounded ${
-                      shortcut.enabled
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-gray-400 dark:text-gray-600"
-                    }`}
-                    title={
-                      shortcut.enabled ? "Disable shortcut" : "Enable shortcut"
-                    }
+        <div className="space-y-6">
+          {Object.entries(
+            config.shortcuts.reduce(
+              (acc, shortcut) => {
+                const category = actionCategories[shortcut.action];
+                if (!acc[category]) {
+                  acc[category] = [];
+                }
+                acc[category].push(shortcut);
+                return acc;
+              },
+              {} as Record<string, GlobalShortcut[]>,
+            ),
+          ).map(([category, shortcuts]) => (
+            <div key={category}>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <div className="h-px bg-gray-300 dark:bg-gray-600 flex-1"></div>
+                <span className="px-2">{category}</span>
+                <div className="h-px bg-gray-300 dark:bg-gray-600 flex-1"></div>
+              </h3>
+              <div className="space-y-2">
+                {shortcuts.map((shortcut) => (
+                  <div
+                    key={shortcut.action}
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                   >
-                    {shortcut.enabled ? (
-                      <Power className="w-4 h-4" />
-                    ) : (
-                      <PowerOff className="w-4 h-4" />
-                    )}
-                  </button>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {actionDisplayNames[shortcut.action]}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => toggleShortcut(shortcut.action)}
+                          className={`p-1 rounded ${
+                            shortcut.enabled
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-gray-400 dark:text-gray-600"
+                          }`}
+                          title={
+                            shortcut.enabled
+                              ? "Disable shortcut"
+                              : "Enable shortcut"
+                          }
+                        >
+                          {shortcut.enabled ? (
+                            <Power className="w-4 h-4" />
+                          ) : (
+                            <PowerOff className="w-4 h-4" />
+                          )}
+                        </button>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {actionDisplayNames[shortcut.action]}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {actionDescriptions[shortcut.action]}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {actionDescriptions[shortcut.action]}
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                {editingShortcut === shortcut.action ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={tempShortcut}
-                      onChange={(e) => setTempShortcut(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Press keys..."
-                      autoFocus
-                    />
-                    <button
-                      onClick={() =>
-                        updateShortcut(shortcut.action, tempShortcut)
-                      }
-                      className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                      title="Save shortcut"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={cancelEditing}
-                      className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                      title="Cancel editing"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {editingShortcut === shortcut.action ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={tempShortcut}
+                            onChange={(e) => setTempShortcut(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Press keys..."
+                            autoFocus
+                          />
+                          <button
+                            onClick={() =>
+                              updateShortcut(shortcut.action, tempShortcut)
+                            }
+                            className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                            title="Save shortcut"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={cancelEditing}
+                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            title="Cancel editing"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() =>
+                              startEditing(shortcut.action, shortcut.shortcut)
+                            }
+                            className="px-3 py-1 text-sm font-mono bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                          >
+                            {shortcut.shortcut}
+                          </button>
+                          <button
+                            onClick={() => resetToDefault(shortcut.action)}
+                            className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+                            title="Reset to default"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() =>
-                        startEditing(shortcut.action, shortcut.shortcut)
-                      }
-                      className="px-3 py-1 text-sm font-mono bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    >
-                      {shortcut.shortcut}
-                    </button>
-                    <button
-                      onClick={() => resetToDefault(shortcut.action)}
-                      className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
-                      title="Reset to default"
-                    >
-                      Reset
-                    </button>
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           ))}

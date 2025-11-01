@@ -41,7 +41,12 @@ interface ChatState {
 
   sendMessage: (content: string) => Promise<void>;
   retryMessage: (id: string) => Promise<void>;
+  updateMessage: (id: string, content: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
+
+  // Branching actions
+  createBranch: (messageId: string, title: string) => Promise<Conversation>;
+  getBranches: (conversationId: string) => Promise<Conversation[]>;
 
   clearError: () => void;
 }
@@ -428,6 +433,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  updateMessage: async (id, content) => {
+    try {
+      await db.messages.update(id, { content });
+
+      set((state) => ({
+        messages: state.messages.map((m) =>
+          m.id === id ? { ...m, content } : m,
+        ),
+      }));
+    } catch (error) {
+      set({ error: String(error) });
+    }
+  },
+
   // Search functions
   searchConversations: async (query) => {
     if (!query.trim()) {
@@ -446,6 +465,45 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearSearch: () => {
     set({ searchQuery: "", searchResults: [], isSearching: false });
+  },
+
+  // Branching functions
+  createBranch: async (messageId, title) => {
+    const state = get();
+    if (!state.currentConversation) {
+      throw new Error("No current conversation");
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const branch = await db.conversations.createBranch(
+        state.currentConversation.id,
+        messageId,
+        title,
+      );
+
+      // Add the new branch to conversations list
+      set((state) => ({
+        conversations: [branch, ...state.conversations],
+        isLoading: false,
+      }));
+
+      return branch;
+    } catch (error) {
+      set({ error: String(error), isLoading: false });
+      throw error;
+    }
+  },
+
+  getBranches: async (conversationId) => {
+    try {
+      const branches = await db.conversations.getBranches(conversationId);
+      return branches;
+    } catch (error) {
+      set({ error: String(error) });
+      throw error;
+    }
   },
 
   clearError: () => set({ error: null }),

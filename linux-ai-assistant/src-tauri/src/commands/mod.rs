@@ -8,13 +8,16 @@ pub mod git;
 pub mod health;
 pub mod messages;
 pub mod performance;
+pub mod profiles;
 pub mod project;
 pub mod provider;
 pub mod run;
 pub mod settings;
 pub mod shortcuts;
+pub mod tags;
 pub mod updater;
 pub mod window;
+pub mod workspace_templates;
 
 // src-tauri/Cargo.toml (Updated dependencies)
 // Add this to your existing Cargo.toml

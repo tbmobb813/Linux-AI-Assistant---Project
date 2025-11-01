@@ -41,6 +41,9 @@ chrono = { version = "0.4", features = ["serde"] }
 dirs = "5"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 lazy_static = "1.4"
+comrak = "0.18"  # Markdown to HTML conversion
+printpdf = "0.7"  # PDF generation
+rusttype = "0.9"  # Font handling for PDF
 
 [dev-dependencies]
 # dev-dependencies kept minimal

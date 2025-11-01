@@ -288,7 +288,7 @@ pub fn start_ipc_server(app: AppHandle) {
                         .name("ipc-client".to_string())
                         .stack_size(2 * 1024 * 1024); // 2MB stack, default size
 
-                    if let Ok(handle) = builder
+                    if let Ok(_handle) = builder
                         .spawn(move || handle_client(s, (*app_clone).clone(), dev_mode_enabled))
                     {
                         // Thread is detached when JoinHandle is dropped
