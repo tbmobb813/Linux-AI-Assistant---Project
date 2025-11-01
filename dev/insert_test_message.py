@@ -21,19 +21,15 @@ import time
 DB_PATH = os.path.expanduser("~/.local/share/com.linuxai.assistant/database.db")
 
 parser = argparse.ArgumentParser(description="Insert a test assistant message into app DB")
+parser.add_argument("content", nargs="?", help="Message content")
 parser.add_argument("--content", "-c", required=False, help="Message content")
 parser.add_argument("--conversation-id", "-i", required=False, help="Existing conversation id to use")
 args = parser.parse_args()
 
-content = args.content
-if not content:
-    # Try positional
-    import sys
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        content = sys.argv[1]
-
-if not content:
-    print("Error: no content provided. Usage: python3 dev/insert_test_message.py --content '...'")
+# Prefer --content if provided, else positional
+content = args.content if args.content is not None else args.content
+if content is None:
+    print("Error: no content provided. Usage: python3 dev/insert_test_message.py '...' or --content '...'")
     raise SystemExit(1)
 
 if not os.path.exists(DB_PATH):
