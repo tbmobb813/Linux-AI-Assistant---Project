@@ -14,6 +14,10 @@ The complete, up-to-date documentation lives inside `linux-ai-assistant/`:
 - Developer Guide: [linux-ai-assistant/DEVELOPER_GUIDE.md](linux-ai-assistant/DEVELOPER_GUIDE.md)
 - Troubleshooting: [linux-ai-assistant/TROUBLESHOOTING.md](linux-ai-assistant/TROUBLESHOOTING.md)
 
+For developers working on the project, see also:
+
+- Dev helpers and tools: [dev/README.md](dev/README.md)
+
 Historical and phase summary documents have been archived under `docs/archive/`.
 
 ## Project Overview

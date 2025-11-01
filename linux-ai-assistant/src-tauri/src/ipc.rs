@@ -22,7 +22,7 @@ struct IpcResponse {
     data: Option<JsonValue>,
 }
 
-fn handle_client(mut stream: TcpStream, app: AppHandle) {
+fn handle_client(mut stream: TcpStream, app: AppHandle, dev_mode_enabled: bool) {
     let peer = stream.peer_addr().ok();
     let mut reader = BufReader::new(stream.try_clone().unwrap());
     let mut line = String::new();
@@ -116,30 +116,14 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
                                 }
                             }
                         }
-                        "create" => {
-                            // This handler is intended for dev/test only. Require DEV_MODE to be set
-                            // to avoid accidental exposure in production environments.
-                            if std::env::var("DEV_MODE").is_err() {
-                                let response = IpcResponse {
-                                    status: "error".to_string(),
-                                    data: Some(
-                                        serde_json::json!({"error": "create handler disabled; set DEV_MODE=1 to enable"}),
-                                    ),
-                                };
-                                let _ = stream.write_all(
-                                    format!("{}\n", serde_json::to_string(&response).unwrap())
-                                        .as_bytes(),
-                                );
-                                continue;
-                            }
-
+                        "create" if dev_mode_enabled => {
                             // Insert a conversation (if needed) and an assistant message.
                             // Payload can be an object with optional conversation_id and/or content.
                             {
                                 // Use a short inner scope so the MutexGuard drops before the
                                 // temporary State is dropped and we don't run into borrow issues.
                                 let db_state = app.state::<crate::database::Database>();
-                                let mut conn = match db_state.conn().lock() {
+                                let conn = match db_state.conn().lock() {
                                     Ok(g) => g,
                                     Err(e) => {
                                         let response = IpcResponse {
@@ -303,6 +287,9 @@ fn handle_client(mut stream: TcpStream, app: AppHandle) {
 }
 
 pub fn start_ipc_server(app: AppHandle) {
+    // Check if dev mode is enabled at startup
+    let dev_mode_enabled = std::env::var("DEV_MODE").is_ok();
+
     // Fixed localhost port; can be made configurable later
     let addr = "127.0.0.1:39871";
     let listener = match TcpListener::bind(addr) {
@@ -317,7 +304,7 @@ pub fn start_ipc_server(app: AppHandle) {
             match stream {
                 Ok(s) => {
                     let app_clone = app.clone();
-                    thread::spawn(move || handle_client(s, app_clone));
+                    thread::spawn(move || handle_client(s, app_clone, dev_mode_enabled));
                 }
                 Err(e) => {
                     eprintln!("IPC: connection failed: {}", e);
