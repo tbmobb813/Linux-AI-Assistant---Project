@@ -15,9 +15,13 @@ const CommandSuggestionsModal = lazy(
 );
 const Settings = lazy(() => import("./components/Settings"));
 const UpdateManager = lazy(() => import("./components/UpdateManager"));
+const ProjectContextPanel = lazy(
+  () => import("./components/ProjectContextPanel"),
+);
 
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
+import { useProjectStore } from "./lib/stores/projectStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 import { withErrorHandling } from "./lib/utils/errorHandler";
@@ -25,6 +29,7 @@ import { withErrorHandling } from "./lib/utils/errorHandler";
 export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
     useSettingsStore();
+  const { events } = useProjectStore();
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut with error handling
@@ -52,6 +57,7 @@ export default function App(): JSX.Element {
     })();
   }, [globalShortcut, registerGlobalShortcut]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProjectContext, setShowProjectContext] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
     let unlistenSettings: (() => void) | undefined;
@@ -261,6 +267,26 @@ export default function App(): JSX.Element {
             <div className="absolute right-4 top-12 z-50">
               <Settings onClose={() => setShowSettings(false)} />
             </div>
+          )}
+
+          {/* Project Context button and panel */}
+          <button
+            onClick={() => setShowProjectContext((s) => !s)}
+            className="absolute right-32 top-4 bg-blue-600 hover:bg-blue-700 text-sm px-3 py-1 rounded relative"
+            title="Project Context"
+          >
+            📁
+            {events.filter((event) => Date.now() - event.ts < 5 * 60 * 1000)
+              .length > 0 && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            )}
+          </button>
+          {showProjectContext && (
+            <Suspense fallback={null}>
+              <ProjectContextPanel
+                onClose={() => setShowProjectContext(false)}
+              />
+            </Suspense>
           )}
 
           <ChatInterface />

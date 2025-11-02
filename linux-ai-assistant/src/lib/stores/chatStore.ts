@@ -19,6 +19,11 @@ interface ChatState {
   isLoading: boolean;
   error: string | null;
 
+  // Search state
+  searchQuery: string;
+  searchResults: Conversation[];
+  isSearching: boolean;
+
   // Actions
   loadConversations: () => Promise<void>;
   createConversation: (
@@ -30,9 +35,18 @@ interface ChatState {
   deleteConversation: (id: string) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
 
+  // Search actions
+  searchConversations: (query: string) => Promise<void>;
+  clearSearch: () => void;
+
   sendMessage: (content: string) => Promise<void>;
   retryMessage: (id: string) => Promise<void>;
+  updateMessage: (id: string, content: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
+
+  // Branching actions
+  createBranch: (messageId: string, title: string) => Promise<Conversation>;
+  getBranches: (conversationId: string) => Promise<Conversation[]>;
 
   clearError: () => void;
 }
@@ -43,6 +57,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   error: null,
+
+  // Search state
+  searchQuery: "",
+  searchResults: [],
+  isSearching: false,
 
   loadConversations: async () => {
     try {
@@ -411,6 +430,79 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }));
     } catch (error) {
       set({ error: String(error) });
+    }
+  },
+
+  updateMessage: async (id, content) => {
+    try {
+      await db.messages.update(id, { content });
+
+      set((state) => ({
+        messages: state.messages.map((m) =>
+          m.id === id ? { ...m, content } : m,
+        ),
+      }));
+    } catch (error) {
+      set({ error: String(error) });
+    }
+  },
+
+  // Search functions
+  searchConversations: async (query) => {
+    if (!query.trim()) {
+      set({ searchQuery: "", searchResults: [], isSearching: false });
+      return;
+    }
+
+    try {
+      set({ isSearching: true, searchQuery: query });
+      const results = await db.conversations.search(query, 20);
+      set({ searchResults: results, isSearching: false });
+    } catch (error) {
+      set({ error: String(error), isSearching: false });
+    }
+  },
+
+  clearSearch: () => {
+    set({ searchQuery: "", searchResults: [], isSearching: false });
+  },
+
+  // Branching functions
+  createBranch: async (messageId, title) => {
+    const state = get();
+    if (!state.currentConversation) {
+      throw new Error("No current conversation");
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const branch = await db.conversations.createBranch(
+        state.currentConversation.id,
+        messageId,
+        title,
+      );
+
+      // Add the new branch to conversations list
+      set((state) => ({
+        conversations: [branch, ...state.conversations],
+        isLoading: false,
+      }));
+
+      return branch;
+    } catch (error) {
+      set({ error: String(error), isLoading: false });
+      throw error;
+    }
+  },
+
+  getBranches: async (conversationId) => {
+    try {
+      const branches = await db.conversations.getBranches(conversationId);
+      return branches;
+    } catch (error) {
+      set({ error: String(error) });
+      throw error;
     }
   },
 

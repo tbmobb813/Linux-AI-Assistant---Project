@@ -691,6 +691,218 @@ tail -20 ~/.config/linux-ai-assistant/logs/error.log
    export QT_XCB_GL_INTEGRATION=none
    ```
 
+## New Features Troubleshooting
+
+### Slash Commands Issues
+
+**Problem**: Slash commands not working or showing autocomplete
+
+**Solutions:**
+
+1. **Check Chat Input Focus**
+
+   ```bash
+   # Ensure chat input is focused when typing /
+   # Click in chat input area before typing
+   ```
+
+2. **Verify Command Syntax**
+
+   ```bash
+   # Correct syntax examples
+   /clear
+   /export json
+   /docs search query
+   /run ls -la
+   /profile myprofile
+   ```
+
+3. **Clear Cache if Commands Don't Show**
+   ```bash
+   # Clear application cache
+   rm -rf ~/.config/linux-ai-assistant/cache/
+   ```
+
+### Document Search Problems
+
+**Problem**: Document search returns no results or is slow
+
+**Solutions:**
+
+1. **Check Project Indexing**
+
+   ```bash
+   # Verify project path is set correctly
+   # Go to Settings → Project Integration
+   # Ensure "Watch for Changes" is enabled
+   ```
+
+2. **Re-index Project**
+
+   ```bash
+   # Force re-indexing via CLI
+   lai index-project /path/to/project
+
+   # Or use slash command
+   /docs --reindex
+   ```
+
+3. **Check File Permissions**
+
+   ```bash
+   # Ensure readable files
+   find /path/to/project -type f ! -readable
+
+   # Fix permissions if needed
+   chmod -R +r /path/to/project
+   ```
+
+4. **Verify Ignore Patterns**
+   ```bash
+   # Check .gitignore and custom patterns
+   # Go to Settings → Document Search
+   # Review exclude patterns
+   ```
+
+### Profile System Issues
+
+**Problem**: Profiles not switching or data loss
+
+**Solutions:**
+
+1. **Check Profile Database**
+
+   ```bash
+   # Verify profile database
+   sqlite3 ~/.config/linux-ai-assistant/profiles.db ".tables"
+
+   # List existing profiles
+   sqlite3 ~/.config/linux-ai-assistant/profiles.db "SELECT * FROM profiles;"
+   ```
+
+2. **Reset Profile System**
+
+   ```bash
+   # Backup first
+   cp ~/.config/linux-ai-assistant/profiles.db ~/.config/linux-ai-assistant/profiles.db.backup
+
+   # Reset profiles (will recreate default)
+   rm ~/.config/linux-ai-assistant/profiles.db
+   ```
+
+3. **Profile Switching Shortcut Not Working**
+   ```bash
+   # Check global shortcuts in Settings
+   # Verify Ctrl+P is not conflicting
+   # Try using /profile <name> command instead
+   ```
+
+### Terminal Capture Issues
+
+**Problem**: CLI capture command fails or dangerous commands allowed
+
+**Solutions:**
+
+1. **Check CLI Tool Installation**
+
+   ```bash
+   # Verify CLI is built and accessible
+   cd linux-ai-assistant/cli
+   cargo build --release
+
+   # Add to PATH or use full path
+   export PATH="$PATH:/path/to/linux-ai-assistant/cli/target/release"
+   ```
+
+2. **IPC Connection Problems**
+
+   ```bash
+   # Check if main app is running
+   ps aux | grep linux-ai-assistant
+
+   # Verify IPC port
+   netstat -tlnp | grep 39871
+
+   # Test connection
+   lai notify "Test connection"
+   ```
+
+3. **Command Safety Validation**
+
+   ```bash
+   # If safe commands are blocked
+   lai capture "ls" --dry-run
+
+   # Check safety settings
+   # Go to Settings → Terminal Integration
+   ```
+
+### Export Format Issues
+
+**Problem**: Export fails or formatting is incorrect
+
+**Solutions:**
+
+1. **Check File Permissions**
+
+   ```bash
+   # Ensure write access to export directory
+   ls -la ~/Documents/
+
+   # Create export directory if needed
+   mkdir -p ~/Documents/ai-exports
+   ```
+
+2. **PDF Export Dependencies**
+
+   ```bash
+   # Verify system fonts for PDF generation
+   fc-list | grep -i "liberation\|dejavu"
+
+   # Install missing fonts if needed
+   sudo apt install fonts-liberation fonts-dejavu
+   ```
+
+3. **Large Conversation Export**
+
+   ```bash
+   # For very large conversations, use JSON format
+   /export json
+
+   # Or export in chunks using conversation filters
+   ```
+
+### Global Shortcuts Conflicts
+
+**Problem**: Shortcuts not working or conflicting with system shortcuts
+
+**Solutions:**
+
+1. **Check Shortcut Conflicts**
+
+   ```bash
+   # Use Settings → Global Shortcuts
+   # Look for conflicts marked in red
+   # Change conflicting shortcuts
+   ```
+
+2. **System-wide Shortcut Issues**
+
+   ```bash
+   # Check window manager shortcuts
+   gsettings list-recursively | grep -i shortcut
+
+   # For KDE users
+   kreadconfig5 --group Shortcuts
+   ```
+
+3. **Permission Issues**
+   ```bash
+   # Some desktop environments require additional permissions
+   # Try running app with:
+   env XDG_CURRENT_DESKTOP=GNOME linux-ai-assistant
+   ```
+
 ## Getting Help
 
 ### Collecting Debug Information
