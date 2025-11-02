@@ -10,6 +10,7 @@ import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
 import GitContextWidget from "./GitContextWidget";
+import RoutingIndicator from "./RoutingIndicator";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 import {
   parseSlashCommand,
@@ -351,6 +352,9 @@ export default function ChatInterface(): JSX.Element {
           }}
         >
           <div className="flex items-center gap-2">
+            {/* Routing Indicator */}
+            <RoutingIndicator />
+
             {/* Action Buttons - Compact horizontal layout */}
             <button
               type="button"
