@@ -9,6 +9,7 @@ import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
+import GitContextWidget from "./GitContextWidget";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 import {
   parseSlashCommand,
@@ -272,6 +273,18 @@ export default function ChatInterface(): JSX.Element {
         {isLoading &&
           messages.length > 0 &&
           messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+      </div>
+
+      {/* Git Context Widget */}
+      <div className="px-4 pb-2">
+        <GitContextWidget
+          onIncludeContext={(context) => {
+            setValue((prev) => {
+              const prefix = prev.trim() ? prev + "\n\n" : "";
+              return prefix + "```\nProject Context:\n" + context + "\n```\n\n";
+            });
+          }}
+        />
       </div>
 
       {/* Modern Input Area */}

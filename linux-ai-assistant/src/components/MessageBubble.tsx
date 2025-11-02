@@ -1,10 +1,15 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
+import { useArtifactStore } from "../lib/stores/artifactStore";
 import type { ApiMessage } from "../lib/api/types";
 import { isTauriEnvironment } from "../lib/utils/tauri";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MarkdownContent from "./MarkdownContent";
 import BranchDialog from "./BranchDialog";
+import ArtifactPreview from "./ArtifactPreview";
+import { hasArtifacts } from "../lib/utils/artifactDetection";
+import { suggestFilename } from "../lib/utils/artifactDetection";
+import { invoke } from "@tauri-apps/api/core";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -32,6 +37,23 @@ export default function MessageBubble({
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
   const addToast = useUiStore((s) => s.addToast);
+
+  // Artifact detection
+  const extractArtifacts = useArtifactStore((s) => s.extractArtifacts);
+  const getArtifactsForMessage = useArtifactStore(
+    (s) => s.getArtifactsForMessage,
+  );
+  const [showArtifacts, setShowArtifacts] = useState(false);
+
+  // Extract artifacts when message loads (assistant messages only)
+  useEffect(() => {
+    if (!isUser && hasArtifacts(message.content)) {
+      extractArtifacts(message.id, message.content);
+      setShowArtifacts(true);
+    }
+  }, [message.id, message.content, isUser, extractArtifacts]);
+
+  const artifacts = getArtifactsForMessage(message.id);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -81,6 +103,37 @@ export default function MessageBubble({
     } catch (e) {
       console.error("Failed to copy:", e);
       addToast({ message: "Failed to copy", type: "error", ttl: 2000 });
+    }
+  };
+
+  const handleSaveArtifact = async (artifact: any) => {
+    if (!isTauriEnvironment()) {
+      addToast({
+        message: "Save to file is only available in desktop app",
+        type: "error",
+        ttl: 3000,
+      });
+      return;
+    }
+
+    try {
+      const filename = suggestFilename(artifact);
+      await invoke("save_export_file", {
+        content: artifact.content,
+        filename,
+      });
+      addToast({
+        message: "Artifact saved successfully",
+        type: "success",
+        ttl: 2000,
+      });
+    } catch (error) {
+      console.error("Failed to save artifact:", error);
+      addToast({
+        message: "Failed to save artifact",
+        type: "error",
+        ttl: 3000,
+      });
     }
   };
 
@@ -279,6 +332,27 @@ export default function MessageBubble({
             </div>
           </div>
         </div>
+
+        {/* Artifact Previews */}
+        {!isUser && showArtifacts && artifacts.length > 0 && (
+          <div className="border-t border-gray-200/50 dark:border-gray-700/50 p-4 space-y-3 bg-gray-50/50 dark:bg-gray-900/50">
+            {artifacts.map((artifact) => (
+              <ArtifactPreview
+                key={artifact.id}
+                artifact={artifact}
+                onSave={() => handleSaveArtifact(artifact)}
+                onCopy={() => {
+                  navigator.clipboard.writeText(artifact.content);
+                  addToast({
+                    message: "Artifact copied to clipboard",
+                    type: "success",
+                    ttl: 1500,
+                  });
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {isUser && (

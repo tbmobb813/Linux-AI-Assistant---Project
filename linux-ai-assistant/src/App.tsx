@@ -10,6 +10,7 @@ import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import CommandPalette from "./components/CommandPalette";
 import KeyboardDebugger from "./components/KeyboardDebugger";
+import ErrorMonitor from "./components/ErrorMonitor";
 import { FadeIn, AnimatedButton } from "./components/Animations";
 import { useKeyboardShortcuts, useCommandPalette } from "./lib/hooks";
 import { database } from "./lib/api/database";
@@ -419,6 +420,7 @@ export default function App(): JSX.Element {
       <CommandPalette isOpen={isOpen} onClose={close} />
 
       <Toaster />
+      <ErrorMonitor />
       {/* Keyboard Debugger - Press F12 to toggle */}
       <KeyboardDebugger />
       <Suspense fallback={null}>
