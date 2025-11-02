@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState, Suspense } from "react";
+import { lazy, useEffect, useState, Suspense, startTransition } from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import CommandPalette from "./components/CommandPalette";
@@ -40,10 +40,18 @@ export default function App(): JSX.Element {
 
   // Global keyboard shortcuts
   useKeyboardShortcuts({
-    onCommandPalette: open,
-    onNewConversation: () =>
-      createConversation("New conversation", "gpt-4", "local"),
-    onSettings: () => setShowSettings(true),
+    onCommandPalette: () => {
+      console.log("🎯 Opening Command Palette from App.tsx");
+      open();
+    },
+    onNewConversation: () => {
+      console.log("🎯 Creating new conversation from App.tsx");
+      createConversation("New conversation", "gpt-4", "local");
+    },
+    onSettings: () => {
+      console.log("🎯 Opening settings from App.tsx");
+      startTransition(() => setShowSettings(true));
+    },
   });
 
   useEffect(() => {
@@ -238,6 +246,14 @@ export default function App(): JSX.Element {
     };
   }, [theme]);
 
+  // Listen for DOM custom event from Command Palette to open Settings
+  useEffect(() => {
+    const handler = () => startTransition(() => setShowSettings(true));
+    document.addEventListener("open-settings", handler as EventListener);
+    return () =>
+      document.removeEventListener("open-settings", handler as EventListener);
+  }, []);
+
   // Keyboard shortcut: Ctrl+, toggles Settings panel
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -259,12 +275,12 @@ export default function App(): JSX.Element {
           <FadeIn>
             <header
               className="
-                bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg
-                border-b border-gray-200/50 dark:border-gray-700/50
-                px-6 py-3
+                bg-gradient-to-r from-blue-50/90 to-purple-50/90 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-xl
+                border-b-2 border-blue-200/50 dark:border-purple-700/50
+                px-6 py-4
                 flex items-center justify-between
                 relative z-30
-                shadow-sm
+                shadow-lg shadow-blue-500/10
               "
             >
               {/* Left side - App branding */}
@@ -276,15 +292,19 @@ export default function App(): JSX.Element {
                   {useChatStore((state) => state.currentConversation?.title) ||
                     "No conversation"}
                 </div>
+                {/* Debug indicator */}
+                <div className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-mono">
+                  CMD+K: {isOpen ? "OPEN" : "CLOSED"}
+                </div>
               </div>
 
               {/* Center - Command Palette Trigger */}
               <div className="hidden md:flex">
                 <AnimatedButton
                   onClick={open}
-                  variant="ghost"
+                  variant="primary"
                   size="sm"
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  className="!bg-gradient-to-r !from-blue-500 !to-purple-600 !text-white font-bold"
                 >
                   🔍 Search (Ctrl+K)
                 </AnimatedButton>
@@ -338,9 +358,11 @@ export default function App(): JSX.Element {
 
           {/* Settings Panel */}
           {showSettings && (
-            <div className="absolute right-6 top-20 z-50 shadow-xl">
-              <Settings onClose={() => setShowSettings(false)} />
-            </div>
+            <Suspense fallback={null}>
+              <div className="absolute right-6 top-20 z-50 shadow-xl">
+                <Settings onClose={() => setShowSettings(false)} />
+              </div>
+            </Suspense>
           )}
 
           {/* Project Context Panel */}

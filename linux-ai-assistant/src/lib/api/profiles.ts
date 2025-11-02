@@ -1,35 +1,36 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeSafe } from "../utils/tauri";
 import type { ApiProfile, NewProfile } from "./types";
 
 export async function createProfile(
   profileData: NewProfile,
-): Promise<ApiProfile> {
-  return invoke<ApiProfile>("create_profile", { profileData });
+): Promise<ApiProfile | null> {
+  return invokeSafe<ApiProfile>("create_profile", { profileData });
 }
 
 export async function getProfile(id: string): Promise<ApiProfile | null> {
-  return invoke<ApiProfile | null>("get_profile", { id });
+  return invokeSafe<ApiProfile | null>("get_profile", { id });
 }
 
 export async function getAllProfiles(): Promise<ApiProfile[]> {
-  return invoke<ApiProfile[]>("get_all_profiles");
+  const result = await invokeSafe<ApiProfile[]>("get_all_profiles");
+  return result || [];
 }
 
 export async function getActiveProfile(): Promise<ApiProfile | null> {
-  return invoke<ApiProfile | null>("get_active_profile");
+  return invokeSafe<ApiProfile | null>("get_active_profile");
 }
 
 export async function setActiveProfile(id: string): Promise<void> {
-  return invoke<void>("set_active_profile", { id });
+  await invokeSafe<void>("set_active_profile", { id });
 }
 
 export async function updateProfile(
   id: string,
   profileData: NewProfile,
-): Promise<ApiProfile> {
-  return invoke<ApiProfile>("update_profile", { id, profileData });
+): Promise<ApiProfile | null> {
+  return invokeSafe<ApiProfile>("update_profile", { id, profileData });
 }
 
 export async function deleteProfile(id: string): Promise<void> {
-  return invoke<void>("delete_profile", { id });
+  await invokeSafe<void>("delete_profile", { id });
 }

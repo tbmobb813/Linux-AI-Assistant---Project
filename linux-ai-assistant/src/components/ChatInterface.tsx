@@ -5,7 +5,6 @@ import MessageBubble from "./MessageBubble";
 import MessageSearch from "./MessageSearch";
 import { AnimatedButton, LoadingSpinner, FadeIn } from "./Animations";
 import { database } from "../lib/api/database";
-import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
@@ -81,6 +80,9 @@ export default function ChatInterface(): JSX.Element {
       async () => {
         let clipText = "";
         if (isTauriEnvironment()) {
+          const { readText } = await import(
+            "@tauri-apps/plugin-clipboard-manager"
+          );
           clipText = await readText();
         } else {
           clipText = await navigator.clipboard.readText();
@@ -188,8 +190,8 @@ export default function ChatInterface(): JSX.Element {
             }}
             className="
               flex items-center space-x-2 px-3 py-2 rounded-lg
-              bg-gray-100 dark:bg-gray-800 
-              text-gray-700 dark:text-gray-300 
+              bg-gray-100 dark:bg-gray-800
+              text-gray-700 dark:text-gray-300
               hover:bg-gray-200 dark:hover:bg-gray-700
               transition-all duration-200
               text-sm font-medium
@@ -343,9 +345,9 @@ export default function ChatInterface(): JSX.Element {
                 onClick={handlePasteFromClipboard}
                 className="
                   p-3 rounded-xl
-                  bg-gray-100 dark:bg-gray-800 
+                  bg-gray-100 dark:bg-gray-800
                   text-gray-600 dark:text-gray-400
-                  hover:bg-gray-200 dark:hover:bg-gray-700 
+                  hover:bg-gray-200 dark:hover:bg-gray-700
                   hover:text-gray-800 dark:hover:text-gray-200
                   transition-all duration-200
                   disabled:opacity-50 disabled:cursor-not-allowed
@@ -402,9 +404,9 @@ export default function ChatInterface(): JSX.Element {
                 }}
                 className="
                   p-3 rounded-xl
-                  bg-purple-100 dark:bg-purple-900/30 
+                  bg-purple-100 dark:bg-purple-900/30
                   text-purple-600 dark:text-purple-400
-                  hover:bg-purple-200 dark:hover:bg-purple-900/50 
+                  hover:bg-purple-200 dark:hover:bg-purple-900/50
                   hover:text-purple-700 dark:hover:text-purple-300
                   transition-all duration-200
                   disabled:opacity-50 disabled:cursor-not-allowed
@@ -528,8 +530,8 @@ export default function ChatInterface(): JSX.Element {
               <button
                 key={command.name}
                 className={`
-                  w-full text-left px-4 py-3 
-                  hover:bg-gray-100/50 dark:hover:bg-gray-800/50 
+                  w-full text-left px-4 py-3
+                  hover:bg-gray-100/50 dark:hover:bg-gray-800/50
                   transition-colors duration-200
                   ${index !== slashSuggestions.length - 1 ? "border-b border-gray-200/30 dark:border-gray-700/30" : ""}
                 `}

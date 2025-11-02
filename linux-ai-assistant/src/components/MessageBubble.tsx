@@ -1,7 +1,6 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import type { ApiMessage } from "../lib/api/types";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment } from "../lib/utils/tauri";
 import { useState } from "react";
 import MarkdownContent from "./MarkdownContent";
@@ -70,6 +69,9 @@ export default function MessageBubble({
   const handleCopy = async () => {
     try {
       if (isTauriEnvironment()) {
+        const { writeText } = await import(
+          "@tauri-apps/plugin-clipboard-manager"
+        );
         await writeText(message.content);
       } else {
         // Fallback for web preview
@@ -113,10 +115,10 @@ export default function MessageBubble({
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     className="
-                      w-full min-h-24 p-3 
-                      border border-gray-300 dark:border-gray-600 
-                      rounded-lg bg-white dark:bg-gray-700 
-                      text-gray-900 dark:text-white 
+                      w-full min-h-24 p-3
+                      border border-gray-300 dark:border-gray-600
+                      rounded-lg bg-white dark:bg-gray-700
+                      text-gray-900 dark:text-white
                       focus:ring-2 focus:ring-blue-500 focus:border-transparent
                       resize-none transition-all duration-200
                     "

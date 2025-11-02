@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 
 interface UseKeyboardShortcutsProps {
   onCommandPalette?: () => void;
@@ -16,6 +16,7 @@ export const useKeyboardShortcuts = ({
       // Command Palette - Ctrl+K or Cmd+K
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
+        console.log("🚀 Command Palette shortcut triggered!"); // Debug log
         onCommandPalette?.();
         return;
       }
@@ -23,6 +24,7 @@ export const useKeyboardShortcuts = ({
       // New Conversation - Ctrl+N or Cmd+N
       if ((e.ctrlKey || e.metaKey) && e.key === "n") {
         e.preventDefault();
+        console.log("✨ New Conversation shortcut triggered!"); // Debug log
         onNewConversation?.();
         return;
       }
@@ -30,6 +32,7 @@ export const useKeyboardShortcuts = ({
       // Settings - Ctrl+, or Cmd+,
       if ((e.ctrlKey || e.metaKey) && e.key === ",") {
         e.preventDefault();
+        console.log("⚙️ Settings shortcut triggered!"); // Debug log
         onSettings?.();
         return;
       }
@@ -44,9 +47,9 @@ export const useKeyboardShortcuts = ({
 export const useCommandPalette = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const open = () => setIsOpen(true);
-  const close = () => setIsOpen(false);
-  const toggle = () => setIsOpen((prev) => !prev);
+  const open = () => startTransition(() => setIsOpen(true));
+  const close = () => startTransition(() => setIsOpen(false));
+  const toggle = () => startTransition(() => setIsOpen((prev) => !prev));
 
   // Listen for custom events
   useEffect(() => {

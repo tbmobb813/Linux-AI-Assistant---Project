@@ -7,7 +7,7 @@ interface Command {
   subtitle?: string;
   category: "conversations" | "actions" | "navigation";
   icon: string;
-  action: () => void;
+  action: () => void | Promise<void>;
   keywords?: string[];
 }
 
@@ -154,7 +154,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         case "Enter":
           e.preventDefault();
           if (filteredCommands[selectedIndex]) {
-            filteredCommands[selectedIndex].action();
+            try {
+              const result = filteredCommands[selectedIndex].action();
+              if (result instanceof Promise) {
+                result.catch((err) =>
+                  console.error("Command execution error:", err),
+                );
+              }
+            } catch (err) {
+              console.error("Command execution error:", err);
+            }
           }
           break;
       }
@@ -188,18 +197,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
-      {/* Backdrop */}
+      {/* Backdrop with stronger visual effect */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
         onClick={onClose}
       />
 
-      {/* Command Palette */}
-      <div className="relative w-full max-w-2xl bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden transform transition-all duration-200 scale-100">
-        {/* Search Input */}
-        <div className="p-4 border-b border-white/10">
+      {/* Command Palette with enhanced styling */}
+      <div className="relative w-full max-w-2xl bg-gradient-to-br from-white/20 to-gray-100/20 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-2xl rounded-3xl border-2 border-white/30 dark:border-gray-700/50 shadow-2xl shadow-black/20 overflow-hidden transform transition-all duration-300 scale-100">
+        {/* Enhanced Search Input */}
+        <div className="p-6 border-b-2 border-white/20 dark:border-gray-700/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-gray-800/50 dark:to-gray-700/50">
           <div className="relative">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-400 text-xl">
               🔍
             </div>
             <input
@@ -208,14 +217,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search conversations, actions, and commands..."
-              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-colors"
+              className="w-full pl-12 pr-12 py-4 bg-white/90 dark:bg-gray-800/90 border-2 border-blue-200 dark:border-gray-600 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-400/50 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 text-lg font-medium"
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 text-sm">
-              ⌨️ Ctrl+K
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm font-medium bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+              Ctrl+K
             </div>
           </div>
-        </div>
-
+        </div>{" "}
         {/* Results */}
         <div className="max-h-96 overflow-y-auto">
           {filteredCommands.length === 0 ? (
@@ -239,7 +247,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   return (
                     <button
                       key={command.id}
-                      onClick={command.action}
+                      onClick={() => {
+                        try {
+                          const result = command.action();
+                          if (result instanceof Promise) {
+                            result.catch((err) =>
+                              console.error("Command execution error:", err),
+                            );
+                          }
+                        } catch (err) {
+                          console.error("Command execution error:", err);
+                        }
+                      }}
                       className={`w-full px-3 py-3 rounded-xl text-left transition-all duration-150 ${
                         isSelected
                           ? "bg-white/20 text-white transform scale-[0.98]"
@@ -273,7 +292,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             ))
           )}
         </div>
-
         {/* Footer */}
         {filteredCommands.length > 0 && (
           <div className="p-3 border-t border-white/10 bg-white/5">
