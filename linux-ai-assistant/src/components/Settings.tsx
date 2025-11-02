@@ -89,7 +89,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
   };
 
   return (
-    <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl shadow-gray-500/10 dark:shadow-black/20 text-gray-900 dark:text-white overflow-hidden">
+    <div className="w-96 bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-700/60 rounded-xl shadow-2xl shadow-gray-500/10 dark:shadow-black/20 text-gray-900 dark:text-white overflow-hidden">
       {/* Modern Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800/50 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="flex items-center justify-between">
@@ -145,9 +145,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="CommandOrControl+Space"
                 className="
-                  w-full px-3 py-2 
-                  border border-gray-300 dark:border-gray-600 
-                  rounded-lg bg-white dark:bg-gray-800 
+                  w-full px-3 py-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg bg-white dark:bg-gray-800
                   text-sm text-gray-900 dark:text-white
                   placeholder-gray-500 dark:placeholder-gray-400
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -179,9 +179,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
                 value={theme}
                 onChange={(e) => setTheme(e.target.value as any)}
                 className="
-                  w-full px-3 py-2 
-                  border border-gray-300 dark:border-gray-600 
-                  rounded-lg bg-white dark:bg-gray-800 
+                  w-full px-3 py-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg bg-white dark:bg-gray-800
                   text-sm text-gray-900 dark:text-white
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
                   transition-all duration-200
@@ -211,9 +211,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowProfileSettings(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -229,9 +229,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowShortcutSettings(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -245,9 +245,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowWindowPositionSettings(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -261,9 +261,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowFileWatcherSettings(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -279,9 +279,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowDocumentSearch(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -295,9 +295,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
             <button
               onClick={() => setShowPerformanceDashboard(true)}
               className="
-                group flex flex-col items-center p-4 
-                bg-white dark:bg-gray-800/50 
-                border border-gray-200 dark:border-gray-700 
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
                 rounded-lg shadow-sm
                 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
                 transition-all duration-200
@@ -315,9 +315,9 @@ export default function Settings({ onClose }: Props): JSX.Element {
           <button
             onClick={() => setShowUsageAnalytics(true)}
             className="
-              w-full group flex items-center justify-center p-4 
+              w-full group flex items-center justify-center p-4
               bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20
-              border border-blue-200 dark:border-blue-700 
+              border border-blue-200 dark:border-blue-700
               rounded-lg shadow-sm
               hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30
               transition-all duration-200
@@ -339,8 +339,8 @@ export default function Settings({ onClose }: Props): JSX.Element {
               className="
                 px-4 py-2 text-sm font-medium
                 text-gray-700 dark:text-gray-300
-                bg-white dark:bg-gray-800 
-                border border-gray-300 dark:border-gray-600 
+                bg-white dark:bg-gray-800
+                border border-gray-300 dark:border-gray-600
                 rounded-lg
                 hover:bg-gray-50 dark:hover:bg-gray-700
                 transition-all duration-200
@@ -354,7 +354,7 @@ export default function Settings({ onClose }: Props): JSX.Element {
             disabled={saving}
             className="
               px-4 py-2 text-sm font-medium
-              bg-blue-600 hover:bg-blue-700 
+              bg-blue-600 hover:bg-blue-700
               disabled:opacity-50 disabled:cursor-not-allowed
               text-white rounded-lg
               transition-all duration-200

@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use std::env;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
@@ -34,10 +34,10 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Send a question to the AI assistant
+    /// Send a question to the AI assistant (alias: chat)
     Ask {
         /// The question or prompt to send to the AI
-        message: String,
+        message: Option<String>,
         /// Override the default model (e.g., gpt-4, claude-sonnet)
         #[arg(long)]
         model: Option<String>,
@@ -47,6 +47,46 @@ enum Commands {
         /// Start a new conversation instead of continuing the current one
         #[arg(long, default_value_t = false)]
         new: bool,
+        /// Open the response in GUI instead of terminal
+        #[arg(long, default_value_t = false)]
+        gui: bool,
+        /// Read from stdin if no message provided
+        #[arg(long, default_value_t = false)]
+        stdin: bool,
+    },
+    /// Alias for 'ask' - send a question to the AI assistant
+    Chat {
+        /// The question or prompt to send to the AI
+        message: Option<String>,
+        /// Override the default model
+        #[arg(long)]
+        model: Option<String>,
+        /// Override the default provider
+        #[arg(long)]
+        provider: Option<String>,
+        /// Start a new conversation
+        #[arg(long, default_value_t = false)]
+        new: bool,
+        /// Open the response in GUI
+        #[arg(long, default_value_t = false)]
+        gui: bool,
+        /// Read from stdin
+        #[arg(long, default_value_t = false)]
+        stdin: bool,
+    },
+    /// Analyze text from stdin (e.g., cat error.log | lai analyze)
+    Analyze {
+        /// Optional prefix prompt before the stdin content
+        prompt: Option<String>,
+        /// Override the default model
+        #[arg(long)]
+        model: Option<String>,
+        /// Override the default provider
+        #[arg(long)]
+        provider: Option<String>,
+        /// Open the response in GUI
+        #[arg(long, default_value_t = false)]
+        gui: bool,
     },
     /// Send a desktop notification through the assistant app
     Notify {
@@ -121,17 +161,63 @@ fn main() {
             model,
             provider,
             new,
+            gui,
+            stdin,
+        }
+        | Commands::Chat {
+            message,
+            model,
+            provider,
+            new,
+            gui,
+            stdin,
         } => {
-            let payload = serde_json::json!({
-                "prompt": message,
-                "model": model,
-                "provider": provider,
-                "new": new,
-            });
-            if let Err(e) = send_ipc("ask", None, Some(payload)) {
-                eprintln!("Failed to send ask: {}", e);
+            // Get message from argument or stdin
+            let msg = if *stdin || message.is_none() {
+                read_stdin().unwrap_or_else(|e| {
+                    eprintln!("Failed to read from stdin: {}", e);
+                    std::process::exit(1);
+                })
+            } else {
+                message.clone().unwrap_or_default()
+            };
+
+            if msg.is_empty() {
+                eprintln!("No message provided. Use --stdin to read from stdin, or provide a message argument.");
                 std::process::exit(1);
             }
+
+            handle_ask(&msg, model.as_deref(), provider.as_deref(), *new, *gui);
+        }
+        Commands::Analyze {
+            prompt,
+            model,
+            provider,
+            gui,
+        } => {
+            let stdin_content = read_stdin().unwrap_or_else(|e| {
+                eprintln!("Failed to read from stdin: {}", e);
+                std::process::exit(1);
+            });
+
+            if stdin_content.is_empty() {
+                eprintln!("No input from stdin. Usage: cat file.txt | lai analyze");
+                std::process::exit(1);
+            }
+
+            let full_message = if let Some(p) = prompt {
+                format!("{}\n\n{}", p, stdin_content)
+            } else {
+                format!("Analyze the following:\n\n{}", stdin_content)
+            };
+
+            handle_ask(
+                &full_message,
+                model.as_deref(),
+                provider.as_deref(),
+                false,
+                *gui,
+            );
         }
         Commands::Notify { message } => {
             if let Err(e) = send_ipc("notify", Some(message.as_str()), None) {
@@ -460,6 +546,77 @@ fn analyze_error_output(stderr: &str, _stdout: &str, exit_code: Option<i32>) -> 
         "Command completed but may have issues".to_string()
     } else {
         analysis.join("; ")
+    }
+}
+
+fn read_stdin() -> Result<String, String> {
+    let stdin = io::stdin();
+    let mut content = String::new();
+
+    stdin
+        .lock()
+        .read_to_string(&mut content)
+        .map_err(|e| format!("Failed to read stdin: {}", e))?;
+
+    Ok(content.trim().to_string())
+}
+
+fn handle_ask(message: &str, model: Option<&str>, provider: Option<&str>, new: bool, gui: bool) {
+    let payload = serde_json::json!({
+        "prompt": message,
+        "model": model,
+        "provider": provider,
+        "new": new,
+        "gui": gui,
+    });
+
+    if let Err(e) = send_ipc("ask", None, Some(payload)) {
+        eprintln!("Failed to send ask: {}", e);
+        std::process::exit(1);
+    }
+
+    if !gui {
+        // Wait briefly for processing
+        std::thread::sleep(Duration::from_millis(500));
+
+        // Show a loading indicator
+        eprint!("Processing");
+        for _ in 0..3 {
+            std::thread::sleep(Duration::from_millis(300));
+            eprint!(".");
+        }
+        eprintln!();
+
+        // Get the response
+        match send_ipc_with_response("last", None, None) {
+            Ok(response) => {
+                if response.status == "ok" {
+                    if let Some(data) = response.data {
+                        match serde_json::from_value::<Message>(data) {
+                            Ok(msg) => {
+                                println!("\n{}", msg.content);
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to parse response: {}", e);
+                                std::process::exit(1);
+                            }
+                        }
+                    } else {
+                        eprintln!("No response data");
+                        std::process::exit(1);
+                    }
+                } else {
+                    eprintln!("Request failed: {}", response.status);
+                    std::process::exit(1);
+                }
+            }
+            Err(e) => {
+                eprintln!("Failed to get response: {}", e);
+                std::process::exit(1);
+            }
+        }
+    } else {
+        println!("Request sent. Check the GUI for the response.");
     }
 }
 

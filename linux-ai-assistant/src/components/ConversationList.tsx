@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import ConversationItemModern from "./ConversationItemModern";
 import TagFilter from "./TagFilter";
@@ -30,6 +30,14 @@ export default function ConversationList() {
   const [showTagFilter, setShowTagFilter] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+
+  // Resizable sidebar state
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem("sidebarWidth");
+    return saved ? parseInt(saved, 10) : 320;
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     loadConversations();
@@ -65,6 +73,45 @@ export default function ConversationList() {
     return conversationsToFilter.filter((c) => now - c.updated_at < filterTime);
   }, [conversations, searchResults, searchQuery, dateFilter]);
 
+  // Resize handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const newWidth = e.clientX;
+      const minWidth = 200;
+      const maxWidth = 600;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        setSidebarWidth(newWidth);
+        localStorage.setItem("sidebarWidth", newWidth.toString());
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ew-resize";
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
+
   const handleClearSearch = () => {
     setLocalSearchQuery("");
     clearSearch();
@@ -90,7 +137,11 @@ export default function ConversationList() {
   };
 
   return (
-    <aside className="w-80 flex flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white">
+    <aside
+      ref={sidebarRef}
+      style={{ width: `${sidebarWidth}px` }}
+      className="relative flex flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white"
+    >
       {/* Modern Header */}
       <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="flex items-center justify-between mb-4">
@@ -121,9 +172,9 @@ export default function ConversationList() {
               onFocus={handleSearchFocus}
               onBlur={handleSearchBlur}
               className="
-                w-full pl-10 pr-10 py-2.5 
-                text-sm border border-gray-300 dark:border-gray-600 
-                rounded-lg bg-white dark:bg-gray-800 
+                w-full pl-10 pr-10 py-2.5
+                text-sm border border-gray-300 dark:border-gray-600
+                rounded-lg bg-white dark:bg-gray-800
                 text-gray-900 dark:text-white
                 placeholder-gray-500 dark:placeholder-gray-400
                 focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -166,9 +217,9 @@ export default function ConversationList() {
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value as any)}
                 className="
-                  w-full text-xs border border-gray-300 dark:border-gray-600 
-                  rounded-md px-2 py-1.5 
-                  bg-white dark:bg-gray-800 
+                  w-full text-xs border border-gray-300 dark:border-gray-600
+                  rounded-md px-2 py-1.5
+                  bg-white dark:bg-gray-800
                   text-gray-700 dark:text-gray-300
                   focus:ring-1 focus:ring-blue-500 focus:border-transparent
                 "
@@ -291,6 +342,18 @@ export default function ConversationList() {
           setShowAdvancedSearch(false);
           // Could add message highlighting logic here
         }}
+      />
+
+      {/* Resize Handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className={`
+          absolute top-0 right-0 bottom-0 w-1
+          hover:w-1.5 hover:bg-blue-400 dark:hover:bg-blue-500
+          cursor-ew-resize transition-all duration-150
+          ${isResizing ? "w-1.5 bg-blue-500 dark:bg-blue-400" : "bg-transparent"}
+        `}
+        title="Drag to resize"
       />
     </aside>
   );

@@ -13,33 +13,58 @@ export const useKeyboardShortcuts = ({
 }: UseKeyboardShortcutsProps = {}) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Command Palette - Ctrl+K or Cmd+K
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+      const key = e.key.toLowerCase();
+
+      // Command Palette — prefer browser-safe combos first
+      // - Alt+K (safe in most browsers)
+      // - Ctrl/Cmd+K (may be intercepted by browser search shortcut)
+      // - Ctrl/Cmd+/ (rarely reserved)
+      if (
+        (e.altKey && key === "k") ||
+        ((e.ctrlKey || e.metaKey) && (key === "k" || key === "/"))
+      ) {
         e.preventDefault();
-        console.log("🚀 Command Palette shortcut triggered!"); // Debug log
+        console.log("🚀 Command Palette shortcut triggered!");
         onCommandPalette?.();
         return;
       }
 
-      // New Conversation - Ctrl+N or Cmd+N
-      if ((e.ctrlKey || e.metaKey) && e.key === "n") {
+      // New Conversation — Ctrl/Cmd+N (may be reserved for new window)
+      // Keep it, but add Alt+N as a safer fallback
+      if (
+        ((e.ctrlKey || e.metaKey) && key === "n") ||
+        (e.altKey && key === "n")
+      ) {
         e.preventDefault();
-        console.log("✨ New Conversation shortcut triggered!"); // Debug log
+        console.log("✨ New Conversation shortcut triggered!");
         onNewConversation?.();
         return;
       }
 
-      // Settings - Ctrl+, or Cmd+,
-      if ((e.ctrlKey || e.metaKey) && e.key === ",") {
+      // Settings — try multiple fallbacks to avoid browser conflicts
+      // - Ctrl/Cmd+, (often reserved)
+      // - Ctrl/Cmd+. (alternate)
+      // - Alt+, or Alt+S (safe fallbacks)
+      if ((e.ctrlKey || e.metaKey) && (key === "," || key === ".")) {
         e.preventDefault();
-        console.log("⚙️ Settings shortcut triggered!"); // Debug log
+        console.log("⚙️ Settings shortcut triggered!");
+        onSettings?.();
+        return;
+      }
+      if (e.altKey && (key === "," || key === "s")) {
+        e.preventDefault();
+        console.log("⚙️ Settings shortcut (Alt) triggered!");
         onSettings?.();
         return;
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    // Use capture to try to handle before browser defaults when possible
+    document.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () =>
+      document.removeEventListener("keydown", handleKeyDown, {
+        capture: true,
+      } as any);
   }, [onCommandPalette, onNewConversation, onSettings]);
 };
 
@@ -47,13 +72,22 @@ export const useKeyboardShortcuts = ({
 export const useCommandPalette = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const open = () => startTransition(() => setIsOpen(true));
+  const open = () => {
+    console.log("📂 useCommandPalette.open() called");
+    startTransition(() => {
+      console.log("📂 Setting isOpen to true");
+      setIsOpen(true);
+    });
+  };
   const close = () => startTransition(() => setIsOpen(false));
   const toggle = () => startTransition(() => setIsOpen((prev) => !prev));
 
   // Listen for custom events
   useEffect(() => {
-    const handleOpenCommandPalette = () => open();
+    const handleOpenCommandPalette = () => {
+      console.log("📂 Custom event 'open-command-palette' received");
+      open();
+    };
 
     document.addEventListener("open-command-palette", handleOpenCommandPalette);
     return () =>

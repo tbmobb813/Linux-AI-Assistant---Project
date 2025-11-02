@@ -1,7 +1,15 @@
-import { lazy, useEffect, useState, Suspense, startTransition } from "react";
+import {
+  lazy,
+  useEffect,
+  useState,
+  Suspense,
+  startTransition,
+  useCallback,
+} from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
 import CommandPalette from "./components/CommandPalette";
+import KeyboardDebugger from "./components/KeyboardDebugger";
 import { FadeIn, AnimatedButton } from "./components/Animations";
 import { useKeyboardShortcuts, useCommandPalette } from "./lib/hooks";
 import { database } from "./lib/api/database";
@@ -38,20 +46,27 @@ export default function App(): JSX.Element {
   // Command palette integration
   const { isOpen, open, close } = useCommandPalette();
 
+  // Memoize callbacks to prevent recreating listeners on every render
+  const handleCommandPalette = useCallback(() => {
+    console.log("🎯 Opening Command Palette from App.tsx");
+    open();
+  }, [open]);
+
+  const handleNewConversation = useCallback(() => {
+    console.log("🎯 Creating new conversation from App.tsx");
+    createConversation("New conversation", "gpt-4", "local");
+  }, [createConversation]);
+
+  const handleSettings = useCallback(() => {
+    console.log("🎯 Opening settings from App.tsx");
+    startTransition(() => setShowSettings(true));
+  }, []);
+
   // Global keyboard shortcuts
   useKeyboardShortcuts({
-    onCommandPalette: () => {
-      console.log("🎯 Opening Command Palette from App.tsx");
-      open();
-    },
-    onNewConversation: () => {
-      console.log("🎯 Creating new conversation from App.tsx");
-      createConversation("New conversation", "gpt-4", "local");
-    },
-    onSettings: () => {
-      console.log("🎯 Opening settings from App.tsx");
-      startTransition(() => setShowSettings(true));
-    },
+    onCommandPalette: handleCommandPalette,
+    onNewConversation: handleNewConversation,
+    onSettings: handleSettings,
   });
 
   useEffect(() => {
@@ -292,9 +307,24 @@ export default function App(): JSX.Element {
                   {useChatStore((state) => state.currentConversation?.title) ||
                     "No conversation"}
                 </div>
-                {/* Debug indicator */}
-                <div className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded font-mono">
-                  CMD+K: {isOpen ? "OPEN" : "CLOSED"}
+                {/* Debug indicator: BRIGHT green pill that clearly shows palette state */}
+                <div
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-xs font-bold shadow-lg transition-all duration-200 ${
+                    isOpen
+                      ? "bg-green-500 text-white ring-2 ring-green-300"
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                  aria-live="polite"
+                  aria-label={`Command palette is ${isOpen ? "open" : "closed"}`}
+                >
+                  <span
+                    className={`inline-block w-2.5 h-2.5 rounded-full animate-pulse ${
+                      isOpen ? "bg-white" : "bg-gray-500 dark:bg-gray-500"
+                    }`}
+                  />
+                  <span className="tracking-wide">
+                    CMD+K: {isOpen ? "OPEN" : "CLOSED"}
+                  </span>
                 </div>
               </div>
 
@@ -306,7 +336,7 @@ export default function App(): JSX.Element {
                   size="sm"
                   className="!bg-gradient-to-r !from-blue-500 !to-purple-600 !text-white font-bold"
                 >
-                  🔍 Search (Ctrl+K)
+                  🔍 Search (Alt+K or Ctrl+K)
                 </AnimatedButton>
               </div>
 
@@ -359,6 +389,11 @@ export default function App(): JSX.Element {
           {/* Settings Panel */}
           {showSettings && (
             <Suspense fallback={null}>
+              {/* Dim background overlay to avoid visual bleed-through */}
+              <div
+                className="fixed inset-0 z-40 bg-black/40"
+                onClick={() => setShowSettings(false)}
+              />
               <div className="absolute right-6 top-20 z-50 shadow-xl">
                 <Settings onClose={() => setShowSettings(false)} />
               </div>
@@ -384,6 +419,8 @@ export default function App(): JSX.Element {
       <CommandPalette isOpen={isOpen} onClose={close} />
 
       <Toaster />
+      {/* Keyboard Debugger - Press F12 to toggle */}
+      <KeyboardDebugger />
       <Suspense fallback={null}>
         <RunOutputModal />
         <ExecutionAuditModal />

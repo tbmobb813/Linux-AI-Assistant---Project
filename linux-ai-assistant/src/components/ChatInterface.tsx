@@ -3,7 +3,7 @@ import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
 import MessageSearch from "./MessageSearch";
-import { AnimatedButton, LoadingSpinner, FadeIn } from "./Animations";
+import { LoadingSpinner, FadeIn } from "./Animations";
 import { database } from "../lib/api/database";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import { getProvider } from "../lib/providers/provider";
@@ -337,116 +337,88 @@ export default function ChatInterface(): JSX.Element {
             }
           }}
         >
-          <div className="flex items-end space-x-3">
-            {/* Action Buttons */}
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                onClick={handlePasteFromClipboard}
-                className="
-                  p-3 rounded-xl
-                  bg-gray-100 dark:bg-gray-800
-                  text-gray-600 dark:text-gray-400
-                  hover:bg-gray-200 dark:hover:bg-gray-700
-                  hover:text-gray-800 dark:hover:text-gray-200
-                  transition-all duration-200
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
-                disabled={isLoading}
-                title="Paste from clipboard (Ctrl+Shift+V)"
-                aria-label="Paste from clipboard"
+          <div className="flex items-center gap-2">
+            {/* Action Buttons - Compact horizontal layout */}
+            <button
+              type="button"
+              onClick={handlePasteFromClipboard}
+              className="flex-shrink-0 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              title="Paste from clipboard (Ctrl+Shift+V)"
+              aria-label="Paste from clipboard"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  const lastUser = [...messages]
-                    .reverse()
-                    .find((m) => m.role === "user");
-                  const base = lastUser?.content || value.trim();
-                  if (!base) return;
-                  const provider = getProvider();
-                  const project = useProjectStore.getState();
-                  const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
-                  const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
-                  try {
-                    const resp = await provider.generateResponse(
-                      currentConversation?.id || "suggestions",
-                      [{ role: "user", content: prompt }],
-                    );
-                    const items = resp
-                      .split(/\r?\n/)
-                      .map((s) => s.replace(/^[-•]\s*/, "").trim())
-                      .filter(Boolean)
-                      .slice(0, 5);
-                    useUiStore.getState().showSuggestions(items);
-                  } catch (e) {
-                    addToast({
-                      message: "Failed to get suggestions",
-                      type: "error",
-                      ttl: 1600,
-                    });
-                  }
-                }}
-                className="
-                  p-3 rounded-xl
-                  bg-purple-100 dark:bg-purple-900/30
-                  text-purple-600 dark:text-purple-400
-                  hover:bg-purple-200 dark:hover:bg-purple-900/50
-                  hover:text-purple-700 dark:hover:text-purple-300
-                  transition-all duration-200
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
-                disabled={isLoading}
-                title="Suggest terminal commands"
-                aria-label="Suggest terminal commands"
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const lastUser = [...messages]
+                  .reverse()
+                  .find((m) => m.role === "user");
+                const base = lastUser?.content || value.trim();
+                if (!base) return;
+                const provider = getProvider();
+                const project = useProjectStore.getState();
+                const ctx = project.getRecentSummary(8, 2 * 60 * 1000); // last 2 min, up to 8 events
+                const prompt = `Suggest 3 concise shell commands relevant to the following context.\n- User intent: "${base}"\n${ctx ? `- Recent file changes:\n${ctx}\n` : ""}- Output format: one command per line, no explanations, no code fences.`;
+                try {
+                  const resp = await provider.generateResponse(
+                    currentConversation?.id || "suggestions",
+                    [{ role: "user", content: prompt }],
+                  );
+                  const items = resp
+                    .split(/\r?\n/)
+                    .map((s) => s.replace(/^[-•]\s*/, "").trim())
+                    .filter(Boolean)
+                    .slice(0, 5);
+                  useUiStore.getState().showSuggestions(items);
+                } catch (e) {
+                  addToast({
+                    message: "Failed to get suggestions",
+                    type: "error",
+                    ttl: 1600,
+                  });
+                }
+              }}
+              className="flex-shrink-0 p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 hover:text-purple-700 dark:hover:text-purple-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              title="Suggest terminal commands"
+              aria-label="Suggest terminal commands"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" />
-                </svg>
-              </button>
-            </div>
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" />
+              </svg>
+            </button>
 
-            {/* Enhanced Input Field */}
-            <div className="flex-1 relative">
+            {/* Enhanced Input Field with inline send button */}
+            <div className="flex-1 flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-3 py-2">
               <textarea
                 ref={inputRef as any}
-                className="
-                  w-full px-4 py-3 pr-12
-                  border border-gray-300 dark:border-gray-600
-                  rounded-xl bg-white dark:bg-gray-800
-                  text-gray-900 dark:text-white
-                  placeholder-gray-500 dark:placeholder-gray-400
-                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                  transition-all duration-200
-                  resize-none min-h-[3rem] max-h-32
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
+                className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none resize-none min-h-[2.5rem] max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
                 value={value}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -478,47 +450,42 @@ export default function ChatInterface(): JSX.Element {
                 rows={1}
               />
 
-              {/* Send Button Overlay - Enhanced with Micro-interactions */}
-              <div className="absolute right-2 bottom-2">
-                <AnimatedButton
-                  onClick={() => {
-                    // Button is within form, so this just provides enhanced UI
-                  }}
-                  variant={value.trim() ? "primary" : "secondary"}
-                  size="sm"
-                  isLoading={isLoading}
-                  className={`
-                    p-2 !px-3 !py-2
-                    ${!value.trim() && !isLoading ? "!bg-gray-200 dark:!bg-gray-700 !text-gray-500 dark:!text-gray-400" : ""}
-                  `}
-                >
-                  {isLoading ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m22 2-7 20-4-9-9-4Z" />
-                      <path d="M22 2 11 13" />
-                    </svg>
-                  )}
-                </AnimatedButton>
-                {/* Hidden submit button for form functionality */}
-                <button
-                  type="submit"
-                  className="hidden"
-                  disabled={isLoading || !value.trim()}
-                  aria-label="Send message"
-                />
-              </div>
+              {/* Send Button - Inline within input container */}
+              <button
+                type="submit"
+                disabled={isLoading || !value.trim()}
+                className={`
+                  flex-shrink-0 p-2 rounded-lg font-medium
+                  transition-all duration-200 ease-out
+                  transform hover:scale-105 active:scale-95
+                  focus:outline-none focus:ring-2 focus:ring-blue-400/50
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                  ${
+                    value.trim()
+                      ? "bg-blue-500 hover:bg-blue-600 text-white"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500"
+                  }
+                `}
+              >
+                {isLoading ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m22 2-7 20-4-9-9-4Z" />
+                    <path d="M10.5 12.5 19 4" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </form>
