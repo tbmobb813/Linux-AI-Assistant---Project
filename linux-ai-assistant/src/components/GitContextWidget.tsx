@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { getInvoke } from "../lib/tauri-shim";
 import { FadeIn } from "./Animations";
 
 interface GitCommit {
@@ -47,12 +47,20 @@ export default function GitContextWidget({
   const loadGitContext = async () => {
     setIsLoading(true);
     try {
+      const invoke = await getInvoke();
+      if (!invoke) {
+        // Not in Tauri environment - hide widget
+        setGitContext(null);
+        setIsLoading(false);
+        return;
+      }
+
       const context = await invoke<GitContext>("get_git_context", {
         path: projectPath || undefined,
       });
       setGitContext(context);
     } catch (error) {
-      console.error("Failed to load git context:", error);
+      console.debug("Failed to load git context:", error);
       setGitContext(null);
     } finally {
       setIsLoading(false);
@@ -61,12 +69,18 @@ export default function GitContextWidget({
 
   const loadProjectInfo = async () => {
     try {
+      const invoke = await getInvoke();
+      if (!invoke) {
+        setProjectInfo(null);
+        return;
+      }
+
       const info = await invoke<ProjectInfo>("detect_project_type", {
         path: projectPath || undefined,
       });
       setProjectInfo(info);
     } catch (error) {
-      console.error("Failed to detect project type:", error);
+      console.debug("Failed to detect project type:", error);
       setProjectInfo(null);
     }
   };
@@ -90,6 +104,9 @@ export default function GitContextWidget({
     if (!onIncludeContext || !gitContext?.is_repo) return;
 
     try {
+      const invoke = await getInvoke();
+      if (!invoke) return;
+
       const formatted = await invoke<string>("format_git_context", {
         path: projectPath || undefined,
       });
@@ -103,7 +120,7 @@ export default function GitContextWidget({
 
       onIncludeContext(fullContext);
     } catch (error) {
-      console.error("Failed to format git context:", error);
+      console.debug("Failed to format git context:", error);
     }
   };
   if (isLoading) {

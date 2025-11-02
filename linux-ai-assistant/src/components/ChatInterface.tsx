@@ -98,13 +98,19 @@ export default function ChatInterface(): JSX.Element {
     await withErrorHandling(
       async () => {
         let clipText = "";
-        if (isTauriEnvironment()) {
-          const { readText } = await import(
-            "@tauri-apps/plugin-clipboard-manager"
-          );
-          clipText = await readText();
-        } else {
-          clipText = await navigator.clipboard.readText();
+        try {
+          if (isTauriEnvironment()) {
+            const { readText } = await import(
+              "@tauri-apps/plugin-clipboard-manager"
+            );
+            clipText = await readText();
+          } else {
+            clipText = await navigator.clipboard.readText();
+          }
+        } catch (err) {
+          // Clipboard access denied - silently ignore and let user paste normally
+          console.debug("Clipboard access not available:", err);
+          return;
         }
 
         if (clipText) {
