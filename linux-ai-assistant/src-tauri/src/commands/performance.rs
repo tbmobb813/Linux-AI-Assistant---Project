@@ -134,9 +134,15 @@ pub async fn get_database_metrics(
         .map_err(|e| e.to_string())?;
 
     // Get database file size
-    let database_size = std::fs::metadata(conn.path().ok_or("Failed to get database path")?)
-        .map_err(|e| e.to_string())?
-        .len();
+    let database_size = match conn.path() {
+        Some(path) => std::fs::metadata(path)
+            .map_err(|e| e.to_string())?
+            .len(),
+        None => {
+            // Database is in-memory or path is unavailable
+            0
+        }
+    };
 
     Ok(DatabaseMetrics {
         conversation_count,
