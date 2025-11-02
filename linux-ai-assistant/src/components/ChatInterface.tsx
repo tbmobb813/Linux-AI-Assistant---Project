@@ -77,6 +77,23 @@ export default function ChatInterface(): JSX.Element {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [value]);
+
+  // TODO: Add event listener for ContextPanel quick actions
+  useEffect(() => {
+    const handleInsertCommand = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { command } = customEvent.detail;
+      setValue(command);
+      // Auto-focus input after command insertion
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+    window.addEventListener("insert-command", handleInsertCommand as any);
+    return () =>
+      window.removeEventListener("insert-command", handleInsertCommand as any);
+  }, []);
+
   const handlePasteFromClipboard = async () => {
     await withErrorHandling(
       async () => {
@@ -91,9 +108,55 @@ export default function ChatInterface(): JSX.Element {
         }
 
         if (clipText) {
-          setValue((prev) => (prev ? prev + "\n\n" + clipText : clipText));
+          // Auto-detect and format code blocks
+          let formattedText = clipText;
+
+          // Check if it looks like code (has typical code patterns)
+          const looksLikeCode =
+            clipText.includes("function") ||
+            clipText.includes("const ") ||
+            clipText.includes("let ") ||
+            clipText.includes("import ") ||
+            clipText.includes("export ") ||
+            clipText.includes("class ") ||
+            clipText.includes("def ") ||
+            clipText.includes("=>") ||
+            (clipText.includes("{") && clipText.includes("}")) ||
+            (clipText.split("\n").length > 3 && clipText.includes("  ")); // Multi-line with indentation
+
+          // If it looks like code and isn't already in code blocks, wrap it
+          if (looksLikeCode && !clipText.startsWith("```")) {
+            // Try to detect language
+            let language = "";
+            if (
+              clipText.includes("function") ||
+              clipText.includes("const ") ||
+              clipText.includes("=>")
+            ) {
+              language = "javascript";
+            } else if (
+              clipText.includes("def ") ||
+              clipText.includes("import ")
+            ) {
+              language = "python";
+            } else if (
+              clipText.includes("fn ") ||
+              clipText.includes("let mut ")
+            ) {
+              language = "rust";
+            }
+
+            formattedText = "```" + language + "\n" + clipText + "\n```";
+          }
+
+          setValue((prev) =>
+            prev ? prev + "\n\n" + formattedText : formattedText,
+          );
           addToast({
-            message: "Pasted from clipboard",
+            message:
+              looksLikeCode && !clipText.startsWith("```")
+                ? "Code pasted and formatted"
+                : "Pasted from clipboard",
             type: "success",
             ttl: 1500,
           });
@@ -432,10 +495,10 @@ export default function ChatInterface(): JSX.Element {
             </button>
 
             {/* Enhanced Input Field with inline send button */}
-            <div className="flex-1 flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-3 py-2">
+            <div className="flex-1 flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400/50 transition-shadow duration-150">
               <textarea
                 ref={inputRef as any}
-                className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none resize-none min-h-[2.5rem] max-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none resize-none min-h-[3rem] max-h-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
                 value={value}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -449,19 +512,23 @@ export default function ChatInterface(): JSX.Element {
                     setSlashSuggestions([]);
                   }
 
-                  // Auto-resize textarea
+                  // Auto-resize textarea from 48px to 200px
                   const textarea = e.target;
                   textarea.style.height = "auto";
                   textarea.style.height =
-                    Math.min(textarea.scrollHeight, 128) + "px";
+                    Math.min(textarea.scrollHeight, 200) + "px";
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === "Enter" && e.ctrlKey) {
+                    // Ctrl+Enter to send
                     e.preventDefault();
                     e.currentTarget.form?.requestSubmit();
+                  } else if (e.key === "Enter" && !e.shiftKey) {
+                    // Enter for new line (updated behavior)
+                    // Allow default behavior
                   }
                 }}
-                placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                placeholder="Type a message... (Ctrl+Enter to send, Shift+V to paste)"
                 disabled={isLoading}
                 aria-label="Message input"
                 rows={1}
@@ -473,16 +540,17 @@ export default function ChatInterface(): JSX.Element {
                 disabled={isLoading || !value.trim()}
                 className={`
                   flex-shrink-0 p-2 rounded-lg font-medium
-                  transition-all duration-200 ease-out
+                  transition-all duration-150 ease-out
                   transform hover:scale-105 active:scale-95
                   focus:outline-none focus:ring-2 focus:ring-blue-400/50
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
                   ${
                     value.trim()
-                      ? "bg-blue-500 hover:bg-blue-600 text-white"
+                      ? "bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
                       : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500"
                   }
                 `}
+                aria-label="Send message"
               >
                 {isLoading ? (
                   <LoadingSpinner size="sm" />
@@ -503,6 +571,14 @@ export default function ChatInterface(): JSX.Element {
                   </svg>
                 )}
               </button>
+            </div>
+
+            {/* Keyboard hint */}
+            <div className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+              <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 font-mono text-[10px]">
+                Ctrl+Enter
+              </kbd>{" "}
+              to send
             </div>
           </div>
         </form>

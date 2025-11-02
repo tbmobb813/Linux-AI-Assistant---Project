@@ -33,6 +33,7 @@ export default function MessageBubble({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const [showBranchDialog, setShowBranchDialog] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // Add hover state
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
@@ -142,9 +143,11 @@ export default function MessageBubble({
       id={`message-${message.id}`}
       className={`my-4 flex ${isUser ? "justify-end" : "justify-start"} ${
         isHighlighted
-          ? "bg-yellow-100/50 dark:bg-yellow-900/30 p-4 rounded-2xl transition-all duration-300 shadow-md border border-yellow-200 dark:border-yellow-800"
+          ? "bg-yellow-100/10 dark:bg-yellow-900/20 p-4 rounded-2xl transition-all duration-300 border border-yellow-200/30 dark:border-yellow-800/30"
           : ""
       }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {!isUser && (
         <div className="w-8 h-8 mr-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
@@ -207,9 +210,9 @@ export default function MessageBubble({
               )}
             </div>
 
-            {/* Action Buttons */}
-            {!isEditing && (
-              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {/* Action Buttons - Show on hover */}
+            {!isEditing && isHovered && (
+              <div className="flex items-center space-x-1 transition-opacity duration-150">
                 {/* Edit button for user messages */}
                 {isUser && (
                   <button

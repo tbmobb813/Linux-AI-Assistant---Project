@@ -8,6 +8,7 @@ import {
 } from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
+import ContextPanel from "./components/ContextPanel";
 import CommandPalette from "./components/CommandPalette";
 import KeyboardDebugger from "./components/KeyboardDebugger";
 import ErrorMonitor from "./components/ErrorMonitor";
@@ -286,7 +287,7 @@ export default function App(): JSX.Element {
     <AppErrorBoundary>
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
         <ConversationList />
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 relative">
           {/* Modern Header Bar with Animations */}
           <FadeIn>
             <header
@@ -412,7 +413,12 @@ export default function App(): JSX.Element {
             </Suspense>
           )}
 
-          <ChatInterface />
+          <div className="flex-1 flex overflow-hidden">
+            <ChatInterface />
+            <div className="w-80 flex-shrink-0">
+              <ContextPanel />
+            </div>
+          </div>
         </main>
       </div>
 
