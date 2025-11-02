@@ -1,6 +1,9 @@
 import { lazy, useEffect, useState, Suspense } from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
+import CommandPalette from "./components/CommandPalette";
+import { FadeIn, AnimatedButton } from "./components/Animations";
+import { useKeyboardShortcuts, useCommandPalette } from "./lib/hooks";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
@@ -15,9 +18,13 @@ const CommandSuggestionsModal = lazy(
 );
 const Settings = lazy(() => import("./components/Settings"));
 const UpdateManager = lazy(() => import("./components/UpdateManager"));
+const ProjectContextPanel = lazy(
+  () => import("./components/ProjectContextPanel"),
+);
 
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
+import { useProjectStore } from "./lib/stores/projectStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
 import { withErrorHandling } from "./lib/utils/errorHandler";
@@ -25,6 +32,19 @@ import { withErrorHandling } from "./lib/utils/errorHandler";
 export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
     useSettingsStore();
+  const { events } = useProjectStore();
+  const { createConversation } = useChatStore();
+
+  // Command palette integration
+  const { isOpen, open, close } = useCommandPalette();
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    onCommandPalette: open,
+    onNewConversation: () =>
+      createConversation("New conversation", "gpt-4", "local"),
+    onSettings: () => setShowSettings(true),
+  });
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut with error handling
@@ -52,6 +72,7 @@ export default function App(): JSX.Element {
     })();
   }, [globalShortcut, registerGlobalShortcut]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProjectContext, setShowProjectContext] = useState(false);
   // Wire tray menu events: open settings and new conversation
   useEffect(() => {
     let unlistenSettings: (() => void) | undefined;
@@ -231,41 +252,115 @@ export default function App(): JSX.Element {
 
   return (
     <AppErrorBoundary>
-      <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
         <ConversationList />
-        <main className="flex-1 flex flex-col relative">
-          {/* Small toggle button to demonstrate invoking the window toggle command */}
-          <button
-            onClick={async () => {
-              try {
-                await database.window.toggle();
-              } catch (e) {
-                console.error("failed to toggle window", e);
-              }
-            }}
-            className="absolute right-4 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Toggle window"
-          >
-            Toggle
-          </button>
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Modern Header Bar with Animations */}
+          <FadeIn>
+            <header
+              className="
+                bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg
+                border-b border-gray-200/50 dark:border-gray-700/50
+                px-6 py-3
+                flex items-center justify-between
+                relative z-30
+                shadow-sm
+              "
+            >
+              {/* Left side - App branding */}
+              <div className="flex items-center space-x-4">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">
+                  Linux AI Assistant
+                </h1>
+                <div className="text-xs text-gray-500 dark:text-gray-400 hidden md:block">
+                  {useChatStore((state) => state.currentConversation?.title) ||
+                    "No conversation"}
+                </div>
+              </div>
 
-          {/* Settings button and panel */}
-          <button
-            onClick={() => setShowSettings((s) => !s)}
-            className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Settings"
-          >
-            Settings
-          </button>
+              {/* Center - Command Palette Trigger */}
+              <div className="hidden md:flex">
+                <AnimatedButton
+                  onClick={open}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  🔍 Search (Ctrl+K)
+                </AnimatedButton>
+              </div>
+
+              {/* Right side - Action buttons */}
+              <div className="flex items-center space-x-2">
+                {/* Project Context Button */}
+                <AnimatedButton
+                  onClick={() => setShowProjectContext((s) => !s)}
+                  variant={showProjectContext ? "primary" : "secondary"}
+                  size="sm"
+                >
+                  <span className="text-base">📁</span>
+                  <span className="hidden sm:inline ml-1">Context</span>
+                  {events.filter(
+                    (event) => Date.now() - event.ts < 5 * 60 * 1000,
+                  ).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
+                </AnimatedButton>
+
+                {/* Settings Button */}
+                <AnimatedButton
+                  onClick={() => setShowSettings((s) => !s)}
+                  variant={showSettings ? "primary" : "secondary"}
+                  size="sm"
+                >
+                  <span className="text-base">⚙️</span>
+                  <span className="hidden sm:inline ml-1">Settings</span>
+                </AnimatedButton>
+
+                {/* Window Toggle Button */}
+                <AnimatedButton
+                  onClick={async () => {
+                    try {
+                      await database.window.toggle();
+                    } catch (e) {
+                      console.error("failed to toggle window", e);
+                    }
+                  }}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <span className="text-base">🪟</span>
+                  <span className="hidden lg:inline ml-1">Toggle</span>
+                </AnimatedButton>
+              </div>
+            </header>
+          </FadeIn>
+
+          {/* Settings Panel */}
           {showSettings && (
-            <div className="absolute right-4 top-12 z-50">
+            <div className="absolute right-6 top-20 z-50 shadow-xl">
               <Settings onClose={() => setShowSettings(false)} />
             </div>
+          )}
+
+          {/* Project Context Panel */}
+          {showProjectContext && (
+            <Suspense fallback={null}>
+              <div className="absolute right-6 top-20 z-50">
+                <ProjectContextPanel
+                  onClose={() => setShowProjectContext(false)}
+                />
+              </div>
+            </Suspense>
           )}
 
           <ChatInterface />
         </main>
       </div>
+
+      {/* Command Palette */}
+      <CommandPalette isOpen={isOpen} onClose={close} />
+
       <Toaster />
       <Suspense fallback={null}>
         <RunOutputModal />

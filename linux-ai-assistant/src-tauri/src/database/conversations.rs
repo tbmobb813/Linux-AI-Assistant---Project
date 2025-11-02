@@ -11,6 +11,8 @@ pub struct Conversation {
     pub model: String,
     pub provider: String,
     pub system_prompt: Option<String>,
+    pub parent_conversation_id: Option<String>,
+    pub branch_point_message_id: Option<String>,
     // Note: 'deleted' and 'deleted_at' are stored in DB but are not exposed to the API struct
 }
 
@@ -41,8 +43,8 @@ impl Conversation {
             .as_secs() as i64;
         let id = uuid::Uuid::new_v4().to_string();
         conn.execute(
-            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, NULL)",
             params![&id, &new_conv.title, now, now, &new_conv.model, &new_conv.provider, &new_conv.system_prompt],
         )?;
 
@@ -54,13 +56,15 @@ impl Conversation {
             model: new_conv.model,
             provider: new_conv.provider,
             system_prompt: new_conv.system_prompt,
+            parent_conversation_id: None,
+            branch_point_message_id: None,
         })
     }
 
     pub fn create_with_id(conn: &Connection, new_conv: NewConversationWithId) -> Result<Self> {
         conn.execute(
-            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, NULL)",
             params![&new_conv.id, &new_conv.title, new_conv.created_at, new_conv.updated_at, &new_conv.model, &new_conv.provider, &new_conv.system_prompt],
         )?;
 
@@ -72,12 +76,14 @@ impl Conversation {
             model: new_conv.model,
             provider: new_conv.provider,
             system_prompt: new_conv.system_prompt,
+            parent_conversation_id: None,
+            branch_point_message_id: None,
         })
     }
 
     pub fn get_by_id(conn: &Connection, id: &str) -> Result<Option<Self>> {
         // Only return non-deleted conversations
-        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt FROM conversations WHERE id = ?1 AND deleted = 0")?;
+        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id FROM conversations WHERE id = ?1 AND deleted = 0")?;
         let mut rows = stmt.query(params![id])?;
         if let Some(row) = rows.next()? {
             Ok(Some(Conversation {
@@ -88,6 +94,8 @@ impl Conversation {
                 model: row.get(4)?,
                 provider: row.get(5)?,
                 system_prompt: row.get(6)?,
+                parent_conversation_id: row.get(7)?,
+                branch_point_message_id: row.get(8)?,
             }))
         } else {
             Ok(None)
@@ -95,7 +103,7 @@ impl Conversation {
     }
 
     pub fn get_all(conn: &Connection, limit: i64) -> Result<Vec<Self>> {
-        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt FROM conversations WHERE deleted = 0 ORDER BY updated_at DESC LIMIT ?1")?;
+        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id FROM conversations WHERE deleted = 0 ORDER BY updated_at DESC LIMIT ?1")?;
         let conversations = stmt.query_map(params![limit], |row| {
             Ok(Conversation {
                 id: row.get(0)?,
@@ -105,6 +113,8 @@ impl Conversation {
                 model: row.get(4)?,
                 provider: row.get(5)?,
                 system_prompt: row.get(6)?,
+                parent_conversation_id: row.get(7)?,
+                branch_point_message_id: row.get(8)?,
             })
         })?;
         conversations.collect()
@@ -161,7 +171,7 @@ impl Conversation {
 
     pub fn search(conn: &Connection, query: &str, limit: i64) -> Result<Vec<Self>> {
         let search_pattern = format!("%{}%", query);
-        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt FROM conversations WHERE deleted = 0 AND title LIKE ?1 ORDER BY updated_at DESC LIMIT ?2")?;
+        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id FROM conversations WHERE deleted = 0 AND title LIKE ?1 ORDER BY updated_at DESC LIMIT ?2")?;
         let conversations = stmt.query_map(params![search_pattern, limit], |row| {
             Ok(Conversation {
                 id: row.get(0)?,
@@ -171,6 +181,90 @@ impl Conversation {
                 model: row.get(4)?,
                 provider: row.get(5)?,
                 system_prompt: row.get(6)?,
+                parent_conversation_id: row.get(7)?,
+                branch_point_message_id: row.get(8)?,
+            })
+        })?;
+        conversations.collect()
+    }
+
+    // Create a new conversation as a branch from a specific message
+    pub fn create_branch(
+        conn: &Connection,
+        parent_conversation_id: &str,
+        branch_point_message_id: &str,
+        title: String,
+    ) -> Result<Self> {
+        // Get the parent conversation to inherit model and provider
+        let parent = Self::get_by_id(conn, parent_conversation_id)?
+            .ok_or_else(|| rusqlite::Error::InvalidPath("Parent conversation not found".into()))?;
+
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+        let id = uuid::Uuid::new_v4().to_string();
+
+        conn.execute(
+            "INSERT INTO conversations (id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            params![
+                &id,
+                &title,
+                now,
+                now,
+                &parent.model,
+                &parent.provider,
+                &parent.system_prompt,
+                parent_conversation_id,
+                branch_point_message_id
+            ],
+        )?;
+
+        // Copy all messages from parent up to the branch point
+        conn.execute(
+            "INSERT INTO messages (id, conversation_id, role, content, timestamp, tokens_used)
+             SELECT 
+                lower(hex(randomblob(16))),
+                ?1,
+                role,
+                content,
+                timestamp,
+                tokens_used
+             FROM messages 
+             WHERE conversation_id = ?2 
+               AND timestamp <= (SELECT timestamp FROM messages WHERE id = ?3)
+             ORDER BY timestamp",
+            params![&id, parent_conversation_id, branch_point_message_id],
+        )?;
+
+        Ok(Conversation {
+            id,
+            title,
+            created_at: now,
+            updated_at: now,
+            model: parent.model,
+            provider: parent.provider,
+            system_prompt: parent.system_prompt,
+            parent_conversation_id: Some(parent_conversation_id.to_string()),
+            branch_point_message_id: Some(branch_point_message_id.to_string()),
+        })
+    }
+
+    // Get all branches of a conversation
+    pub fn get_branches(conn: &Connection, conversation_id: &str) -> Result<Vec<Self>> {
+        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, model, provider, system_prompt, parent_conversation_id, branch_point_message_id FROM conversations WHERE parent_conversation_id = ?1 AND deleted = 0 ORDER BY created_at DESC")?;
+        let conversations = stmt.query_map(params![conversation_id], |row| {
+            Ok(Conversation {
+                id: row.get(0)?,
+                title: row.get(1)?,
+                created_at: row.get(2)?,
+                updated_at: row.get(3)?,
+                model: row.get(4)?,
+                provider: row.get(5)?,
+                system_prompt: row.get(6)?,
+                parent_conversation_id: row.get(7)?,
+                branch_point_message_id: row.get(8)?,
             })
         })?;
         conversations.collect()

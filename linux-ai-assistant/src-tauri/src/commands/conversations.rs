@@ -87,3 +87,29 @@ pub async fn cleanup_conversations(db: State<'_, Database>) -> Result<String, St
 
     Ok(format!("Deleted {} conversations", deleted_count))
 }
+
+#[tauri::command]
+pub async fn create_conversation_branch(
+    db: State<'_, Database>,
+    parent_conversation_id: String,
+    branch_point_message_id: String,
+    title: String,
+) -> Result<Conversation, String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    Conversation::create_branch(
+        &conn,
+        &parent_conversation_id,
+        &branch_point_message_id,
+        title,
+    )
+    .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn get_conversation_branches(
+    db: State<'_, Database>,
+    conversation_id: String,
+) -> Result<Vec<Conversation>, String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    Conversation::get_branches(&conn, &conversation_id).map_err(|e| e.to_string())
+}
