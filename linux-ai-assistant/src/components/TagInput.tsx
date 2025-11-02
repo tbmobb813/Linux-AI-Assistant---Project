@@ -127,7 +127,7 @@ export default function TagInput({
     // Generate a color based on tag name hash
     const hash = Array.from(color || "default").reduce((a, b) => {
       a = (a << 5) - a + b.charCodeAt(0);
-      return a & a;
+      return a & 0xFFFFFFFF;
     }, 0);
     const colors = [
       "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
