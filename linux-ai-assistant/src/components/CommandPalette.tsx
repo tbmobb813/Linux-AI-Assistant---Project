@@ -44,7 +44,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         selectConversation(conv.id);
         onClose();
       },
-      keywords: [conv.title, "conversation", "chat", "messages"],
+      keywords: [conv.title || "Untitled Conversation", "conversation", "chat", "messages"],
     }));
 
     const actionCommands: Command[] = [
