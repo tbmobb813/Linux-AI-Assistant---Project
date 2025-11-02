@@ -1,54 +1,98 @@
 [![Beta](https://img.shields.io/badge/Beta-Program-blue?style=flat-square)](docs/beta/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Linux-orange?style=flat-square)](https://kernel.org/)
+[![Language](https://img.shields.io/badge/rust-1.70+-orange?style=flat-square&logo=rust)](https://www.rust-lang.org/)
+[![Frontend](https://img.shields.io/badge/react-18+-blue?style=flat-square&logo=react)](https://reactjs.org/)
 
-# Linux AI Desktop Assistant - Project Documentation
+# 🤖 Linux AI Desktop Assistant
+
+> A native Linux desktop AI assistant with multi-provider support, privacy-focused local processing, and developer-first design.
 
 [![CI](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tbmobb813/Linux-AI-Assistant---Project/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project/branch/main/graph/badge.svg)](https://codecov.io/gh/tbmobb813/Linux-AI-Assistant---Project)
+[![Security](https://img.shields.io/badge/security-policy-yellow?style=flat-square)](SECURITY.md)
 
-## Quick links
+## ✨ Key Features
 
-- Beta program: [docs/beta/](docs/beta/)
-- Releases: https://github.com/tbmobb813/Linux-AI-Assistant---Project/releases
-- Documentation Index: [linux-ai-assistant/DOCUMENTATION_INDEX.md](linux-ai-assistant/DOCUMENTATION_INDEX.md)
+- 🔒 **Privacy First**: Local AI processing with Ollama - your data never leaves your machine
+- 🌐 **Multi-Provider Support**: OpenAI, Anthropic, Google Gemini, and local models
+- 🖥️ **Native Linux Integration**: System tray, global shortcuts, desktop notifications
+- 🔧 **Developer Tools**: CLI companion, IPC communication, project-aware context
+- 📦 **Easy Installation**: AppImage, DEB, RPM packages available
+- ⚡ **High Performance**: 67% smaller than Electron alternatives, built with Rust + Tauri
 
-## Documentation
+## 📁 Quick Links
 
-The complete, up-to-date documentation lives inside `linux-ai-assistant/`:
+| Resource               | Link                                                                                  | Description                  |
+| ---------------------- | ------------------------------------------------------------------------------------- | ---------------------------- |
+| 📋 **Documentation**   | [DOCUMENTATION_INDEX.md](linux-ai-assistant/DOCUMENTATION_INDEX.md)                   | Complete documentation hub   |
+| 👥 **User Guide**      | [USER_GUIDE.md](linux-ai-assistant/USER_GUIDE.md)                                     | Getting started and features |
+| 💻 **CLI Guide**       | [CLI_GUIDE.md](linux-ai-assistant/CLI_GUIDE.md)                                       | Command-line usage           |
+| 🔧 **Developer Guide** | [DEVELOPER_GUIDE.md](linux-ai-assistant/DEVELOPER_GUIDE.md)                           | API and development          |
+| 🚨 **Troubleshooting** | [TROUBLESHOOTING.md](linux-ai-assistant/TROUBLESHOOTING.md)                           | Common issues and solutions  |
+| 📦 **Releases**        | [GitHub Releases](https://github.com/tbmobb813/Linux-AI-Assistant---Project/releases) | Download packages            |
+| 🤝 **Contributing**    | [CONTRIBUTING.md](CONTRIBUTING.md)                                                    | How to contribute            |
+| 🔒 **Security**        | [SECURITY.md](SECURITY.md)                                                            | Security policy              |
 
-- Documentation Index (start here): [linux-ai-assistant/DOCUMENTATION_INDEX.md](linux-ai-assistant/DOCUMENTATION_INDEX.md)
-- User Guide: [linux-ai-assistant/USER_GUIDE.md](linux-ai-assistant/USER_GUIDE.md)
-- CLI Guide: [linux-ai-assistant/CLI_GUIDE.md](linux-ai-assistant/CLI_GUIDE.md)
-- Developer Guide: [linux-ai-assistant/DEVELOPER_GUIDE.md](linux-ai-assistant/DEVELOPER_GUIDE.md)
-- Troubleshooting: [linux-ai-assistant/TROUBLESHOOTING.md](linux-ai-assistant/TROUBLESHOOTING.md)
+## 🚀 Quick Start
 
-Beta program: [docs/beta/](docs/beta/)
+### Installation
 
-Historical and phase summary documents have been archived under `docs/archive/`.
+```bash
+# Download from GitHub Releases
+wget https://github.com/tbmobb813/Linux-AI-Assistant---Project/releases/latest/download/linux-ai-assistant_*.AppImage
+chmod +x linux-ai-assistant_*.AppImage
+./linux-ai-assistant_*.AppImage
+
+# Or install via package manager
+# Ubuntu/Debian
+sudo apt install ./linux-ai-assistant_*.deb
+
+# Fedora/RHEL
+sudo rpm -i linux-ai-assistant_*.rpm
+```
+
+### First Run Setup
+
+1. **Launch** the application
+2. **Configure AI Provider**: Settings → Choose provider (OpenAI, Claude, Gemini, or Local)
+3. **Add API Key** (for cloud providers) or **Install Ollama** (for local AI)
+4. **Start Chatting**! 🎉
+
+> 💡 **Tip**: Use `Ctrl+Space` (global shortcut) to invoke the assistant from anywhere!
 
 ## Project Overview
 
-Mission Statement
+### Mission Statement
+
 Build a native Linux desktop AI assistant that provides first-class support for
 Linux users, addressing the platform neglect from major AI providers while
+delivering superior system integration, developer workflow optimization, and
+privacy-respecting architecture.
 
-# **Note**: The actual component structure is flatter than shown below for better maintainability.
+### Core Value Propositions
 
-> All components exist as documented but are organized with naming conventions rather than deep folder nesting.
-> delivering superior system integration, developer workflow optimization, and
-> privacy-respecting architecture.
+- **Native Linux Experience**: True desktop integration with system-level features
+- **Multi-Model Support**: Access GPT, Claude, Gemini, and local models from one interface
+- **Developer-First Design**: Deep integration with terminal, git, and development workflows
+- **Privacy & Transparency**: Clear data handling with local processing options
+- **Performance Optimized**: Resource-efficient native application, not a web wrapper
 
-Core Value Propositions
-Native Linux Experience: True desktop integration with system-level features
-Multi-Model Support: Access GPT, Claude, Gemini, and local models from one interface
-Developer-First Design: Deep integration with terminal, git, and development workflows
-Privacy & Transparency: Clear data handling with local processing options
-Performance Optimized: Resource-efficient native application, not a web wrapper
-Technical Architecture
-Primary Tech Stack Decision: Tauri
+### Technical Architecture
+
+**Primary Tech Stack Decision: Tauri**
+
 Rationale: Tauri chosen over Electron for the following reasons:
 
-Smaller binary size (3-5MB vs 100MB+)
+- Smaller binary size (3-5MB vs 100MB+)
+- Lower memory footprint (uses system webview)
+- Better security model with Rust backend
+- Appeals to Linux user values (performance, efficiency)
+- Native performance for system integration
+
+### Core Technologies
+
 Lower memory footprint (uses system webview)
 Better security model with Rust backend
 Appeals to Linux user values (performance, efficiency)
@@ -120,6 +164,69 @@ easy switching:
 
 API keys are stored securely using your system's keyring (GNOME Keyring,
 KWallet, etc.) and fall back to environment variables if needed.
+
+## Developer Tools & CLI Integration
+
+The project includes comprehensive development tooling for testing and development workflows:
+
+### 🛠️ **CLI Companion Tool**
+
+The `lai` (Linux AI Assistant) CLI provides programmatic access to the assistant:
+
+```bash
+# Install and build the CLI
+cd linux-ai-assistant/cli
+cargo build --release
+
+# Basic commands
+lai ask "How do I optimize this SQL query?"
+lai notify "Build completed successfully"
+lai last  # Get the most recent assistant response
+```
+
+### 🔧 **Development IPC Commands**
+
+For development and testing, additional IPC commands are available when `DEV_MODE=1`:
+
+```bash
+# Create test messages (DEV_MODE only)
+DEV_MODE=1 lai create "Test assistant message"
+DEV_MODE=1 lai create "Custom message" --conversation-id "uuid-here"
+```
+
+### 🧪 **Development Scripts**
+
+- **Smoke Testing**: `dev/smoke_test_ipc.sh` - Automated E2E testing of IPC functionality
+- **Database Helper**: `dev/insert_test_message.py` - Direct database message insertion for testing
+- **Development Aliases**: Use `pnpm run db:insert` for quick test data creation
+
+### 🚀 **GitHub Actions CI Integration**
+
+Optional development testing workflow available for PRs with `dev-testing` label:
+
+```yaml
+# Trigger with PR labels or manual dispatch
+- Manual workflow dispatch
+- PR labeled with 'dev-testing'
+- Comprehensive smoke testing in CI environment
+```
+
+### 📋 **Development Environment Setup**
+
+```bash
+# Enable development mode
+export DEV_MODE=1
+
+# Run the backend with dev features enabled
+pnpm -w -C linux-ai-assistant run tauri -- dev
+
+# Test CLI commands in another terminal
+cd linux-ai-assistant/cli
+cargo run -- create "Development test message"
+cargo run -- last
+```
+
+For detailed development workflows, see [dev/README.md](dev/README.md).
 
 ## Project-Aware Context
 
@@ -435,12 +542,14 @@ Deliverable: Developer-optimized workflow integration ✅
 
 Nice-to-haves (Phase 4):
 
-- CLI: implement `lai last` to print the latest assistant reply.
+- ✅ CLI: implement `lai last` to print the latest assistant reply.
+- ✅ CLI: `lai create` command for development testing (DEV_MODE gated).
+- ✅ CLI: comprehensive IPC communication with ask/notify/last/create commands.
 - CLI: distribution packaging and install instructions.
-- Watcher: tray toggle and ignore patterns; debounce noisy events.
+- ✅ Watcher: tray toggle and ignore patterns; debounce noisy events.
 - Project context panel: surface recent changes and summaries in chat UI.
 - Execution hardening: runner profiles, resource limits, and optional sandboxing.
-- Integration tests: end-to-end checks for IPC events and watcher signals.
+- ✅ Integration tests: end-to-end checks for IPC events and watcher signals.
 
 Phase 5: Local AI & Privacy (Weeks 13-15)
 Goal: Privacy-respecting local processing options
