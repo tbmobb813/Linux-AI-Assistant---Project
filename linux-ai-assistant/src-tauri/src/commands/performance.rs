@@ -135,9 +135,7 @@ pub async fn get_database_metrics(
 
     // Get database file size
     let database_size = match conn.path() {
-        Some(path) => std::fs::metadata(path)
-            .map_err(|e| e.to_string())?
-            .len(),
+        Some(path) => std::fs::metadata(path).map_err(|e| e.to_string())?.len(),
         None => {
             // Database is in-memory or path is unavailable
             0
