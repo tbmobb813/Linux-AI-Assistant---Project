@@ -26,7 +26,7 @@ const ExecutionAuditModal = lazy(
 const CommandSuggestionsModal = lazy(
   () => import("./components/CommandSuggestionsModal"),
 );
-const Settings = lazy(() => import("./components/Settings"));
+const Settings = lazy(() => import("./components/SettingsTabs"));
 const UpdateManager = lazy(() => import("./components/UpdateManager"));
 const ProjectContextPanel = lazy(
   () => import("./components/ProjectContextPanel"),

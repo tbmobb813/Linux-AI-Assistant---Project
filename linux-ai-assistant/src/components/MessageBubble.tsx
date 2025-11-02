@@ -10,6 +10,7 @@ import ArtifactPreview from "./ArtifactPreview";
 import { hasArtifacts } from "../lib/utils/artifactDetection";
 import { suggestFilename } from "../lib/utils/artifactDetection";
 import { invoke } from "@tauri-apps/api/core";
+import CostBadge from "./CostBadge";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -307,10 +308,20 @@ export default function MessageBubble({
 
           {/* Message Footer */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/20 dark:border-gray-700/50">
-            <div
-              className={`text-xs ${isUser ? "text-white/70" : "text-gray-500 dark:text-gray-400"}`}
-            >
-              {formatTime((message as any).timestamp)}
+            <div className="flex items-center gap-2">
+              <div
+                className={`text-xs ${isUser ? "text-white/70" : "text-gray-500 dark:text-gray-400"}`}
+              >
+                {formatTime((message as any).timestamp)}
+              </div>
+              {/* Cost Badge */}
+              {(message as any).tokens_used && !isUser && (
+                <CostBadge
+                  tokens={(message as any).tokens_used}
+                  model={(message as any).model || "gpt-4"}
+                  compact
+                />
+              )}
             </div>
 
             {/* Status Indicators */}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
@@ -12,6 +12,9 @@ import CommandSuggestionsModal from "./CommandSuggestionsModal";
 import GitContextWidget from "./GitContextWidget";
 import RoutingIndicator from "./RoutingIndicator";
 import { withErrorHandling } from "../lib/utils/errorHandler";
+import { calculateCost, formatCost } from "./CostBadge";
+import { copyConversationToClipboard } from "../lib/utils/conversationExport";
+import { Copy, Check } from "lucide-react";
 import {
   parseSlashCommand,
   executeSlashCommand,
@@ -28,8 +31,31 @@ export default function ChatInterface(): JSX.Element {
     null,
   );
   const [slashSuggestions, setSlashSuggestions] = useState<any[]>([]);
+  const [isCopied, setIsCopied] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Handle copy conversation to clipboard
+  const handleCopyConversation = async () => {
+    if (!currentConversation) return;
+
+    try {
+      await copyConversationToClipboard(currentConversation, messages);
+      setIsCopied(true);
+      addToast({
+        message: "Conversation copied to clipboard!",
+        type: "success",
+        ttl: 2000,
+      });
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      addToast({
+        message: "Failed to copy conversation",
+        type: "error",
+        ttl: 3000,
+      });
+    }
+  };
 
   useEffect(() => {
     if (currentConversation && currentConversation.id) {
@@ -208,6 +234,20 @@ export default function ChatInterface(): JSX.Element {
     );
   }
 
+  // Calculate conversation cost
+  const conversationCost = useMemo(() => {
+    let totalTokens = 0;
+    let totalCost = 0;
+
+    messages.forEach((msg: any) => {
+      const tokens = msg.tokens_used || 0;
+      totalTokens += tokens;
+      totalCost += calculateCost(tokens, currentConversation.model);
+    });
+
+    return { tokens: totalTokens, cost: totalCost };
+  }, [messages, currentConversation.model]);
+
   return (
     <div className="flex-1 flex flex-col bg-white/50 dark:bg-gray-900/50">
       {/* Modern Chat Header */}
@@ -251,32 +291,68 @@ export default function ChatInterface(): JSX.Element {
                       />
                     </div>
                   )}
+                  {conversationCost.tokens > 0 && (
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200 dark:border-blue-700">
+                      <span className="text-xs font-medium text-blue-800 dark:text-blue-300">
+                        {formatCost(conversationCost.cost)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-          <button
-            onClick={async () => {
-              try {
-                await database.window.toggle();
-              } catch (e) {
-                console.error("failed to toggle window", e);
-              }
-            }}
-            className="
-              flex items-center space-x-2 px-3 py-2 rounded-lg
-              bg-gray-100 dark:bg-gray-800
-              text-gray-700 dark:text-gray-300
-              hover:bg-gray-200 dark:hover:bg-gray-700
-              transition-all duration-200
-              text-sm font-medium
-            "
-            title="Toggle window"
-            aria-label="Toggle window"
-          >
-            <span>🪟</span>
-            <span className="hidden md:inline">Toggle</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Copy Conversation Button */}
+            <button
+              onClick={handleCopyConversation}
+              disabled={messages.length === 0}
+              className="
+                flex items-center space-x-2 px-3 py-2 rounded-lg
+                bg-[#7aa2f7] hover:bg-[#7aa2f7]/90
+                disabled:opacity-50 disabled:cursor-not-allowed
+                text-white transition-all duration-150 gpu-accelerated
+                text-sm font-medium
+              "
+              title="Copy entire conversation as Markdown"
+            >
+              {isCopied ? (
+                <>
+                  <Check size={16} />
+                  <span className="hidden md:inline">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  <span className="hidden md:inline">Copy All</span>
+                </>
+              )}
+            </button>
+
+            {/* Toggle Window Button */}
+            <button
+              onClick={async () => {
+                try {
+                  await database.window.toggle();
+                } catch (e) {
+                  console.error("failed to toggle window", e);
+                }
+              }}
+              className="
+                flex items-center space-x-2 px-3 py-2 rounded-lg
+                bg-gray-100 dark:bg-gray-800
+                text-gray-700 dark:text-gray-300
+                hover:bg-gray-200 dark:hover:bg-gray-700
+                transition-all duration-200
+                text-sm font-medium
+              "
+              title="Toggle window"
+              aria-label="Toggle window"
+            >
+              <span>🪟</span>
+              <span className="hidden md:inline">Toggle</span>
+            </button>
+          </div>
         </div>
       </div>
 

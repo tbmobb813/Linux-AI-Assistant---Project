@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
-import { Folder, GitBranch, Zap, FileText, ChevronRight } from "lucide-react";
+import {
+  Folder,
+  GitBranch,
+  Zap,
+  FileText,
+  ChevronRight,
+  DollarSign,
+} from "lucide-react";
 import { useProjectStore } from "../lib/stores/projectStore";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
+import CostDashboard from "./CostDashboard";
 
 // Context Panel - Right sidebar with project context
 export default function ContextPanel() {
@@ -14,6 +22,7 @@ export default function ContextPanel() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto smooth-scroll">
+        <CostSection />
         <ProjectFilesSection />
         <GitStatusSection />
         <QuickActionsSection />
@@ -52,6 +61,19 @@ function Section({ icon, title, children, defaultOpen = true }: SectionProps) {
       </button>
       {isOpen && <div className="px-4 py-3 panel-fade-in">{children}</div>}
     </div>
+  );
+}
+
+// Cost Section
+function CostSection() {
+  return (
+    <Section
+      icon={<DollarSign size={16} />}
+      title="Usage & Cost"
+      defaultOpen={true}
+    >
+      <CostDashboard />
+    </Section>
   );
 }
 
