@@ -175,7 +175,11 @@ export default function ChatInterface(): JSX.Element {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      // Smooth scroll to bottom for new messages
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, [messages]);
 
@@ -295,7 +299,7 @@ export default function ChatInterface(): JSX.Element {
       {/* Modern Messages Container */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-transparent to-gray-50/30 dark:to-gray-900/30"
+        className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-transparent to-gray-50/30 dark:to-gray-900/30 message-scroll"
       >
         {isLoading && messages.length === 0 && (
           <div className="space-y-4">

@@ -4,7 +4,12 @@ import ConversationItemModern from "./ConversationItemModern";
 import TagFilter from "./TagFilter";
 import { AdvancedSearchModal } from "./AdvancedSearchModal";
 import { SearchSuggestions } from "./SearchSuggestions";
-import { AnimatedButton, StaggerContainer, FadeIn } from "./Animations";
+import {
+  AnimatedButton,
+  StaggerContainer,
+  FadeIn,
+  Skeleton,
+} from "./Animations";
 import { Search, X, Tag, Settings } from "lucide-react";
 
 export default function ConversationList() {
@@ -289,10 +294,15 @@ export default function ConversationList() {
         {isLoading && (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="px-4 py-3 rounded-xl h-16 animate-pulse bg-gray-200/50 dark:bg-gray-800/50"
-              />
+              <div key={i} className="px-4 py-3 rounded-xl space-y-2">
+                <div className="flex items-center gap-3">
+                  <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton variant="text" width="70%" height="0.875rem" />
+                    <Skeleton variant="text" width="50%" height="0.75rem" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}

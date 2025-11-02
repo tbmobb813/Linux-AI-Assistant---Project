@@ -6,14 +6,14 @@ import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 // Context Panel - Right sidebar with project context
 export default function ContextPanel() {
   return (
-    <div className="h-full flex flex-col bg-gray-900 border-l border-gray-800">
+    <div className="h-full flex flex-col bg-gray-900 border-l border-gray-800 panel-slide-in-right">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-800">
         <h2 className="text-sm font-semibold text-gray-200">Context</h2>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto smooth-scroll">
         <ProjectFilesSection />
         <GitStatusSection />
         <QuickActionsSection />
@@ -38,19 +38,19 @@ function Section({ icon, title, children, defaultOpen = true }: SectionProps) {
     <div className="border-b border-gray-800">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors duration-150"
+        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors-smooth gpu-accelerated"
         aria-expanded={isOpen}
       >
         {icon}
         <span className="flex-1 text-left">{title}</span>
         <ChevronRight
           size={14}
-          className={`transform transition-transform duration-150 ${
+          className={`transform transition-transform-smooth ${
             isOpen ? "rotate-90" : ""
           }`}
         />
       </button>
-      {isOpen && <div className="px-4 py-3">{children}</div>}
+      {isOpen && <div className="px-4 py-3 panel-fade-in">{children}</div>}
     </div>
   );
 }

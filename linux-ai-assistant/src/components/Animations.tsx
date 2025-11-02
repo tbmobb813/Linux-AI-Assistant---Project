@@ -45,12 +45,13 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
         ${variants[variant]}
         ${sizes[size]}
         border rounded-xl font-medium
-        transition-all duration-200 ease-out
+        transition-all duration-150 ease-out
         transform hover:scale-105 active:scale-95
         focus:outline-none focus:ring-2 focus:ring-blue-400/50
         disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
         ${isPressed ? "scale-95" : ""}
         ${isLoading ? "cursor-wait" : "cursor-pointer"}
+        gpu-accelerated
         ${className}
       `}
       disabled={isLoading}
@@ -223,17 +224,19 @@ export const Scale: React.FC<ScaleProps> = ({
   );
 };
 
-// Loading Spinner Component
+// Loading Spinner Component with 530ms blink rate
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
   color?: string;
   className?: string;
+  variant?: "spinner" | "dots" | "pulse";
 }
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = "md",
   color = "currentColor",
   className = "",
+  variant = "spinner",
 }) => {
   const sizes = {
     sm: "w-4 h-4",
@@ -241,6 +244,37 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: "w-8 h-8",
   };
 
+  if (variant === "dots") {
+    // Three dots with 530ms blink animation
+    return (
+      <div className={`flex items-center gap-1 ${className}`}>
+        <div
+          className={`${size === "sm" ? "w-1.5 h-1.5" : size === "lg" ? "w-2.5 h-2.5" : "w-2 h-2"} rounded-full bg-current animate-pulse`}
+          style={{ animationDuration: "530ms", animationDelay: "0ms" }}
+        />
+        <div
+          className={`${size === "sm" ? "w-1.5 h-1.5" : size === "lg" ? "w-2.5 h-2.5" : "w-2 h-2"} rounded-full bg-current animate-pulse`}
+          style={{ animationDuration: "530ms", animationDelay: "177ms" }}
+        />
+        <div
+          className={`${size === "sm" ? "w-1.5 h-1.5" : size === "lg" ? "w-2.5 h-2.5" : "w-2 h-2"} rounded-full bg-current animate-pulse`}
+          style={{ animationDuration: "530ms", animationDelay: "354ms" }}
+        />
+      </div>
+    );
+  }
+
+  if (variant === "pulse") {
+    // Pulsing circle with 530ms animation
+    return (
+      <div
+        className={`${sizes[size]} rounded-full bg-current animate-pulse ${className}`}
+        style={{ animationDuration: "530ms" }}
+      />
+    );
+  }
+
+  // Default spinning spinner
   return (
     <div
       className={`
@@ -248,7 +282,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         border-2 border-t-transparent rounded-full animate-spin
         ${className}
       `}
-      style={{ borderColor: `${color} transparent transparent transparent` }}
+      style={{
+        borderColor: `${color} transparent transparent transparent`,
+        animationDuration: "600ms", // Slightly faster spin
+      }}
     />
   );
 };
@@ -279,6 +316,92 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         />
       </div>
     </div>
+  );
+};
+
+// Typing Cursor Animation for streaming responses
+export const TypingCursor: React.FC<{ className?: string }> = ({
+  className = "",
+}) => {
+  return (
+    <span
+      className={`inline-block w-0.5 h-4 bg-current animate-pulse ${className}`}
+      style={{ animationDuration: "530ms" }}
+    />
+  );
+};
+
+// Typing Indicator (three dots) for "Assistant is typing..."
+export const TypingIndicator: React.FC<{ className?: string }> = ({
+  className = "",
+}) => {
+  return (
+    <div className={`flex items-center gap-1 ${className}`}>
+      <div
+        className="w-2 h-2 rounded-full bg-current animate-bounce"
+        style={{ animationDuration: "530ms", animationDelay: "0ms" }}
+      />
+      <div
+        className="w-2 h-2 rounded-full bg-current animate-bounce"
+        style={{ animationDuration: "530ms", animationDelay: "177ms" }}
+      />
+      <div
+        className="w-2 h-2 rounded-full bg-current animate-bounce"
+        style={{ animationDuration: "530ms", animationDelay: "354ms" }}
+      />
+    </div>
+  );
+};
+
+// Skeleton Screen Component for loading states
+interface SkeletonProps {
+  className?: string;
+  variant?: "text" | "circular" | "rectangular";
+  width?: string;
+  height?: string;
+  lines?: number;
+}
+
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = "",
+  variant = "text",
+  width = "100%",
+  height = variant === "text" ? "1rem" : "3rem",
+  lines = 1,
+}) => {
+  const baseClasses = "animate-pulse bg-gray-300 dark:bg-gray-700";
+
+  if (variant === "circular") {
+    return (
+      <div
+        className={`${baseClasses} rounded-full ${className}`}
+        style={{ width, height }}
+      />
+    );
+  }
+
+  if (variant === "text" && lines > 1) {
+    return (
+      <div className={`space-y-2 ${className}`}>
+        {Array.from({ length: lines }).map((_, i) => (
+          <div
+            key={i}
+            className={`${baseClasses} rounded`}
+            style={{
+              width: i === lines - 1 ? "80%" : width,
+              height,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${baseClasses} ${variant === "text" ? "rounded" : "rounded-lg"} ${className}`}
+      style={{ width, height }}
+    />
   );
 };
 
@@ -323,4 +446,7 @@ export default {
   LoadingSpinner,
   ProgressBar,
   AnimatedCard,
+  TypingCursor,
+  TypingIndicator,
+  Skeleton,
 };

@@ -43,7 +43,7 @@ export function detectArtifacts(
 
         // Try to extract title from comments
         const titleMatch = block.content.match(
-          /^(?:\/\/|#|\/\*|\<\!--)\s*(.+?)(?:\*\/|-->)?$/m,
+          /^(?:\/\/|#|\/\*|\<\!--)\s*(.+?)(?:\*\/|-->)?$/ms,
         );
         if (titleMatch) {
           artifact.title = titleMatch[1].trim();

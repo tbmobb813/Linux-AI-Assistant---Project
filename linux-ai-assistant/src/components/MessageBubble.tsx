@@ -145,7 +145,7 @@ export default function MessageBubble({
         isHighlighted
           ? "bg-yellow-100/10 dark:bg-yellow-900/20 p-4 rounded-2xl transition-all duration-300 border border-yellow-200/30 dark:border-yellow-800/30"
           : ""
-      }`}
+      } message-appear`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
