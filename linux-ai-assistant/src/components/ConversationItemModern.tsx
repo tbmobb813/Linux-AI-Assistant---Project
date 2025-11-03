@@ -36,8 +36,9 @@ export default function ConversationItem({
 
   const handleRename = async (e?: FormEvent) => {
     e?.preventDefault();
+    e?.stopPropagation();
     try {
-      await updateTitle(conversation.id, title);
+      await updateTitle(conversation.id, title.trim());
       setEditing(false);
       addToast({ message: "Conversation renamed", type: "success", ttl: 3000 });
     } catch (err: any) {
@@ -210,7 +211,11 @@ export default function ConversationItem({
         )}
 
         {editing && (
-          <form onSubmit={handleRename} className="space-y-3">
+          <form
+            onSubmit={handleRename}
+            className="space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
               className="
                 w-full px-3 py-2 text-sm
@@ -222,6 +227,16 @@ export default function ConversationItem({
               "
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                e.stopPropagation();
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleRename(e as any);
+                } else if (e.key === "Escape") {
+                  setEditing(false);
+                  setTitle(conversation.title || "Untitled");
+                }
+              }}
               autoFocus
               placeholder="Enter conversation title..."
             />

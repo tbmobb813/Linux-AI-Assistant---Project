@@ -15,7 +15,16 @@ import RoutingIndicator from "./RoutingIndicator";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 import { calculateCost, formatCost } from "./CostBadge";
 import { copyConversationToClipboard } from "../lib/utils/conversationExport";
-import { Copy, Check, Sparkles, Clipboard, GitBranch } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Sparkles,
+  Clipboard,
+  GitBranch,
+  Terminal,
+  Send,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import {
   parseSlashCommand,
   executeSlashCommand,
@@ -781,45 +790,38 @@ export default function ChatInterface(): JSX.Element {
             }
           }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {/* Routing Indicator */}
             <RoutingIndicator />
 
-            {/* Action Buttons - Compact horizontal layout */}
-            <button
+            {/* Action Buttons - Modern glassmorphism */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={handleSmartClipboard}
-              className="flex-shrink-0 p-2.5 rounded-lg bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 border border-[#7aa2f7]/40 text-[#7aa2f7] hover:from-[#7aa2f7]/30 hover:to-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:shadow-md-soft hover:scale-105 active:scale-95"
+              className="flex-shrink-0 p-3.5 rounded-2xl bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 backdrop-blur-sm border border-[#7aa2f7]/40 text-[#7aa2f7] hover:from-[#7aa2f7]/30 hover:to-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-glow"
               disabled={isLoading}
               title="Smart Clipboard: Analyze clipboard content"
               aria-label="Analyze clipboard"
             >
-              <Sparkles size={18} />
-            </button>
-            <button
+              <Sparkles size={20} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={handlePasteFromClipboard}
-              className="flex-shrink-0 p-2.5 rounded-lg bg-[#414868] text-[#9aa5ce] hover:bg-[#565f89] hover:text-[#c0caf5] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:scale-105 active:scale-95"
+              className="flex-shrink-0 p-3.5 rounded-2xl bg-[#414868]/80 backdrop-blur-sm text-[#9aa5ce] hover:bg-[#565f89] hover:text-[#c0caf5] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-md-soft"
               disabled={isLoading}
               title="Paste from clipboard (Ctrl+Shift+V)"
               aria-label="Paste from clipboard"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-              </svg>
-            </button>
-            <button
+              <Clipboard size={20} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={async () => {
                 const lastUser = [...messages]
@@ -850,29 +852,22 @@ export default function ChatInterface(): JSX.Element {
                   });
                 }
               }}
-              className="flex-shrink-0 p-2.5 rounded-lg bg-[#bb9af7]/20 border border-[#bb9af7]/40 text-[#bb9af7] hover:bg-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:scale-105 active:scale-95"
+              className="flex-shrink-0 p-3.5 rounded-2xl bg-[#bb9af7]/20 backdrop-blur-sm border border-[#bb9af7]/40 text-[#bb9af7] hover:bg-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-glow-purple"
               disabled={isLoading}
               title="Suggest terminal commands"
               aria-label="Suggest terminal commands"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" />
-              </svg>
-            </button>
+              <Terminal size={20} />
+            </motion.button>
 
             {/* Enhanced Input Field with inline send button */}
-            <div className="flex-1 flex items-center gap-3 border border-[#414868] rounded-xl bg-[#24283b]/80 backdrop-blur-sm px-4 py-2.5 focus-within:ring-2 focus-within:ring-[#7aa2f7]/50 focus-within:border-[#7aa2f7]/50 transition-all duration-200 shadow-sm-soft">
+            <div
+              className="flex-1 flex items-center gap-4 border border-[#414868]/50 rounded-2xl bg-[#24283b]/60 backdrop-blur-xl px-5 py-4 focus-within:ring-2 focus-within:ring-[#7aa2f7]/50 focus-within:border-[#7aa2f7]/50 transition-all duration-200 shadow-xl"
+              style={{
+                boxShadow:
+                  "0 8px 32px -4px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
+              }}
+            >
               <textarea
                 ref={inputRef as any}
                 className="flex-1 bg-transparent text-[#c0caf5] placeholder-[#565f89] focus:outline-none resize-none min-h-[3rem] max-h-[200px] disabled:opacity-50 disabled:cursor-not-allowed font-sans text-base leading-relaxed"
@@ -917,7 +912,7 @@ export default function ChatInterface(): JSX.Element {
                 onClick={handleAnalyzeClipboard}
                 disabled={isLoading}
                 className={`
-                    flex-shrink-0 p-2.5 rounded-lg
+                    flex-shrink-0 p-3 rounded-lg
                     transition-all duration-200
                     hover:bg-[#414868] active:scale-95
                     focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
@@ -932,50 +927,34 @@ export default function ChatInterface(): JSX.Element {
               </button>
 
               {/* Send Button - Inline within input container */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 type="submit"
                 disabled={isLoading || !value.trim()}
                 className={`
-                  flex-shrink-0 p-2.5 rounded-lg font-medium
-                  transition-all duration-200 ease-out gpu-accelerated
-                  transform hover:scale-105 active:scale-95
+                  flex-shrink-0 p-3.5 rounded-xl font-medium
+                  transition-all duration-200 ease-out
                   focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                  disabled:opacity-50 disabled:cursor-not-allowed
                   ${
                     value.trim()
-                      ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white shadow-md-soft hover:shadow-lg-soft"
-                      : "bg-[#414868] text-[#565f89]"
+                      ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white shadow-lg hover:shadow-glow"
+                      : "bg-[#414868]/50 text-[#565f89]"
                   }
                 `}
                 aria-label="Send message"
               >
-                {isLoading ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m22 2-7 20-4-9-9-4Z" />
-                    <path d="M10.5 12.5 19 4" />
-                  </svg>
-                )}
-              </button>
+                {isLoading ? <LoadingSpinner size="sm" /> : <Send size={20} />}
+              </motion.button>
             </div>
 
             {/* Keyboard hint */}
-            <div className="text-xs text-[#565f89] ml-2">
-              <kbd className="px-1.5 py-0.5 bg-[#24283b] rounded border border-[#414868] font-mono text-[10px] text-[#9aa5ce]">
+            <div className="text-xs text-[#565f89] ml-3 flex-shrink-0 flex items-center gap-1.5">
+              <kbd className="px-2.5 py-1.5 bg-[#24283b]/80 rounded-lg border border-[#414868]/50 font-mono text-[10px] text-[#9aa5ce] shadow-sm">
                 Ctrl+Enter
-              </kbd>{" "}
-              to send
+              </kbd>
+              <span className="text-[#565f89]/80">to send</span>
             </div>
           </div>
         </form>

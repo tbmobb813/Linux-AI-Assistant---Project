@@ -13,7 +13,8 @@ import { hasArtifacts } from "../lib/utils/artifactDetection";
 import { suggestFilename } from "../lib/utils/artifactDetection";
 import { invoke } from "@tauri-apps/api/core";
 import CostBadge from "./CostBadge";
-import { Brain, GitFork } from "lucide-react";
+import { Brain, GitFork, Pencil, Copy, GitBranch } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -37,6 +38,7 @@ export default function MessageBubble({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const [showBranchDialog, setShowBranchDialog] = useState(false);
+  const [showFabMenu, setShowFabMenu] = useState(false);
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
@@ -207,29 +209,43 @@ export default function MessageBubble({
   };
 
   return (
-    <div
+    <motion.div
       id={`message-${message.id}`}
-      className={`my-6 flex ${isUser ? "justify-end" : "justify-start"} ${
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+      className={`my-4 flex ${isUser ? "justify-end" : "justify-start"} ${
         isHighlighted
-          ? "bg-[#e0af68]/10 p-4 rounded-3xl transition-all duration-300 border border-[#e0af68]/30 shadow-lg-soft"
+          ? "bg-[#e0af68]/10 p-4 rounded-3xl transition-all duration-300 border border-[#e0af68]/30 shadow-glow"
           : ""
-      } message-appear`}
+      }`}
     >
       {!isUser && (
-        <div className="w-10 h-10 mr-3 bg-gradient-to-br from-[#7aa2f7] to-[#bb9af7] rounded-2xl flex items-center justify-center shadow-md-soft flex-shrink-0">
-          <span className="text-white text-lg">🤖</span>
-        </div>
+        <motion.div
+          whileHover={{ scale: 1.05, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className="w-11 h-11 mr-4 bg-gradient-to-br from-[#7aa2f7] via-[#7dcfff] to-[#bb9af7] rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-[#7aa2f7]/20"
+        >
+          <span className="text-white text-xl">🤖</span>
+        </motion.div>
       )}
 
-      <div
-        className={`max-w-[75%] group relative ${
+      <motion.div
+        whileHover={{ scale: 1.005 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] group relative ${
           isUser
-            ? "bg-gradient-to-br from-[#7aa2f7] to-[#7dcfff] text-white shadow-lg-soft"
-            : "bg-[#24283b]/80 backdrop-blur-sm text-[#c0caf5] shadow-md-soft border border-[#414868]/50"
-        } rounded-3xl overflow-hidden transition-all duration-200 hover:shadow-xl-soft hover:scale-[1.01]`}
+            ? "bg-gradient-to-br from-[#7aa2f7] via-[#7dcfff] to-[#89ddff] text-white shadow-xl rounded-3xl ring-1 ring-white/20"
+            : "bg-[#24283b]/60 backdrop-blur-xl text-[#c0caf5] shadow-xl border border-[#414868]/40 rounded-3xl"
+        } overflow-hidden transition-all duration-200`}
+        style={{
+          boxShadow: isUser
+            ? "0 8px 32px -4px rgba(122, 162, 247, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+            : "0 8px 32px -4px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(65, 72, 104, 0.3)",
+        }}
       >
-        <div className="px-6 py-4">
-          <div className="flex-1 min-w-0">
+        <div className="px-6 py-6">
+          <div className="flex-1 min-w-0 overflow-hidden">
             {isEditing ? (
               <div className="space-y-3">
                 <textarea
@@ -279,10 +295,10 @@ export default function MessageBubble({
 
           {/* Message Footer */}
           {!isEditing && (
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10 dark:border-[#414868]/30">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between mt-6 pt-5 border-t border-white/10 dark:border-[#414868]/30">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div
-                  className={`text-xs font-medium ${isUser ? "text-white/60" : "text-[#565f89]"}`}
+                  className={`text-xs font-medium tabular-nums ${isUser ? "text-white/70" : "text-[#565f89]"}`}
                 >
                   {formatTime((message as any).timestamp)}
                 </div>
@@ -294,13 +310,9 @@ export default function MessageBubble({
                     compact
                   />
                 )}
-              </div>
-
-              {/* Action Icons */}
-              <div className="flex items-center gap-1">
                 {/* Status Indicators */}
                 {isUser && message.status === "pending" && (
-                  <div className="flex items-center space-x-1 mr-2">
+                  <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 bg-white/70 rounded-full animate-pulse"></div>
                     <span className="text-xs text-white/70 font-medium">
                       Sending
@@ -308,33 +320,84 @@ export default function MessageBubble({
                   </div>
                 )}
                 {isUser && message.status === "failed" && (
-                  <button
-                    className="text-xs px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-all duration-200 font-medium shadow-sm-soft hover:shadow-md-soft mr-2"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-[#f7768e]/20 hover:bg-[#f7768e]/30 text-[#f7768e] border border-[#f7768e]/30 transition-all duration-200 font-medium"
                     onClick={() => retryMessage(message.id)}
                   >
                     Retry
-                  </button>
+                  </motion.button>
                 )}
+              </div>
 
-                {/* Edit button for user messages */}
-                {isUser && (
-                  <button
-                    onClick={handleEdit}
-                    className={`
-                      p-1.5 rounded-lg transition-all duration-200
-                      ${
-                        isUser
-                          ? "text-white/60 hover:text-white hover:bg-white/10"
-                          : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
-                      }
-                    `}
-                    title="Edit message"
-                    aria-label="Edit message"
+              {/* Action Icons */}
+              <div className="flex items-center gap-1.5 ml-4 relative">
+                {/* Primary actions - always visible */}
+                <div className="flex items-center gap-1">
+                  {/* Edit button for user messages */}
+                  {isUser && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleEdit}
+                      className="p-2.5 rounded-xl transition-all duration-150 text-white/60 hover:text-white hover:bg-white/15"
+                      title="Edit message"
+                      aria-label="Edit message"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </motion.button>
+                  )}
+
+                  {/* Copy button for assistant messages */}
+                  {!isUser && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleCopy}
+                      className="p-2.5 rounded-xl transition-all duration-150 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                      title="Copy to clipboard"
+                      aria-label="Copy message"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </motion.button>
+                  )}
+
+                  {/* Branch button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowBranchDialog(true)}
+                    className={`p-2.5 rounded-xl transition-all duration-150 ${
+                      isUser
+                        ? "text-white/60 hover:text-white hover:bg-white/15"
+                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                    }`}
+                    title="Create branch"
+                    aria-label="Create branch"
+                  >
+                    <GitBranch className="w-4 h-4" />
+                  </motion.button>
+                </div>
+
+                {/* FAB Menu for secondary actions */}
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowFabMenu(!showFabMenu)}
+                    className={`p-2.5 rounded-xl transition-all duration-150 ${
+                      isUser
+                        ? "text-white/60 hover:text-white hover:bg-white/15"
+                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                    } ${showFabMenu ? (isUser ? "bg-white/15 text-white" : "bg-[#414868] text-[#c0caf5]") : ""}`}
+                    title="More actions"
+                    aria-label="More actions"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
+                      width="16"
+                      height="16"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -342,102 +405,67 @@ export default function MessageBubble({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      <circle cx="12" cy="12" r="1" />
+                      <circle cx="12" cy="5" r="1" />
+                      <circle cx="12" cy="19" r="1" />
                     </svg>
-                  </button>
-                )}
+                  </motion.button>
 
-                {/* Copy button for assistant messages */}
-                {!isUser && (
-                  <button
-                    onClick={handleCopy}
-                    className="p-1.5 rounded-lg transition-all duration-200 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
-                    title="Copy to clipboard"
-                    aria-label="Copy message"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  </button>
-                )}
+                  {/* FAB Menu Dropdown */}
+                  <AnimatePresence>
+                    {showFabMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
+                        className={`absolute right-0 bottom-full mb-2 rounded-2xl shadow-2xl border overflow-hidden min-w-[160px] ${
+                          isUser
+                            ? "bg-white/10 backdrop-blur-xl border-white/20"
+                            : "bg-[#1a1b26]/95 backdrop-blur-xl border-[#414868]/50"
+                        }`}
+                      >
+                        {/* Remember This */}
+                        <motion.button
+                          whileHover={{ x: 4 }}
+                          onClick={() => {
+                            handleRemember();
+                            setShowFabMenu(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                            isUser
+                              ? "text-white/80 hover:bg-white/10 hover:text-white"
+                              : "text-[#9aa5ce] hover:bg-[#414868] hover:text-[#c0caf5]"
+                          }`}
+                        >
+                          <Brain className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm font-medium">Remember</span>
+                        </motion.button>
 
-                {/* Branch button */}
-                <button
-                  onClick={() => setShowBranchDialog(true)}
-                  className={`
-                    p-1.5 rounded-lg transition-all duration-200
-                    ${
-                      isUser
-                        ? "text-white/60 hover:text-white hover:bg-white/10"
-                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
-                    }
-                  `}
-                  title="Create branch from this message"
-                  aria-label="Create branch"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="6" y1="3" x2="6" y2="15" />
-                    <circle cx="18" cy="6" r="3" />
-                    <circle cx="6" cy="18" r="3" />
-                    <path d="m18 9-1.5 1.5L18 12" />
-                  </svg>
-                </button>
-
-                {/* Remember This button */}
-                <button
-                  onClick={handleRemember}
-                  className={`
-                    p-1.5 rounded-lg transition-all duration-200
-                    ${
-                      isUser
-                        ? "text-white/60 hover:text-white hover:bg-white/10"
-                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
-                    }
-                  `}
-                  title="Remember this message"
-                  aria-label="Remember message"
-                >
-                  <Brain className="w-3.5 h-3.5" />
-                </button>
-
-                {/* Fork Conversation button */}
-                <button
-                  onClick={handleFork}
-                  className={`
-                    p-1.5 rounded-lg transition-all duration-200
-                    ${
-                      isUser
-                        ? "text-white/60 hover:text-white hover:bg-white/10"
-                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
-                    }
-                  `}
-                  title="Fork conversation from this point"
-                  aria-label="Fork conversation"
-                >
-                  <GitFork className="w-3.5 h-3.5" />
-                </button>
+                        {/* Fork Conversation */}
+                        <motion.button
+                          whileHover={{ x: 4 }}
+                          onClick={() => {
+                            handleFork();
+                            setShowFabMenu(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-t ${
+                            isUser
+                              ? "text-white/80 hover:bg-white/10 hover:text-white border-white/10"
+                              : "text-[#9aa5ce] hover:bg-[#414868] hover:text-[#c0caf5] border-[#414868]/50"
+                          }`}
+                        >
+                          <GitFork className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm font-medium">Fork</span>
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           )}
@@ -463,12 +491,16 @@ export default function MessageBubble({
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {isUser && (
-        <div className="w-10 h-10 ml-3 bg-gradient-to-br from-[#565f89] to-[#414868] rounded-2xl flex items-center justify-center shadow-md-soft flex-shrink-0">
-          <span className="text-white text-lg">👤</span>
-        </div>
+        <motion.div
+          whileHover={{ scale: 1.05, rotate: -5 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className="w-11 h-11 ml-4 bg-gradient-to-br from-[#565f89] to-[#414868] rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-[#565f89]/20"
+        >
+          <span className="text-white text-xl">👤</span>
+        </motion.div>
       )}
 
       {/* Branch Dialog */}
@@ -481,6 +513,6 @@ export default function MessageBubble({
           }}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
