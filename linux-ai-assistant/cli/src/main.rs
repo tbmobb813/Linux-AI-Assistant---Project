@@ -341,7 +341,9 @@ fn send_ipc(
     let addr = "127.0.0.1:39871";
 
     // Optimized connection with timeouts and buffering
-    let socket_addr = addr.parse().map_err(|e| format!("Failed to parse address '{}': {}", addr, e))?;
+    let socket_addr = addr
+        .parse()
+        .map_err(|e| format!("Failed to parse address '{}': {}", addr, e))?;
     let mut stream = TcpStream::connect_timeout(&socket_addr, IPC_TIMEOUT)
         .map_err(|e| format!("connect {} failed: {}", addr, e))?;
 
