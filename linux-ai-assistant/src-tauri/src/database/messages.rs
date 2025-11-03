@@ -115,6 +115,32 @@ impl Message {
         messages.collect()
     }
 
+    pub fn update(conn: &Connection, id: &str, content: &str) -> Result<Self> {
+        // Update message content
+        conn.execute(
+            "UPDATE messages SET content = ?1 WHERE id = ?2",
+            params![content, id],
+        )?;
+
+        // Get the updated message
+        let mut stmt = conn.prepare("SELECT id, conversation_id, role, content, timestamp, tokens_used FROM messages WHERE id = ?1")?;
+        let message = stmt.query_row(params![id], |row| {
+            Ok(Message {
+                id: row.get(0)?,
+                conversation_id: row.get(1)?,
+                role: row.get(2)?,
+                content: row.get(3)?,
+                timestamp: row.get(4)?,
+                tokens_used: row.get(5)?,
+            })
+        })?;
+
+        // Touch the conversation to update its timestamp
+        super::conversations::Conversation::touch(conn, &message.conversation_id)?;
+
+        Ok(message)
+    }
+
     pub fn delete(conn: &Connection, id: &str) -> Result<()> {
         // Soft-delete message by marking deleted flag
         let now = SystemTime::now()

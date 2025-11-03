@@ -37,27 +37,29 @@ export default function ExecutionAuditModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-11/12 max-w-3xl bg-white dark:bg-gray-900 rounded shadow-lg p-4">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-11/12 max-w-3xl bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold">Execution Audit</h3>
+          <h3 className="text-sm font-semibold text-[#c0caf5]">
+            Execution Audit
+          </h3>
           <div className="flex items-center gap-2">
             <button
               onClick={() => copy(auditModal.content)}
-              className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
+              className="text-xs px-2 py-1 rounded bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] transition-colors"
             >
               Copy
             </button>
             <button
               onClick={onRotate}
               disabled={rotating}
-              className="text-xs px-2 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-60"
+              className="text-xs px-2 py-1 rounded bg-[#e0af68] text-[#1a1b26] hover:bg-[#e0af68]/90 disabled:opacity-60 transition-colors font-medium"
             >
               {rotating ? "Rotating…" : "Rotate Log"}
             </button>
             <button
               onClick={closeAudit}
-              className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+              className="text-xs px-2 py-1 rounded bg-[#f7768e] text-[#1a1b26] hover:bg-[#f7768e]/90 transition-colors font-medium"
             >
               Close
             </button>
@@ -65,7 +67,7 @@ export default function ExecutionAuditModal() {
         </div>
 
         <div className="space-y-3">
-          <pre className="max-h-96 overflow-auto p-2 bg-gray-100 dark:bg-gray-800 rounded text-sm whitespace-pre-wrap">
+          <pre className="max-h-96 overflow-auto p-2 bg-[#24283b] border border-[#414868] rounded text-sm text-[#c0caf5] whitespace-pre-wrap">
             {auditModal.content || "(no audit entries)"}
           </pre>
         </div>

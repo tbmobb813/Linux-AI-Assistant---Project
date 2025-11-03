@@ -108,6 +108,8 @@ That's it! You're ready to use the Linux AI Assistant.
 - Paste code or describe the problem
 - Get suggestions and explanations
 - Copy fixed code directly
+- Use `/docs` to search project documentation
+- Use `/run` to test commands safely
 - See: [User Guide → Development Workflow](USER_GUIDE.md#development-workflow)
 
 ### Keep conversations private
@@ -118,14 +120,37 @@ That's it! You're ready to use the Linux AI Assistant.
 
 ### Export my conversations
 
-- Click the export icon or use Settings → Export
-- Choose JSON (for reimport) or Markdown (for sharing)
+- Click the export icon or use `/export` slash command
+- Choose from 4 formats: JSON, Markdown, HTML, PDF
+- Use global shortcut `Ctrl+E` for quick export
 - See: [User Guide → Export & Import](USER_GUIDE.md#5-export--import)
+
+### Search project files
+
+- Use `/docs <query>` slash command
+- Use `Ctrl+Shift+F` global shortcut
+- Search across 40+ file types with full-text search
+- See: [User Guide → Document Search](USER_GUIDE.md#25-document-search--project-integration)
+
+### Organize with profiles
+
+- Create profiles for different projects or contexts
+- Switch with `/profile <name>` or `Ctrl+P`
+- Separate conversation history and settings per profile
+- See: [User Guide → Profile System](USER_GUIDE.md#6-profile-system)
+
+### Use keyboard shortcuts
+
+- 12 configurable global shortcuts across categories
+- `Ctrl+Space` to toggle window, `Ctrl+E` to export
+- Customize all shortcuts in Settings → Global Shortcuts
+- See: [User Guide → Keyboard & Hotkeys](USER_GUIDE.md#keyboard--hotkeys)
 
 ### Use the command line
 
 - Install CLI companion tool
 - Use `lai` commands in your terminal
+- Use `lai capture` for safe command execution with AI analysis
 - Integrate with scripts and workflows
 - See: [CLI Guide](CLI_GUIDE.md)
 
@@ -161,19 +186,31 @@ That's it! You're ready to use the Linux AI Assistant.
 
 ### 🧠 Developer Features
 
+- **Slash Commands**: 7 powerful shortcuts (`/docs`, `/run`, `/export`, etc.)
+- **Document Search**: Full-text search across 40+ file types
+- **Terminal Integration**: Safe command execution with AI analysis
+- **Profile System**: Context-aware conversation management
+- **Global Shortcuts**: 12 configurable system-wide shortcuts
 - Project-aware context injection
 - Git integration for code awareness
-- Terminal command suggestions
-- Sandboxed code execution
-- CLI companion tool
+- CLI companion tool with capture capabilities
 
 ### 📚 Organization
 
 - Conversation search and filtering
 - Pin important conversations
 - Archive for organization
-- Tag-based categorization
+- Profile-based organization
+- Tag-based categorization (coming soon)
 - Full-text search across all conversations
+
+### 📤 Export & Sharing
+
+- **4 Export Formats**: JSON, Markdown, HTML, PDF
+- Individual and bulk export options
+- Rich formatting with syntax highlighting
+- Professional PDF layouts
+- Native file picker integration
 
 ### ⚡ Performance
 
@@ -295,6 +332,18 @@ linux-ai-assistant/
 
 ## 📜 Version History
 
+**Version 1.1** - November 2025
+
+- 🚀 **Linux Quick Wins Complete**: 6 major enhancements implemented
+  - Slash Commands System (7 commands)
+  - Document Search & Full-text Indexing
+  - Terminal Capture & AI Analysis
+  - Profile Management System
+  - Enhanced Export (4 formats)
+  - Expanded Global Shortcuts (12 shortcuts)
+- 📚 **Documentation Updates**: Comprehensive guide updates
+- 🔧 **Developer Experience**: Enhanced CLI tools and API documentation
+
 **Version 1.0** - October 2025
 
 - Phase 5: Local AI & Privacy - Complete
@@ -310,8 +359,8 @@ Linux AI Assistant is licensed under [LICENSE FILE]. See repository for details.
 
 ---
 
-**Last Updated**: October 2025  
-**Documentation Version**: 1.0
+**Last Updated**: November 2025  
+**Documentation Version**: 1.1
 
 For the latest documentation, visit:
 <https://github.com/tbmobb813/Linux-AI-Assistant>

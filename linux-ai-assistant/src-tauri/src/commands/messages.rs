@@ -107,6 +107,16 @@ pub async fn search_messages(
 }
 
 #[tauri::command]
+pub async fn update_message(
+    db: State<'_, Database>,
+    id: String,
+    content: String,
+) -> Result<Message, String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    Message::update(&conn, &id, &content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn delete_message(db: State<'_, Database>, id: String) -> Result<(), String> {
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
     Message::delete(&conn, &id).map_err(|e| e.to_string())

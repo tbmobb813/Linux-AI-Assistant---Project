@@ -17,7 +17,12 @@
 
 - 🔒 **Privacy First**: Local AI processing with Ollama - your data never leaves your machine
 - 🌐 **Multi-Provider Support**: OpenAI, Anthropic, Google Gemini, and local models
-- 🖥️ **Native Linux Integration**: System tray, global shortcuts, desktop notifications
+- 🖥️ **Native Linux Integration**: System tray, 12 global shortcuts, desktop notifications
+- 💬 **Slash Commands**: 7 powerful shortcuts (`/docs`, `/run`, `/export`, `/profile`, etc.)
+- 🔍 **Document Search**: Full-text search across 40+ file types with instant results
+- 🖥️ **Terminal Integration**: Safe command execution with AI analysis via CLI tool
+- 👤 **Profile System**: Context-aware conversation management for different projects
+- 📤 **Enhanced Export**: 4 formats (JSON, Markdown, HTML, PDF) with rich styling
 - 🔧 **Developer Tools**: CLI companion, IPC communication, project-aware context
 - 📦 **Easy Installation**: AppImage, DEB, RPM packages available
 - ⚡ **High Performance**: 67% smaller than Electron alternatives, built with Rust + Tauri
@@ -60,7 +65,12 @@ sudo rpm -i linux-ai-assistant_*.rpm
 3. **Add API Key** (for cloud providers) or **Install Ollama** (for local AI)
 4. **Start Chatting**! 🎉
 
-> 💡 **Tip**: Use `Ctrl+Space` (global shortcut) to invoke the assistant from anywhere!
+> 💡 **Pro Tips**:
+>
+> - Use `Ctrl+Space` to invoke the assistant from anywhere
+> - Type `/` in chat for slash commands (`/docs`, `/run`, `/export`, etc.)
+> - Use `Ctrl+Shift+F` for instant document search
+> - Use `Ctrl+E` to export current conversation
 
 ## Project Overview
 
@@ -456,12 +466,60 @@ Keyring: keyring-rs
 - **Progress Feedback**: Real-time status updates for all operations
 - **Error Handling**: Clear error messages and recovery guidance
 
-  ├── package.json
-  ├── tsconfig.json
-  ├── tailwind.config.js
-  └── README.md
+## Linux-Centric Quick Wins ✅ **COMPLETED November 2025**
 
-Development Roadmap
+**🚀 Six major Linux-first enhancements implemented to maximize developer productivity!**
+
+### ✅ **1. Slash Commands System**
+
+- **7 powerful commands**: `/clear`, `/export`, `/new`, `/help`, `/docs`, `/run`, `/profile`
+- **Real-time suggestions** with fuzzy matching and autocomplete
+- **AI integration** for processing command results
+- **Usage**: Type `/` in chat to see available commands
+
+### ✅ **2. Document Search & Full-Text Indexing**
+
+- **40+ file types** supported (code, docs, configs)
+- **FTS5-powered search** with sub-second performance
+- **Smart ignore patterns** (.gitignore + custom patterns)
+- **Usage**: `/docs <query>` or `Ctrl+Shift+F` global shortcut
+
+### ✅ **3. Terminal Capture & AI Analysis**
+
+- **Safe command execution** with validation and sandboxing
+- **AI error analysis** with contextual suggestions
+- **CLI integration**: `linux-ai-assistant capture "command"`
+- **Usage**: `/run <command>` in chat or CLI tool for advanced capture
+
+### ✅ **4. Profile System**
+
+- **Context-aware** conversation management per project
+- **CRUD operations** with intuitive management interface
+- **Quick switching** via `/profile <name>` or `Ctrl+P`
+- **Usage**: Create profiles for different projects or work contexts
+
+### ✅ **5. Enhanced Export Formats**
+
+- **4 professional formats**: JSON, Markdown, HTML, PDF
+- **Rich styling** with syntax highlighting and navigation
+- **Multiple export methods**: slash commands, buttons, shortcuts
+- **Usage**: `/export` command or `Ctrl+E` global shortcut
+
+### ✅ **6. Expanded Global Shortcuts**
+
+- **12 configurable shortcuts** organized by category
+- **System-wide access** to all major features
+- **Enhanced UI** with category organization and conflict detection
+- **Usage**: `Ctrl+Space` (toggle), `Ctrl+E` (export), `Ctrl+P` (profiles), etc.
+
+**Impact**: These enhancements provide immediate productivity improvements for Linux developers while maintaining zero breaking changes and full backward compatibility.
+
+├── package.json
+├── tsconfig.json
+├── tailwind.config.js
+└── README.md
+
+## Development Roadmap
 
 Phase 1: Foundation (Weeks 1-3)
 Goal: Basic application structure and chat interface

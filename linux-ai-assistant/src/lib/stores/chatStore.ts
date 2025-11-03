@@ -10,6 +10,10 @@ import type {
 import { getProvider } from "../providers/provider";
 import { notifySafe } from "../utils/tauri";
 import { useProjectStore } from "./projectStore";
+import { useRoutingStore } from "./routingStore";
+import { useSettingsStore } from "./settingsStore";
+import { selectOptimalModel, classifyQuery } from "../services/routingService";
+import { invokeSafe, isTauriEnvironment } from "../utils/tauri";
 
 interface ChatState {
   // Current state
@@ -18,6 +22,11 @@ interface ChatState {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
+
+  // Search state
+  searchQuery: string;
+  searchResults: Conversation[];
+  isSearching: boolean;
 
   // Actions
   loadConversations: () => Promise<void>;
@@ -30,9 +39,18 @@ interface ChatState {
   deleteConversation: (id: string) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
 
+  // Search actions
+  searchConversations: (query: string) => Promise<void>;
+  clearSearch: () => void;
+
   sendMessage: (content: string) => Promise<void>;
   retryMessage: (id: string) => Promise<void>;
+  updateMessage: (id: string, content: string) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
+
+  // Branching actions
+  createBranch: (messageId: string, title: string) => Promise<Conversation>;
+  getBranches: (conversationId: string) => Promise<Conversation[]>;
 
   clearError: () => void;
 }
@@ -43,6 +61,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   error: null,
+
+  // Search state
+  searchQuery: "",
+  searchResults: [],
+  isSearching: false,
 
   loadConversations: async () => {
     try {
@@ -176,6 +199,70 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       // Call provider to generate assistant response with streaming support and persist it
       const provider = getProvider();
+
+      // INTELLIGENT ROUTING: Select optimal model based on query and context
+      const routingStore = useRoutingStore.getState();
+      const settingsStore = useSettingsStore.getState();
+      let selectedModelId = settingsStore.defaultModel;
+
+      // Only route if enabled (and not manually overridden)
+      if (routingStore.settings.enabled || routingStore.manualOverride) {
+        try {
+          // Get project context if available
+          let projectType: string | undefined;
+          if (isTauriEnvironment()) {
+            try {
+              const projectInfo = await invokeSafe<{ project_type?: string }>(
+                "detect_project_type",
+                {},
+              );
+              projectType = projectInfo?.project_type;
+            } catch {}
+          }
+
+          // Build routing context
+          const routingContext = {
+            query: content,
+            projectType,
+            conversationLength: get().messages.length,
+            hasCodeContext: content.includes("```") || content.includes("code"),
+            hasErrorContext:
+              content.toLowerCase().includes("error") ||
+              content.toLowerCase().includes("fix"),
+            previousModel: selectedModelId || undefined,
+            userPreference: routingStore.manualOverride || undefined,
+          };
+
+          // Get routing decision
+          const decision = selectOptimalModel(
+            routingContext,
+            routingStore.settings,
+          );
+
+          // Update routing store with decision
+          routingStore.setCurrentDecision(decision);
+
+          // Track decision for analytics
+          const classification = classifyQuery(content, routingContext);
+          routingStore.addRoutingDecision(
+            decision,
+            classification.type,
+            projectType,
+          );
+
+          // Use routed model
+          selectedModelId = decision.modelId;
+        } catch (err) {
+          console.warn("Routing failed, using default model:", err);
+        }
+      }
+
+      // Temporarily override settings for this request
+      const originalModel = settingsStore.defaultModel;
+      if (selectedModelId && selectedModelId !== originalModel) {
+        settingsStore.defaultModel = selectedModelId;
+      }
+
       const messagesForProvider = get().messages.map((m) => ({
         role: m.role as "user" | "assistant" | "system",
         content: m.content,
@@ -228,6 +315,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messagesForProvider as any,
           onChunk,
         );
+
+        // Restore original model setting
+        if (selectedModelId && selectedModelId !== originalModel) {
+          settingsStore.defaultModel = originalModel;
+        }
+
         // if provider didn't stream, assistantContent will hold final string
         if (!finalContent) finalContent = assistantContent;
 
@@ -254,6 +347,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
           await notifySafe(title, preview);
         } catch {}
       } catch (err) {
+        // Restore original model setting on error
+        if (selectedModelId && selectedModelId !== originalModel) {
+          settingsStore.defaultModel = originalModel;
+        }
+
         // mark assistant message as failed
         set((state) => ({
           messages: state.messages.map((m) =>
@@ -411,6 +509,79 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }));
     } catch (error) {
       set({ error: String(error) });
+    }
+  },
+
+  updateMessage: async (id, content) => {
+    try {
+      await db.messages.update(id, { content });
+
+      set((state) => ({
+        messages: state.messages.map((m) =>
+          m.id === id ? { ...m, content } : m,
+        ),
+      }));
+    } catch (error) {
+      set({ error: String(error) });
+    }
+  },
+
+  // Search functions
+  searchConversations: async (query) => {
+    if (!query.trim()) {
+      set({ searchQuery: "", searchResults: [], isSearching: false });
+      return;
+    }
+
+    try {
+      set({ isSearching: true, searchQuery: query });
+      const results = await db.conversations.search(query, 20);
+      set({ searchResults: results, isSearching: false });
+    } catch (error) {
+      set({ error: String(error), isSearching: false });
+    }
+  },
+
+  clearSearch: () => {
+    set({ searchQuery: "", searchResults: [], isSearching: false });
+  },
+
+  // Branching functions
+  createBranch: async (messageId, title) => {
+    const state = get();
+    if (!state.currentConversation) {
+      throw new Error("No current conversation");
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const branch = await db.conversations.createBranch(
+        state.currentConversation.id,
+        messageId,
+        title,
+      );
+
+      // Add the new branch to conversations list
+      set((state) => ({
+        conversations: [branch, ...state.conversations],
+        isLoading: false,
+      }));
+
+      return branch;
+    } catch (error) {
+      set({ error: String(error), isLoading: false });
+      throw error;
+    }
+  },
+
+  getBranches: async (conversationId) => {
+    try {
+      const branches = await db.conversations.getBranches(conversationId);
+      return branches;
+    } catch (error) {
+      set({ error: String(error) });
+      throw error;
     }
   },
 
