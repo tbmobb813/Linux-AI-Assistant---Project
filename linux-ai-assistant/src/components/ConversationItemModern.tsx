@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
 import type { ApiConversation } from "../lib/api/types";
 import { useChatStore } from "../lib/stores/chatStore";
+import { useBranchStore } from "../lib/stores/branchStore";
+import { GitBranch } from "lucide-react";
 import { useUiStore } from "../lib/stores/uiStore";
 import { invokeSafe } from "../lib/utils/tauri";
 import TagInput from "./TagInput";
@@ -24,6 +26,13 @@ export default function ConversationItem({
   const updateTitle = useChatStore((s) => s.updateConversationTitle);
   const deleteConversation = useChatStore((s) => s.deleteConversation);
   const addToast = useUiStore((s) => s.addToast);
+  const getBranchTree = useBranchStore((s) => s.getBranchTree);
+  const getActiveBranch = useBranchStore((s) => s.getActiveBranch);
+
+  // Branch metadata for this conversation
+  const branches = getBranchTree(conversation.id);
+  const extraBranchCount = Math.max(0, branches.length - 1); // exclude root
+  const activeBranch = getActiveBranch(conversation.id);
 
   const handleRename = async (e?: FormEvent) => {
     e?.preventDefault();
@@ -129,14 +138,31 @@ export default function ConversationItem({
               </div>
             </div>
 
-            {/* Model & Provider Info */}
-            <div className="flex items-center space-x-2 mb-3">
+            {/* Model & Provider Info + Branch Indicators */}
+            <div className="flex items-center flex-wrap gap-2 mb-3">
               <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#414868] text-xs font-medium text-[#c0caf5]">
                 🤖 {conversation.model}
               </span>
               <span className="text-xs text-[#9aa5ce]">
                 {new Date(conversation.updated_at).toLocaleDateString()}
               </span>
+              {extraBranchCount > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7aa2f7]/15 border border-[#7aa2f7]/30 text-[#7aa2f7] text-xs"
+                  title={`${extraBranchCount} branched path${extraBranchCount > 1 ? "s" : ""}`}
+                >
+                  <GitBranch className="w-3.5 h-3.5" />
+                  {extraBranchCount}
+                </span>
+              )}
+              {activeBranch && activeBranch.parentBranchId && (
+                <span
+                  className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#bb9af7]/15 border border-[#bb9af7]/30 text-[#bb9af7] text-[10px] max-w-[10rem] truncate"
+                  title={`Active branch: ${activeBranch.name}`}
+                >
+                  {activeBranch.name}
+                </span>
+              )}
             </div>
 
             {/* Action Buttons - Show on Hover */}

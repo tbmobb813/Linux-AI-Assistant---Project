@@ -166,6 +166,46 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ sessionId }) => {
           <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">
             Files Changed ({currentSession.files.length})
           </h3>
+
+          {/* Overall Statistics */}
+          {(() => {
+            const overallStats = currentSession.files.reduce(
+              (acc, file) => {
+                file.hunks.forEach((hunk) => {
+                  hunk.lines.forEach((line) => {
+                    if (line.type === "add") acc.added++;
+                    else if (line.type === "remove") acc.removed++;
+                  });
+                });
+                return acc;
+              },
+              { added: 0, removed: 0 },
+            );
+            return (
+              <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-900/50 rounded text-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Total Changes
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Plus className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    <span className="font-mono text-green-700 dark:text-green-300">
+                      {overallStats.added}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Minus className="w-3 h-3 text-red-600 dark:text-red-400" />
+                    <span className="font-mono text-red-700 dark:text-red-300">
+                      {overallStats.removed}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           <AnimatedButton
             onClick={handleCopyMarkdown}
             variant="secondary"
@@ -250,7 +290,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ sessionId }) => {
           </div>
         ) : (
           <div className="p-6">
-            {/* File Header */}
+            {/* File Header with Stats */}
             <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-2">
                 <FileCode className="w-5 h-5 text-blue-500" />
@@ -276,6 +316,40 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ sessionId }) => {
                   </span>
                 )}
               </div>
+
+              {/* Diff Statistics */}
+              {(() => {
+                const stats = currentFile.hunks.reduce(
+                  (acc, hunk) => {
+                    hunk.lines.forEach((line) => {
+                      if (line.type === "add") acc.added++;
+                      else if (line.type === "remove") acc.removed++;
+                    });
+                    return acc;
+                  },
+                  { added: 0, removed: 0 },
+                );
+                return (
+                  <div className="flex items-center gap-4 text-sm mb-2">
+                    <div className="flex items-center gap-2">
+                      <Plus className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <span className="font-mono text-green-700 dark:text-green-300">
+                        +{stats.added}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Minus className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      <span className="font-mono text-red-700 dark:text-red-300">
+                        -{stats.removed}
+                      </span>
+                    </div>
+                    <span className="text-gray-500 dark:text-gray-400">
+                      ({stats.added + stats.removed} lines changed)
+                    </span>
+                  </div>
+                );
+              })()}
+
               {currentFile.oldPath && currentFile.status === "renamed" && (
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   Renamed from:{" "}

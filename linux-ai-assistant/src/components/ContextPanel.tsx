@@ -6,18 +6,68 @@ import {
   FileText,
   ChevronRight,
   DollarSign,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from "lucide-react";
 import { useProjectStore } from "../lib/stores/projectStore";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import CostDashboard from "./CostDashboard";
 
+// Storage keys for all sections
+const SECTION_KEYS = [
+  "usage-cost",
+  "project-files",
+  "git-status",
+  "quick-actions",
+  "recent-files",
+];
+
 // Context Panel - Right sidebar with project context
 export default function ContextPanel() {
+  const [allExpanded, setAllExpanded] = useState(true);
+
+  // Toggle all sections
+  const toggleAll = () => {
+    const newState = !allExpanded;
+    setAllExpanded(newState);
+
+    // Update all section states in localStorage
+    SECTION_KEYS.forEach((key) => {
+      try {
+        localStorage.setItem(
+          `context-section:${key}`,
+          newState ? "open" : "closed",
+        );
+      } catch {
+        // ignore storage errors
+      }
+    });
+
+    // Trigger re-render by dispatching a custom event
+    window.dispatchEvent(
+      new CustomEvent("context-panel-toggle-all", {
+        detail: { expanded: newState },
+      }),
+    );
+  };
+
   return (
     <div className="h-full flex flex-col bg-gray-900 border-l border-gray-800 panel-slide-in-right">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-gray-200">Context</h2>
+        <button
+          onClick={toggleAll}
+          className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded transition-colors flex-shrink-0"
+          title={allExpanded ? "Collapse All Sections" : "Expand All Sections"}
+          aria-label={allExpanded ? "Collapse All" : "Expand All"}
+        >
+          {allExpanded ? (
+            <ChevronsDownUp size={16} />
+          ) : (
+            <ChevronsUpDown size={16} />
+          )}
+        </button>
       </div>
 
       {/* Scrollable Content */}
@@ -38,10 +88,49 @@ interface SectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  storageKey?: string; // persist open/closed state when provided
 }
 
-function Section({ icon, title, children, defaultOpen = true }: SectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+function Section({
+  icon,
+  title,
+  children,
+  defaultOpen = true,
+  storageKey,
+}: SectionProps) {
+  const [isOpen, setIsOpen] = useState(() => {
+    if (!storageKey) return defaultOpen;
+    try {
+      const raw = localStorage.getItem(`context-section:${storageKey}`);
+      return raw === null ? defaultOpen : raw === "open";
+    } catch {
+      return defaultOpen;
+    }
+  });
+
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      localStorage.setItem(
+        `context-section:${storageKey}`,
+        isOpen ? "open" : "closed",
+      );
+    } catch {
+      // ignore storage errors
+    }
+  }, [isOpen, storageKey]);
+
+  // Listen for toggle-all events
+  useEffect(() => {
+    const handleToggleAll = (e: Event) => {
+      const customEvent = e as CustomEvent<{ expanded: boolean }>;
+      setIsOpen(customEvent.detail.expanded);
+    };
+
+    window.addEventListener("context-panel-toggle-all", handleToggleAll);
+    return () =>
+      window.removeEventListener("context-panel-toggle-all", handleToggleAll);
+  }, []);
 
   return (
     <div className="border-b border-gray-800">
@@ -71,6 +160,7 @@ function CostSection() {
       icon={<DollarSign size={16} />}
       title="Usage & Cost"
       defaultOpen={true}
+      storageKey="usage-cost"
     >
       <CostDashboard />
     </Section>
@@ -93,14 +183,22 @@ function ProjectFilesSection() {
 
   if (events.length === 0) {
     return (
-      <Section icon={<Folder size={16} />} title="Project Files">
+      <Section
+        icon={<Folder size={16} />}
+        title="Project Files"
+        storageKey="project-files"
+      >
         <div className="text-sm text-gray-500">No files detected</div>
       </Section>
     );
   }
 
   return (
-    <Section icon={<Folder size={16} />} title="Project Files">
+    <Section
+      icon={<Folder size={16} />}
+      title="Project Files"
+      storageKey="project-files"
+    >
       <div className="space-y-1 text-sm">
         {fileTree.length > 0 ? (
           fileTree.map((item, idx) => (
@@ -196,7 +294,11 @@ function GitStatusSection() {
 
   if (!gitContext?.is_repo) {
     return (
-      <Section icon={<GitBranch size={16} />} title="Git Status">
+      <Section
+        icon={<GitBranch size={16} />}
+        title="Git Status"
+        storageKey="git-status"
+      >
         <div className="text-sm text-gray-500">Not a git repository</div>
       </Section>
     );
@@ -205,7 +307,11 @@ function GitStatusSection() {
   const changedFiles = (gitContext.staged || 0) + (gitContext.unstaged || 0);
 
   return (
-    <Section icon={<GitBranch size={16} />} title="Git Status">
+    <Section
+      icon={<GitBranch size={16} />}
+      title="Git Status"
+      storageKey="git-status"
+    >
       <div className="space-y-2 text-sm">
         <div className="flex items-center justify-between text-gray-300">
           <span>Branch:</span>
@@ -259,7 +365,11 @@ function QuickActionsSection() {
   };
 
   return (
-    <Section icon={<Zap size={16} />} title="Quick Actions">
+    <Section
+      icon={<Zap size={16} />}
+      title="Quick Actions"
+      storageKey="quick-actions"
+    >
       <div className="space-y-2">
         {actions.map((action) => (
           <button
@@ -307,7 +417,11 @@ function RecentFilesSection() {
   }, [events]);
 
   return (
-    <Section icon={<FileText size={16} />} title="Recent Files">
+    <Section
+      icon={<FileText size={16} />}
+      title="Recent Files"
+      storageKey="recent-files"
+    >
       <div className="space-y-2 text-sm">
         {files.map((file, idx) => (
           <button

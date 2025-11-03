@@ -2,6 +2,7 @@ import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { useArtifactStore } from "../lib/stores/artifactStore";
 import { useMemoryStore } from "../lib/stores/memoryStore";
+import { useBranchStore } from "../lib/stores/branchStore";
 import type { ApiMessage } from "../lib/api/types";
 import { isTauriEnvironment } from "../lib/utils/tauri";
 import { useState, useEffect } from "react";
@@ -12,7 +13,7 @@ import { hasArtifacts } from "../lib/utils/artifactDetection";
 import { suggestFilename } from "../lib/utils/artifactDetection";
 import { invoke } from "@tauri-apps/api/core";
 import CostBadge from "./CostBadge";
-import { Brain } from "lucide-react";
+import { Brain, GitFork } from "lucide-react";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -40,6 +41,7 @@ export default function MessageBubble({
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
+  const messages = useChatStore((s) => s.messages);
   const addToast = useUiStore((s) => s.addToast);
   const addMemory = useMemoryStore((s) => s.addMemory);
   const currentConversation = useChatStore((s) => s.currentConversation);
@@ -111,6 +113,45 @@ export default function MessageBubble({
     } catch (error) {
       addToast({
         message: "Failed to save memory",
+        type: "error",
+        ttl: 3000,
+      });
+    }
+  };
+
+  const handleFork = () => {
+    try {
+      if (!currentConversation?.id) {
+        addToast({
+          message: "No active conversation to fork",
+          type: "error",
+          ttl: 3000,
+        });
+        return;
+      }
+
+      const messageIndex = messages.findIndex(
+        (m: ApiMessage) => m.id === message.id,
+      );
+      const branchName = `Branch from message ${messageIndex + 1}`;
+
+      const branchId = useBranchStore
+        .getState()
+        .createBranch(currentConversation.id, branchName, message.id);
+
+      if (branchId) {
+        useBranchStore
+          .getState()
+          .switchBranch(currentConversation.id, branchId);
+        addToast({
+          message: `Created and switched to "${branchName}"`,
+          type: "success",
+          ttl: 3000,
+        });
+      }
+    } catch (error) {
+      addToast({
+        message: "Failed to create branch",
         type: "error",
         ttl: 3000,
       });
@@ -345,6 +386,23 @@ export default function MessageBubble({
                   aria-label="Remember message"
                 >
                   <Brain className="w-4 h-4" />
+                </button>
+
+                {/* Fork Conversation button */}
+                <button
+                  onClick={handleFork}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${
+                      isUser
+                        ? "text-white/70 hover:text-white hover:bg-white/20"
+                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                    }
+                  `}
+                  title="Fork conversation from this point"
+                  aria-label="Fork conversation"
+                >
+                  <GitFork className="w-4 h-4" />
                 </button>
               </div>
             )}

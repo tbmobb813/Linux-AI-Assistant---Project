@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
+import { useBranchStore } from "../lib/stores/branchStore";
 import MessageBubble from "./MessageBubble";
 import MessageSearch from "./MessageSearch";
 import { LoadingSpinner, FadeIn } from "./Animations";
@@ -14,7 +15,7 @@ import RoutingIndicator from "./RoutingIndicator";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 import { calculateCost, formatCost } from "./CostBadge";
 import { copyConversationToClipboard } from "../lib/utils/conversationExport";
-import { Copy, Check, Sparkles } from "lucide-react";
+import { Copy, Check, Sparkles, Clipboard, GitBranch } from "lucide-react";
 import {
   parseSlashCommand,
   executeSlashCommand,
@@ -28,6 +29,7 @@ import VimModeIndicator from "./VimModeIndicator";
 export default function ChatInterface(): JSX.Element {
   const { currentConversation, messages, sendMessage, isLoading } =
     useChatStore();
+  const getActiveBranch = useBranchStore((s) => s.getActiveBranch);
   const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState("");
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
@@ -38,12 +40,41 @@ export default function ChatInterface(): JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Filter messages based on active branch
+  const visibleMessages = useMemo(() => {
+    if (!currentConversation?.id) return messages;
+
+    const activeBranch = getActiveBranch(currentConversation.id);
+    if (!activeBranch) return messages;
+
+    // Root branch shows all messages
+    if (!activeBranch.parentBranchId) return messages;
+
+    // For other branches, show messages up to fork point + branch-specific messages
+    const forkPointId = activeBranch.forkPointMessageId;
+    if (!forkPointId) return messages;
+
+    const forkPointIndex = messages.findIndex((m) => m.id === forkPointId);
+    if (forkPointIndex === -1) return messages;
+
+    // Include all messages up to and including the fork point
+    const messagesUpToFork = messages.slice(0, forkPointIndex + 1);
+
+    // Add branch-specific messages
+    const branchMessageIds = new Set(activeBranch.messageIds);
+    const branchMessages = messages.filter((m) => branchMessageIds.has(m.id));
+
+    return [...messagesUpToFork, ...branchMessages];
+  }, [currentConversation?.id, messages, getActiveBranch]);
+
   // Handle copy conversation to clipboard
   const handleCopyConversation = async () => {
     if (!currentConversation) return;
 
     try {
-      await copyConversationToClipboard(currentConversation, messages);
+      // Respect active branch filtering when copying
+      // visibleMessages includes messages up to fork point + branch-specific
+      await copyConversationToClipboard(currentConversation, visibleMessages);
       setIsCopied(true);
       addToast({
         message: "Conversation copied to clipboard!",
@@ -54,6 +85,70 @@ export default function ChatInterface(): JSX.Element {
     } catch (error) {
       addToast({
         message: "Failed to copy conversation",
+        type: "error",
+        ttl: 3000,
+      });
+    }
+  };
+
+  // Handle analyze clipboard
+  const handleAnalyzeClipboard = async () => {
+    try {
+      const clipboardText = await readClipboardText();
+
+      if (!clipboardText?.trim()) {
+        addToast({
+          message: "Clipboard is empty",
+          type: "error",
+          ttl: 2000,
+        });
+        return;
+      }
+
+      // Auto-detect content type and create appropriate prompt
+      let prompt = "";
+      const content = clipboardText.trim();
+
+      // Detect error patterns
+      if (
+        content.includes("Error:") ||
+        content.includes("Exception:") ||
+        content.includes("Traceback") ||
+        content.match(/at .+:\d+:\d+/)
+      ) {
+        prompt = `I encountered this error:\n\n\`\`\`\n${content}\n\`\`\`\n\nCan you help me understand and fix it?`;
+      }
+      // Detect code (has braces, semicolons, or indentation patterns)
+      else if (
+        content.match(/[{};]/) ||
+        content.match(/^\s{2,}/m) ||
+        content.match(/^(function|const|let|var|class|def|import|from)/m)
+      ) {
+        prompt = `Can you review and explain this code?\n\n\`\`\`\n${content}\n\`\`\``;
+      }
+      // Detect shell commands (starts with $ or has common command patterns)
+      else if (
+        content.match(/^\$\s/) ||
+        content.match(/^(npm|yarn|pnpm|cargo|git|docker|kubectl)\s/)
+      ) {
+        prompt = `Can you explain this command?\n\n\`\`\`bash\n${content}\n\`\`\``;
+      }
+      // Default: ask for analysis
+      else {
+        prompt = `Can you analyze this?\n\n${content}`;
+      }
+
+      setValue(prompt);
+      inputRef.current?.focus();
+
+      addToast({
+        message: "Clipboard content analyzed!",
+        type: "success",
+        ttl: 2000,
+      });
+    } catch (error) {
+      addToast({
+        message: "Failed to read clipboard",
         type: "error",
         ttl: 3000,
       });
@@ -443,6 +538,21 @@ export default function ChatInterface(): JSX.Element {
                       {currentConversation.provider}
                     </span>
                   </div>
+                  {/* Active Branch Badge */}
+                  {(() => {
+                    const ab = getActiveBranch(currentConversation.id);
+                    return ab && ab.parentBranchId ? (
+                      <div
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#bb9af7]/20 border border-[#bb9af7]/30"
+                        title={`Active branch: ${ab.name}`}
+                      >
+                        <GitBranch className="w-3.5 h-3.5 text-[#bb9af7]" />
+                        <span className="text-xs font-medium text-[#bb9af7] max-w-[12rem] truncate">
+                          {ab.name}
+                        </span>
+                      </div>
+                    ) : null;
+                  })()}
                   {gitContext && gitContext.is_repo && (
                     <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#9ece6a]/20 to-[#73daca]/20 border border-[#9ece6a]/30">
                       <span className="text-xs font-medium text-[#9ece6a]">
@@ -567,14 +677,14 @@ export default function ChatInterface(): JSX.Element {
         )}
 
         {!isLoading &&
-          messages.map((m) => (
+          visibleMessages.map((m) => (
             <MessageBubble
               key={m.id}
               message={m}
               isHighlighted={selectedMessageId === m.id}
             />
           ))}
-        {!isLoading && messages.length === 0 && (
+        {!isLoading && visibleMessages.length === 0 && (
           <FadeIn delay={300}>
             <div className="text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 bg-[#7aa2f7]/20 rounded-full flex items-center justify-center border border-[#7aa2f7]/30">
@@ -591,8 +701,8 @@ export default function ChatInterface(): JSX.Element {
           </FadeIn>
         )}
         {isLoading &&
-          messages.length > 0 &&
-          messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+          visibleMessages.length > 0 &&
+          visibleMessages.map((m) => <MessageBubble key={m.id} message={m} />)}
       </div>
 
       {/* Git Context Widget */}
@@ -799,6 +909,25 @@ export default function ChatInterface(): JSX.Element {
                 aria-label="Message input"
                 rows={1}
               />
+
+              {/* Clipboard Analysis Button */}
+              <button
+                type="button"
+                onClick={handleAnalyzeClipboard}
+                disabled={isLoading}
+                className={`
+                    flex-shrink-0 p-2 rounded-lg
+                    transition-all duration-150
+                    hover:bg-[#414868] active:scale-95
+                    focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    text-[#9aa5ce] hover:text-[#c0caf5]
+                  `}
+                title="Analyze clipboard content (Shift+V)"
+                aria-label="Analyze clipboard"
+              >
+                <Clipboard className="w-4 h-4" />
+              </button>
 
               {/* Send Button - Inline within input container */}
               <button

@@ -41,10 +41,12 @@ import { useUiStore } from "./lib/stores/uiStore";
 import { useReviewStore } from "./lib/stores/reviewStore";
 import { useLogStore } from "./lib/stores/logStore";
 import { useMemoryStore } from "./lib/stores/memoryStore";
+import { useBranchStore } from "./lib/stores/branchStore";
 import { withErrorHandling } from "./lib/utils/errorHandler";
 const CodeReviewPanel = lazy(() => import("./components/CodeReviewPanel"));
 const LogViewerPanel = lazy(() => import("./components/LogViewerPanel"));
 const MemoryViewer = lazy(() => import("./components/MemoryViewer"));
+const BranchViewer = lazy(() => import("./components/BranchViewer"));
 
 export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
@@ -90,6 +92,18 @@ export default function App(): JSX.Element {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleFocusMode]);
+
+  // Ctrl+Shift+B for branch viewer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "B") {
+        e.preventDefault();
+        useBranchStore.getState().toggleBranchViewer();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut with error handling
@@ -517,6 +531,7 @@ export default function App(): JSX.Element {
         <CodeReviewPanel />
         <LogViewerPanel />
         <MemoryViewer />
+        <BranchViewer />
       </Suspense>
     </AppErrorBoundary>
   );

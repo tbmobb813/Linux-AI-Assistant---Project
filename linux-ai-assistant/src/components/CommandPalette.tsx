@@ -116,6 +116,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         },
         keywords: ["memory", "remember", "recall", "knowledge", "session"],
       },
+      {
+        id: "branch-viewer",
+        title: "Conversation Branches",
+        subtitle:
+          "View and manage conversation branches — Shortcut: Ctrl+Shift+B",
+        category: "actions",
+        icon: "🌲",
+        action: async () => {
+          const { useBranchStore } = await import("../lib/stores/branchStore");
+          useBranchStore.getState().toggleBranchViewer();
+          onClose();
+        },
+        keywords: [
+          "branch",
+          "fork",
+          "tree",
+          "conversation",
+          "alternative",
+          "parallel",
+        ],
+      },
     ];
     const navigationCommands: Command[] = [
       {

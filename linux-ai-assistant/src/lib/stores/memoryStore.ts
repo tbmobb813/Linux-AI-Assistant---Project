@@ -71,20 +71,113 @@ const estimateTokens = (text: string): number => {
 
 /**
  * Calculate similarity score between query and memory content
- * Simple implementation using word overlap
+ * Enhanced algorithm with:
+ * - TF-IDF weighting for important terms
+ * - Context matching
+ * - Recency boost
+ * - Tag matching bonus
  */
-const calculateSimilarity = (query: string, content: string): number => {
-  const queryWords = query.toLowerCase().split(/\s+/);
-  const contentWords = content.toLowerCase().split(/\s+/);
+const calculateSimilarity = (
+  query: string,
+  memory: MemoryEntry,
+  allMemories: MemoryEntry[],
+): number => {
+  const queryWords = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 2); // Filter out short words
+  const contentWords = memory.content
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+  const contextWords = memory.context
+    ? memory.context
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length > 2)
+    : [];
 
-  const matches = queryWords.filter((word) =>
-    contentWords.some((cWord) => cWord.includes(word) || word.includes(cWord)),
-  );
+  if (queryWords.length === 0) return 0;
 
-  return matches.length / queryWords.length;
-};
+  // 1. Calculate TF-IDF scores for query terms
+  const termFrequency = new Map<string, number>();
+  const documentFrequency = new Map<string, number>();
 
-/**
+  // Calculate term frequency in current memory
+  contentWords.forEach((word) => {
+    termFrequency.set(word, (termFrequency.get(word) || 0) + 1);
+  });
+
+  // Calculate document frequency across all memories
+  allMemories.forEach((mem) => {
+    const words = new Set(
+      mem.content
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length > 2),
+    );
+    words.forEach((word) => {
+      documentFrequency.set(word, (documentFrequency.get(word) || 0) + 1);
+    });
+  });
+
+  // Calculate TF-IDF weighted similarity
+  let tfidfScore = 0;
+  let maxPossibleScore = 0;
+
+  queryWords.forEach((qWord) => {
+    const tf = termFrequency.get(qWord) || 0;
+    const df = documentFrequency.get(qWord) || 1;
+    const idf = Math.log(allMemories.length / df);
+    const tfidf = tf * idf;
+
+    maxPossibleScore += idf; // Best case: term appears once
+    tfidfScore += tfidf;
+
+    // Also check partial matches
+    contentWords.forEach((cWord) => {
+      if (cWord.includes(qWord) || qWord.includes(cWord)) {
+        tfidfScore += tfidf * 0.5; // Partial match bonus
+      }
+    });
+  });
+
+  const normalizedTfidf =
+    maxPossibleScore > 0 ? tfidfScore / maxPossibleScore : 0;
+
+  // 2. Context matching bonus
+  let contextScore = 0;
+  if (contextWords.length > 0) {
+    const contextMatches = queryWords.filter((qWord) =>
+      contextWords.some(
+        (cWord) => cWord.includes(qWord) || qWord.includes(cWord),
+      ),
+    );
+    contextScore = contextMatches.length / queryWords.length;
+  }
+
+  // 3. Tag matching bonus
+  let tagScore = 0;
+  if (memory.tags && memory.tags.length > 0) {
+    const tagMatches = queryWords.filter((qWord) =>
+      memory.tags.some((tag) => tag.toLowerCase().includes(qWord)),
+    );
+    tagScore = tagMatches.length / queryWords.length;
+  }
+
+  // 4. Recency boost (memories from last 24h get small boost)
+  const hoursSinceCreation = (Date.now() - memory.createdAt) / (1000 * 60 * 60);
+  const recencyBoost = hoursSinceCreation < 24 ? 0.1 : 0;
+
+  // Combine scores with weights
+  const finalScore =
+    normalizedTfidf * 0.6 + // Main content similarity
+    contextScore * 0.2 + // Context relevance
+    tagScore * 0.15 + // Tag matching
+    recencyBoost; // Recent memory bonus
+
+  return Math.min(finalScore, 1.0); // Cap at 1.0
+}; /**
  * Default max tokens per project (roughly equivalent to ~8k tokens)
  */
 const DEFAULT_MAX_TOKENS = 8000;
@@ -211,14 +304,16 @@ export const useMemoryStore = create<MemoryStore>()(
           return [];
         }
 
-        // Calculate similarity scores and sort
-        const scoredEntries = projectMemory.entries.map((entry) => ({
+        const allEntries = projectMemory.entries;
+
+        // Calculate similarity scores with enhanced algorithm
+        const scoredEntries = allEntries.map((entry) => ({
           entry,
-          score: calculateSimilarity(query, entry.content),
+          score: calculateSimilarity(query, entry, allEntries),
         }));
 
         return scoredEntries
-          .filter((item) => item.score > 0.1) // Minimum threshold
+          .filter((item) => item.score > 0.15) // Slightly higher threshold for better results
           .sort((a, b) => b.score - a.score)
           .slice(0, limit)
           .map((item) => item.entry);
