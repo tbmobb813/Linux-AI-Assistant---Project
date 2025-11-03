@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
-use std::time::Duration;
+use std::process::{Command, Stdio};
+use std::time::{Duration, Instant};
 
 // Performance optimizations
 const IPC_TIMEOUT: Duration = Duration::from_secs(10);
@@ -54,6 +55,20 @@ enum Commands {
     },
     /// Retrieve the most recent assistant response
     Last,
+    /// Capture command output and optionally analyze with AI
+    Capture {
+        /// Command to execute (will be run in a shell)
+        command: String,
+        /// Maximum execution time in seconds
+        #[arg(long, default_value_t = 30)]
+        timeout: u64,
+        /// Send output to AI for analysis
+        #[arg(long, default_value_t = false)]
+        analyze: bool,
+        /// Alternative flag for AI analysis
+        #[arg(long, default_value_t = false)]
+        ai_analyze: bool,
+    },
     /// Create an assistant message (dev/test)
     Create {
         /// Message content to insert
@@ -155,6 +170,66 @@ fn main() {
                 std::process::exit(1);
             }
         },
+        Commands::Capture {
+            command,
+            timeout,
+            analyze,
+            ai_analyze,
+        } => {
+            let should_analyze = *analyze || *ai_analyze;
+            match execute_command(command, *timeout) {
+                Ok(result) => {
+                    // Print the output
+                    if !result.stdout.is_empty() {
+                        println!("{}", result.stdout);
+                    }
+                    if !result.stderr.is_empty() {
+                        eprintln!("{}", result.stderr);
+                    }
+
+                    // Show execution summary
+                    eprintln!("\n--- Execution Summary ---");
+                    eprintln!("Command: {}", result.command);
+                    eprintln!("Exit Code: {}", result.exit_code.unwrap_or(-1));
+                    eprintln!("Duration: {}ms", result.execution_time_ms);
+                    if result.timed_out {
+                        eprintln!("Warning: Command timed out");
+                    }
+
+                    // Send to AI for analysis if requested
+                    if should_analyze {
+                        let analysis_prompt = format!(
+                            "Analyze this command execution:\n\nCommand: {}\nExit Code: {}\nExecution Time: {}ms\n\nStdout:\n{}\n\nStderr:\n{}\n\nPlease provide insights about what happened, any errors, and suggestions for improvement.",
+                            result.command,
+                            result.exit_code.unwrap_or(-1),
+                            result.execution_time_ms,
+                            if result.stdout.is_empty() { "(empty)" } else { &result.stdout },
+                            if result.stderr.is_empty() { "(empty)" } else { &result.stderr }
+                        );
+
+                        let payload = serde_json::json!({
+                            "prompt": analysis_prompt,
+                            "model": null,
+                            "provider": null,
+                            "new": false,
+                        });
+
+                        if let Err(e) = send_ipc("ask", None, Some(payload)) {
+                            eprintln!("Failed to send analysis request: {}", e);
+                            std::process::exit(1);
+                        }
+                        eprintln!("\n✓ Command output sent to AI for analysis");
+                    }
+
+                    // Exit with the command's exit code
+                    std::process::exit(result.exit_code.unwrap_or(1));
+                }
+                Err(e) => {
+                    eprintln!("Failed to execute command: {}", e);
+                    std::process::exit(1);
+                }
+            }
+        }
         Commands::Create {
             message,
             conversation_id,
@@ -299,6 +374,126 @@ fn send_ipc_with_response(
     serde_json::from_str(&line).map_err(|e| format!("Failed to parse response: {}", e))
 }
 
+fn execute_command(command: &str, timeout_secs: u64) -> Result<CaptureResult, String> {
+    let start = Instant::now();
+    let working_dir = env::current_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_else(|_| String::from("unknown"));
+
+    // Determine shell based on OS
+    let (shell, shell_arg) = if cfg!(target_os = "windows") {
+        ("cmd", "/C")
+    } else {
+        ("sh", "-c")
+    };
+
+    // Spawn the command with timeout
+    let mut child = Command::new(shell)
+        .arg(shell_arg)
+        .arg(command)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Failed to spawn command: {}", e))?;
+
+    let timeout_duration = Duration::from_secs(timeout_secs);
+    let mut timed_out = false;
+    let mut exit_code = None;
+
+    // Wait for process with timeout
+    loop {
+        if start.elapsed() >= timeout_duration {
+            // Kill the process
+            let _ = child.kill();
+            timed_out = true;
+            // Still need to call wait to clean up the process
+            let _ = child.wait();
+            break;
+        }
+
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                exit_code = status.code();
+                break;
+            }
+            Ok(None) => {
+                // Process still running, sleep briefly
+                std::thread::sleep(Duration::from_millis(100));
+            }
+            Err(e) => {
+                return Err(format!("Failed to wait for process: {}", e));
+            }
+        }
+    }
+
+    let execution_time_ms = start.elapsed().as_millis() as u64;
+
+    // Collect output - if timed out, we already killed and waited
+    let (stdout, stderr) = if timed_out {
+        // Process was killed, try to get what output we can
+        match child.try_wait() {
+            Ok(_) => {
+                // Get the pipes
+                let stdout_bytes = if let Some(mut stdout) = child.stdout.take() {
+                    let mut buf = Vec::new();
+                    let _ = std::io::Read::read_to_end(&mut stdout, &mut buf);
+                    buf
+                } else {
+                    Vec::new()
+                };
+                let stderr_bytes = if let Some(mut stderr) = child.stderr.take() {
+                    let mut buf = Vec::new();
+                    let _ = std::io::Read::read_to_end(&mut stderr, &mut buf);
+                    buf
+                } else {
+                    Vec::new()
+                };
+                (
+                    String::from_utf8_lossy(&stdout_bytes).to_string(),
+                    String::from_utf8_lossy(&stderr_bytes).to_string(),
+                )
+            }
+            Err(_) => (String::new(), String::new()),
+        }
+    } else {
+        // Normal completion - wait and collect output
+        let output = child
+            .wait_with_output()
+            .map_err(|e| format!("Failed to collect output: {}", e))?;
+
+        if exit_code.is_none() {
+            exit_code = output.status.code();
+        }
+
+        (
+            String::from_utf8_lossy(&output.stdout).to_string(),
+            String::from_utf8_lossy(&output.stderr).to_string(),
+        )
+    };
+
+    // Generate error summary if command failed
+    let error_summary = if exit_code.unwrap_or(1) != 0 || timed_out {
+        Some(if timed_out {
+            format!("Command timed out after {} seconds", timeout_secs)
+        } else {
+            format!("Command exited with code {}", exit_code.unwrap_or(-1))
+        })
+    } else {
+        None
+    };
+
+    Ok(CaptureResult {
+        command: command.to_string(),
+        working_dir,
+        exit_code,
+        stdout,
+        stderr,
+        execution_time_ms,
+        timed_out,
+        error_summary,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -372,5 +567,67 @@ mod tests {
         let result = send_ipc("test", None, None);
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("connect"));
+    }
+
+    #[test]
+    fn test_execute_command_success() {
+        let result = execute_command("echo 'hello world'", 5);
+        assert!(result.is_ok());
+        let capture = result.unwrap();
+        assert!(capture.stdout.contains("hello world"));
+        assert_eq!(capture.exit_code, Some(0));
+        assert!(!capture.timed_out);
+        assert!(capture.error_summary.is_none());
+    }
+
+    #[test]
+    fn test_execute_command_failure() {
+        // Use a command that fails on both Unix and Windows
+        let result = if cfg!(target_os = "windows") {
+            execute_command("exit 1", 5)
+        } else {
+            execute_command("exit 1", 5)
+        };
+
+        assert!(result.is_ok());
+        let capture = result.unwrap();
+        assert_eq!(capture.exit_code, Some(1));
+        assert!(capture.error_summary.is_some());
+        assert!(!capture.timed_out);
+    }
+
+    #[test]
+    fn test_execute_command_timeout() {
+        // Command that sleeps longer than timeout
+        let result = if cfg!(target_os = "windows") {
+            execute_command("timeout /t 10 /nobreak", 1)
+        } else {
+            execute_command("sleep 10", 1)
+        };
+
+        assert!(result.is_ok());
+        let capture = result.unwrap();
+        assert!(capture.timed_out);
+        assert!(capture.error_summary.is_some());
+        assert!(capture.error_summary.unwrap().contains("timed out"));
+    }
+
+    #[test]
+    fn test_capture_result_serialization() {
+        let result = CaptureResult {
+            command: "test".to_string(),
+            working_dir: "/tmp".to_string(),
+            exit_code: Some(0),
+            stdout: "output".to_string(),
+            stderr: "".to_string(),
+            execution_time_ms: 100,
+            timed_out: false,
+            error_summary: None,
+        };
+
+        let json = serde_json::to_string(&result).expect("Serialization should work");
+        assert!(json.contains("\"command\":\"test\""));
+        assert!(json.contains("\"exit_code\":0"));
+        assert!(json.contains("\"timed_out\":false"));
     }
 }
