@@ -244,12 +244,10 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
 
   if (isLoading) {
     return (
-      <div className="w-[600px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+      <div className="w-[600px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-          <span className="ml-2 text-gray-600 dark:text-gray-400">
-            Loading shortcuts...
-          </span>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#7aa2f7]"></div>
+          <span className="ml-2 text-[#9aa5ce]">Loading shortcuts...</span>
         </div>
       </div>
     );
@@ -257,20 +255,14 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
 
   if (!config) {
     return (
-      <div className="w-[600px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+      <div className="w-[600px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-          <div className="text-red-600 dark:text-red-400 mb-2">
-            Failed to load shortcuts
-          </div>
-          {error && (
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              {error}
-            </div>
-          )}
+          <AlertCircle className="w-8 h-8 text-[#f7768e] mx-auto mb-2" />
+          <div className="text-[#f7768e] mb-2">Failed to load shortcuts</div>
+          {error && <div className="text-sm text-[#9aa5ce] mb-4">{error}</div>}
           <button
             onClick={loadConfig}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm"
+            className="px-4 py-2 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] rounded-md text-sm font-medium transition-all duration-150"
           >
             Retry
           </button>
@@ -281,29 +273,29 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
 
   return (
     <div
-      className="w-[800px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl"
+      className="w-[800px] max-h-[80vh] overflow-y-auto bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-[#414868]">
         <div className="flex items-center gap-2">
-          <Keyboard className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <Keyboard className="w-5 h-5 text-[#7aa2f7]" />
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             Global Shortcuts
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={resetAllToDefaults}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="px-3 py-1 text-sm text-[#9aa5ce] hover:text-[#c0caf5] border border-[#414868] rounded hover:bg-[#24283b] transition-all duration-150"
           >
             Reset All
           </button>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -316,19 +308,19 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
         {saveStatus !== "idle" && (
           <div className="mb-4">
             {saveStatus === "saving" && (
-              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <div className="flex items-center gap-2 text-[#7aa2f7]">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                 <span className="text-sm">Saving shortcuts...</span>
               </div>
             )}
             {saveStatus === "success" && (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <div className="flex items-center gap-2 text-[#9ece6a]">
                 <Check className="w-4 h-4" />
                 <span className="text-sm">Shortcuts saved successfully</span>
               </div>
             )}
             {saveStatus === "error" && (
-              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <div className="flex items-center gap-2 text-[#f7768e]">
                 <AlertCircle className="w-4 h-4" />
                 <span className="text-sm">Failed to save shortcuts</span>
               </div>
@@ -338,8 +330,8 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+          <div className="mb-4 p-3 bg-[#f7768e]/10 border border-[#f7768e]/30 rounded-lg">
+            <div className="flex items-center gap-2 text-[#f7768e]">
               <AlertCircle className="w-4 h-4" />
               <span className="text-sm">{error}</span>
             </div>
@@ -347,10 +339,10 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
         )}
 
         {/* Info Box */}
-        <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <div className="mb-6 p-3 bg-[#7aa2f7]/10 border border-[#7aa2f7]/30 rounded-lg">
           <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="text-sm text-blue-700 dark:text-blue-300">
+            <Info className="w-4 h-4 text-[#7aa2f7] mt-0.5" />
+            <div className="text-sm text-[#c0caf5]">
               <strong>Tip:</strong> Click on a shortcut to edit it. Use standard
               keyboard notation like "CommandOrControl+Space" or "Alt+Shift+N".
             </div>
@@ -373,25 +365,25 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
             ),
           ).map(([category, shortcuts]) => (
             <div key={category}>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <div className="h-px bg-gray-300 dark:bg-gray-600 flex-1"></div>
+              <h3 className="text-sm font-medium text-[#c0caf5] mb-3 flex items-center gap-2">
+                <div className="h-px bg-[#414868] flex-1"></div>
                 <span className="px-2">{category}</span>
-                <div className="h-px bg-gray-300 dark:bg-gray-600 flex-1"></div>
+                <div className="h-px bg-[#414868] flex-1"></div>
               </h3>
               <div className="space-y-2">
                 {shortcuts.map((shortcut) => (
                   <div
                     key={shortcut.action}
-                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                    className="flex items-center justify-between p-4 bg-[#24283b]/50 rounded-lg border border-[#414868]"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => toggleShortcut(shortcut.action)}
-                          className={`p-1 rounded ${
+                          className={`p-1 rounded transition-colors ${
                             shortcut.enabled
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-gray-400 dark:text-gray-600"
+                              ? "text-[#9ece6a]"
+                              : "text-[#565f89]"
                           }`}
                           title={
                             shortcut.enabled
@@ -406,10 +398,10 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
                           )}
                         </button>
                         <div className="flex-1">
-                          <div className="font-medium text-gray-900 dark:text-white">
+                          <div className="font-medium text-[#c0caf5]">
                             {actionDisplayNames[shortcut.action]}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                          <div className="text-sm text-[#9aa5ce]">
                             {actionDescriptions[shortcut.action]}
                           </div>
                         </div>
@@ -424,7 +416,7 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
                             value={tempShortcut}
                             onChange={(e) => setTempShortcut(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="px-3 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5] focus:ring-2 focus:ring-[#7aa2f7]/50 focus:border-transparent placeholder-[#565f89] transition-all duration-150"
                             placeholder="Press keys..."
                             autoFocus
                           />
@@ -432,14 +424,14 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
                             onClick={() =>
                               updateShortcut(shortcut.action, tempShortcut)
                             }
-                            className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                            className="p-1 text-[#9ece6a] hover:text-[#9ece6a]/80 transition-colors"
                             title="Save shortcut"
                           >
                             <Check className="w-4 h-4" />
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
                             title="Cancel editing"
                           >
                             <X className="w-4 h-4" />
@@ -451,13 +443,13 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
                             onClick={() =>
                               startEditing(shortcut.action, shortcut.shortcut)
                             }
-                            className="px-3 py-1 text-sm font-mono bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                            className="px-3 py-1 text-sm font-mono bg-[#414868] border border-[#414868] rounded text-[#c0caf5] hover:bg-[#565f89] transition-all duration-150"
                           >
                             {shortcut.shortcut}
                           </button>
                           <button
                             onClick={() => resetToDefault(shortcut.action)}
-                            className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
+                            className="px-2 py-1 text-xs text-[#9aa5ce] hover:text-[#c0caf5] border border-[#414868] rounded hover:bg-[#24283b] transition-all duration-150"
                             title="Reset to default"
                           >
                             Reset
@@ -474,8 +466,8 @@ export default function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
 
         {/* Keyboard Capture Instructions */}
         {editingShortcut && (
-          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-            <div className="text-sm text-yellow-700 dark:text-yellow-300">
+          <div className="mt-4 p-3 bg-[#e0af68]/10 border border-[#e0af68]/30 rounded-lg">
+            <div className="text-sm text-[#c0caf5]">
               <strong>Editing mode:</strong> Press the key combination you want
               to use, or type it manually (e.g.,
               "CommandOrControl+Shift+Space").

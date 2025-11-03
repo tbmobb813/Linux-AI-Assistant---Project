@@ -31,19 +31,27 @@ const UpdateManager = lazy(() => import("./components/UpdateManager"));
 const ProjectContextPanel = lazy(
   () => import("./components/ProjectContextPanel"),
 );
+const OnboardingTour = lazy(() => import("./components/OnboardingTour"));
 
 import { useSettingsStore } from "./lib/stores/settingsStore";
 import { useChatStore } from "./lib/stores/chatStore";
 import { useProjectStore } from "./lib/stores/projectStore";
 import { applyTheme, watchSystemTheme } from "./lib/utils/theme";
 import { useUiStore } from "./lib/stores/uiStore";
+import { useReviewStore } from "./lib/stores/reviewStore";
+import { useLogStore } from "./lib/stores/logStore";
+import { useMemoryStore } from "./lib/stores/memoryStore";
 import { withErrorHandling } from "./lib/utils/errorHandler";
+const CodeReviewPanel = lazy(() => import("./components/CodeReviewPanel"));
+const LogViewerPanel = lazy(() => import("./components/LogViewerPanel"));
+const MemoryViewer = lazy(() => import("./components/MemoryViewer"));
 
 export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
     useSettingsStore();
   const { events } = useProjectStore();
   const { createConversation } = useChatStore();
+  const { toggleFocusMode } = useUiStore();
 
   // Command palette integration
   const { isOpen, open, close } = useCommandPalette();
@@ -70,6 +78,18 @@ export default function App(): JSX.Element {
     onNewConversation: handleNewConversation,
     onSettings: handleSettings,
   });
+
+  // F11 for focus mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F11") {
+        e.preventDefault();
+        toggleFocusMode();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleFocusMode]);
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut with error handling
@@ -286,7 +306,8 @@ export default function App(): JSX.Element {
   return (
     <AppErrorBoundary>
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
-        <ConversationList />
+        {/* Conditionally render sidebar based on focus mode */}
+        {!useUiStore((s) => s.focusMode) && <ConversationList />}
         <main className="flex-1 flex flex-col min-w-0 relative">
           {/* Modern Header Bar with Animations */}
           <FadeIn>
@@ -344,6 +365,48 @@ export default function App(): JSX.Element {
 
               {/* Right side - Action buttons */}
               <div className="flex items-center space-x-2">
+                {/* Code Review Mode Button */}
+                <AnimatedButton
+                  onClick={() => useReviewStore.getState().toggleReviewMode()}
+                  variant={
+                    useReviewStore((s) => s.isReviewMode)
+                      ? "primary"
+                      : "secondary"
+                  }
+                  size="sm"
+                >
+                  <span className="text-base">🔍</span>
+                  <span className="hidden sm:inline ml-1">Review</span>
+                </AnimatedButton>
+
+                {/* Log Viewer Button */}
+                <AnimatedButton
+                  onClick={() => useLogStore.getState().toggleLogViewer()}
+                  variant={
+                    useLogStore((s) => s.isLogViewerOpen)
+                      ? "primary"
+                      : "secondary"
+                  }
+                  size="sm"
+                >
+                  <span className="text-base">📋</span>
+                  <span className="hidden sm:inline ml-1">Logs</span>
+                </AnimatedButton>
+
+                {/* Memory Viewer Button */}
+                <AnimatedButton
+                  onClick={() => useMemoryStore.getState().toggleMemoryViewer()}
+                  variant={
+                    useMemoryStore((s) => s.isMemoryViewerOpen)
+                      ? "primary"
+                      : "secondary"
+                  }
+                  size="sm"
+                >
+                  <span className="text-base">🧠</span>
+                  <span className="hidden sm:inline ml-1">Memory</span>
+                </AnimatedButton>
+
                 {/* Project Context Button */}
                 <AnimatedButton
                   onClick={() => setShowProjectContext((s) => !s)}
@@ -368,6 +431,22 @@ export default function App(): JSX.Element {
                   <span className="text-base">⚙️</span>
                   <span className="hidden sm:inline ml-1">Settings</span>
                 </AnimatedButton>
+
+                {/* Focus Mode Toggle Button */}
+                <div title="Toggle Focus Mode (F11)">
+                  <AnimatedButton
+                    onClick={toggleFocusMode}
+                    variant={
+                      useUiStore((s) => s.focusMode) ? "primary" : "secondary"
+                    }
+                    size="sm"
+                  >
+                    <span className="text-base">
+                      {useUiStore((s) => s.focusMode) ? "🎯" : "👁️"}
+                    </span>
+                    <span className="hidden sm:inline ml-1">Focus</span>
+                  </AnimatedButton>
+                </div>
 
                 {/* Window Toggle Button */}
                 <AnimatedButton
@@ -434,6 +513,10 @@ export default function App(): JSX.Element {
         <ExecutionAuditModal />
         <CommandSuggestionsModal />
         <UpdateManager />
+        <OnboardingTour />
+        <CodeReviewPanel />
+        <LogViewerPanel />
+        <MemoryViewer />
       </Suspense>
     </AppErrorBoundary>
   );

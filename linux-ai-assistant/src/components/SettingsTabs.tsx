@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSettingsStore } from "../lib/stores/settingsStore";
 import { useUiStore } from "../lib/stores/uiStore";
+import { useOnboardingStore } from "../lib/stores/onboardingStore";
 import { withErrorHandling } from "../lib/utils/errorHandler";
 import {
   Settings as SettingsIcon,
@@ -15,6 +16,7 @@ import {
   User,
   Activity,
   BarChart3,
+  Rocket,
 } from "lucide-react";
 import { lazy, Suspense } from "react";
 
@@ -350,9 +352,12 @@ function GeneralTab() {
     setGlobalShortcut,
     allowCodeExecution,
     setAllowCodeExecution,
+    budgetMonthly,
+    setBudgetMonthly,
   } = useSettingsStore();
   const addToast = useUiStore((s) => s.addToast);
   const [shortcutValue, setShortcutValue] = useState(globalShortcut);
+  const [budgetValue, setBudgetValue] = useState(String(budgetMonthly));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -465,6 +470,55 @@ function GeneralTab() {
                   ${allowCodeExecution ? "translate-x-6" : "translate-x-0"}
                 `}
               />
+            </button>
+          </div>
+        </div>
+
+        {/* Monthly Budget */}
+        <div className="mt-4 bg-[#24283b] border border-[#414868] rounded-lg p-4 space-y-3">
+          <label className="block text-sm font-medium text-[#c0caf5]">
+            Monthly Budget (USD)
+          </label>
+          <p className="text-xs text-[#9aa5ce]">
+            Set a monthly spending limit for AI usage. You'll get alerts when
+            approaching or exceeding this amount.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={budgetValue}
+              onChange={(e) => setBudgetValue(e.target.value)}
+              placeholder="20"
+              className="
+                flex-1 px-3 py-2
+                bg-[#1a1b26] border border-[#414868]
+                rounded-lg text-sm text-[#c0caf5] placeholder-[#565f89]
+                focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent
+                transition-all duration-150
+              "
+            />
+            <button
+              onClick={async () => {
+                const amount = parseFloat(budgetValue);
+                if (isNaN(amount) || amount < 0) {
+                  addToast({
+                    message: "Please enter a valid amount",
+                    type: "error",
+                    ttl: 2000,
+                  });
+                  return;
+                }
+                await setBudgetMonthly(amount);
+              }}
+              className="
+                px-4 py-2 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90
+                text-white rounded-lg text-sm font-medium
+                transition-all duration-150 gpu-accelerated
+              "
+            >
+              Save
             </button>
           </div>
         </div>
@@ -671,37 +725,37 @@ function AdvancedTab({
 }) {
   const advancedOptions = [
     {
-      icon: <User size={20} />,
+      icon: <User size={16} />,
       label: "Profile Settings",
       color: "blue",
       onClick: onShowProfileSettings,
     },
     {
-      icon: <Keyboard size={20} />,
+      icon: <Keyboard size={16} />,
       label: "Shortcuts",
       color: "green",
       onClick: onShowShortcutSettings,
     },
     {
-      icon: <Monitor size={20} />,
+      icon: <Monitor size={16} />,
       label: "Window Position",
       color: "orange",
       onClick: onShowWindowSettings,
     },
     {
-      icon: <FileText size={20} />,
+      icon: <FileText size={16} />,
       label: "File Watcher",
       color: "purple",
       onClick: onShowFileWatcher,
     },
     {
-      icon: <Search size={20} />,
+      icon: <Search size={16} />,
       label: "Document Search",
       color: "indigo",
       onClick: onShowDocumentSearch,
     },
     {
-      icon: <Activity size={20} />,
+      icon: <Activity size={16} />,
       label: "Performance",
       color: "red",
       onClick: onShowPerformance,
@@ -743,9 +797,33 @@ function AdvancedTab({
           transition-all duration-150 gpu-accelerated
         "
       >
-        <BarChart3 className="text-[#7aa2f7] mr-3" size={20} />
-        <span className="font-medium text-[#c0caf5]">
+        <BarChart3 className="text-[#7aa2f7] mr-3" size={16} />
+        <span className="text-sm font-medium text-[#c0caf5]">
           Usage Analytics Dashboard
+        </span>
+      </button>
+
+      {/* Replay Onboarding Tour */}
+      <button
+        onClick={() => {
+          useOnboardingStore.getState().resetTour();
+          useUiStore.getState().addToast({
+            message: "Onboarding tour restarted!",
+            type: "success",
+            ttl: 2000,
+          });
+        }}
+        className="
+          w-full flex items-center justify-center p-4
+          bg-gradient-to-r from-[#9ece6a]/20 to-[#73daca]/20
+          border border-[#9ece6a]
+          rounded-lg hover:from-[#9ece6a]/30 hover:to-[#73daca]/30
+          transition-all duration-150 gpu-accelerated
+        "
+      >
+        <Rocket className="text-[#9ece6a] mr-3" size={16} />
+        <span className="text-sm font-medium text-[#c0caf5]">
+          Replay Onboarding Tour
         </span>
       </button>
     </div>

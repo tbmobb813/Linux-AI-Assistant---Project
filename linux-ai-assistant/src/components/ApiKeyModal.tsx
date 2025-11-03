@@ -31,13 +31,15 @@ export default function ApiKeyModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 bg-white dark:bg-gray-900 rounded shadow-lg p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold">{apiKeyModal.title}</h3>
+          <h3 className="text-sm font-semibold text-[#c0caf5]">
+            {apiKeyModal.title}
+          </h3>
           <button
             onClick={handleCancel}
-            className="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 text-xs"
+            className="text-[#9aa5ce] hover:text-[#c0caf5] text-xs transition-colors"
             aria-label="Close"
             title="Close"
           >
@@ -49,7 +51,7 @@ export default function ApiKeyModal() {
           <div>
             <label
               htmlFor="api-key-input"
-              className="text-xs text-gray-700 dark:text-gray-300 block mb-1"
+              className="text-xs text-[#9aa5ce] block mb-1"
             >
               API Key
             </label>
@@ -66,10 +68,10 @@ export default function ApiKeyModal() {
                 }
               }}
               placeholder="Enter your API key"
-              className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2 py-1 rounded bg-[#24283b] border border-[#414868] text-sm text-[#c0caf5] placeholder-[#565f89] outline-none focus:ring-2 focus:ring-[#7aa2f7]/50 transition-all duration-150"
               autoFocus
             />
-            <p className="text-[11px] text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-[11px] text-[#565f89] mt-1">
               Your API key will be securely stored in the system keyring.
             </p>
           </div>
@@ -77,14 +79,14 @@ export default function ApiKeyModal() {
           <div className="flex justify-end gap-2 pt-1">
             <button
               onClick={handleCancel}
-              className="px-3 py-1 text-xs rounded bg-gray-200 border border-gray-300 hover:bg-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+              className="px-3 py-1 text-xs rounded bg-[#414868] border border-[#414868] hover:bg-[#565f89] text-[#c0caf5] transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={!keyValue.trim()}
-              className="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white"
+              className="px-3 py-1 text-xs rounded bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 disabled:opacity-60 disabled:cursor-not-allowed text-[#1a1b26] font-medium transition-colors"
             >
               Save
             </button>

@@ -59,25 +59,23 @@ export default function ErrorNotification({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 border-red-500 p-4 max-w-md">
+    <div className="bg-[#1a1b26] rounded-lg shadow-2xl border-l-4 border-[#f7768e] p-4 max-w-md">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{getErrorIcon(error.severity)}</span>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+            <h3 className="font-semibold text-[#c0caf5] text-sm">
               {error.source.toUpperCase()} Error Detected
             </h3>
             {error.code && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {error.code}
-              </span>
+              <span className="text-xs text-[#9aa5ce]">{error.code}</span>
             )}
           </div>
         </div>
         <button
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
           aria-label="Dismiss"
         >
           <svg
@@ -99,11 +97,9 @@ export default function ErrorNotification({
 
       {/* Error Message */}
       <div className="mb-3">
-        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-          {error.message}
-        </p>
+        <p className="text-sm text-[#c0caf5] line-clamp-2">{error.message}</p>
         {error.file && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">
+          <p className="text-xs text-[#565f89] mt-1 font-mono">
             {error.file}
             {error.line && `:${error.line}`}
             {error.column && `:${error.column}`}
@@ -115,7 +111,7 @@ export default function ErrorNotification({
       <div className="flex gap-2">
         <button
           onClick={handleFixError}
-          className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+          className="flex-1 px-3 py-2 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -135,7 +131,7 @@ export default function ErrorNotification({
         </button>
         <button
           onClick={handleCopy}
-          className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-lg transition-colors"
+          className="px-3 py-2 bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] text-sm rounded-lg transition-colors"
           title="Copy error"
         >
           <svg

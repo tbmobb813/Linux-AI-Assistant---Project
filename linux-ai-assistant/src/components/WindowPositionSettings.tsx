@@ -102,31 +102,29 @@ export default function WindowPositionSettings({
 
   if (isLoading) {
     return (
-      <div className="w-[500px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+      <div className="w-[500px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-          <span className="ml-2 text-gray-600 dark:text-gray-400">
-            Loading window state...
-          </span>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#7aa2f7]"></div>
+          <span className="ml-2 text-[#9aa5ce]">Loading window state...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-[550px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl">
+    <div className="w-[550px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-[#414868]">
         <div className="flex items-center gap-2">
-          <Monitor className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <Monitor className="w-5 h-5 text-[#7aa2f7]" />
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             Window Position Memory
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={resetToDefault}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="px-3 py-1 text-sm text-[#9aa5ce] hover:text-[#c0caf5] border border-[#414868] rounded hover:bg-[#24283b] transition-colors"
             disabled={saveStatus === "saving"}
           >
             Reset
@@ -134,7 +132,7 @@ export default function WindowPositionSettings({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -147,13 +145,13 @@ export default function WindowPositionSettings({
         {saveStatus !== "idle" && (
           <div className="mb-4">
             {saveStatus === "saving" && (
-              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <div className="flex items-center gap-2 text-[#7aa2f7]">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                 <span className="text-sm">Processing...</span>
               </div>
             )}
             {saveStatus === "success" && (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <div className="flex items-center gap-2 text-[#9ece6a]">
                 <Check className="w-4 h-4" />
                 <span className="text-sm">
                   Window state updated successfully
@@ -161,7 +159,7 @@ export default function WindowPositionSettings({
               </div>
             )}
             {saveStatus === "error" && (
-              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <div className="flex items-center gap-2 text-[#f7768e]">
                 <AlertCircle className="w-4 h-4" />
                 <span className="text-sm">Failed to update window state</span>
               </div>
@@ -171,8 +169,8 @@ export default function WindowPositionSettings({
 
         {/* Error Display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+          <div className="mb-4 p-3 bg-[#f7768e]/10 border border-[#f7768e]/30 rounded-lg">
+            <div className="flex items-center gap-2 text-[#f7768e]">
               <AlertCircle className="w-4 h-4" />
               <span className="text-sm">{error}</span>
             </div>
@@ -180,10 +178,10 @@ export default function WindowPositionSettings({
         )}
 
         {/* Info Box */}
-        <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <div className="mb-6 p-3 bg-[#7aa2f7]/10 border border-[#7aa2f7]/30 rounded-lg">
           <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="text-sm text-blue-700 dark:text-blue-300">
+            <Info className="w-4 h-4 text-[#7aa2f7] mt-0.5" />
+            <div className="text-sm text-[#c0caf5]">
               <strong>Automatic Memory:</strong> The app automatically remembers
               your window position and size when you move or resize it. Use the
               controls below to manually manage the saved state.
@@ -194,33 +192,33 @@ export default function WindowPositionSettings({
         {/* Current Window State */}
         {windowState && (
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <h3 className="text-sm font-medium text-[#c0caf5] mb-3">
               Current Window State
             </h3>
             <div className="grid grid-cols-2 gap-4">
               {/* Position */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <div className="bg-[#24283b]/50 rounded-lg p-3 border border-[#414868]">
                 <div className="flex items-center gap-2 mb-2">
-                  <Move className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Move className="w-4 h-4 text-[#9ece6a]" />
+                  <span className="text-sm font-medium text-[#c0caf5]">
                     Position
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-[#9aa5ce]">
                   <div>X: {windowState.x}px</div>
                   <div>Y: {windowState.y}px</div>
                 </div>
               </div>
 
               {/* Size */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <div className="bg-[#24283b]/50 rounded-lg p-3 border border-[#414868]">
                 <div className="flex items-center gap-2 mb-2">
-                  <Maximize2 className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Maximize2 className="w-4 h-4 text-[#bb9af7]" />
+                  <span className="text-sm font-medium text-[#c0caf5]">
                     Size
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-[#9aa5ce]">
                   <div>Width: {windowState.width}px</div>
                   <div>Height: {windowState.height}px</div>
                 </div>
@@ -228,16 +226,16 @@ export default function WindowPositionSettings({
             </div>
 
             {/* Maximized State */}
-            <div className="mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+            <div className="mt-3 bg-[#24283b]/50 rounded-lg p-3 border border-[#414868]">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-sm font-medium text-[#c0caf5]">
                   Maximized State
                 </span>
                 <span
                   className={`text-sm font-mono px-2 py-1 rounded ${
                     windowState.maximized
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                      : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                      ? "bg-[#9ece6a]/20 text-[#9ece6a]"
+                      : "bg-[#414868] text-[#9aa5ce]"
                   }`}
                 >
                   {windowState.maximized ? "Yes" : "No"}
@@ -252,7 +250,7 @@ export default function WindowPositionSettings({
           <button
             onClick={saveCurrentState}
             disabled={saveStatus === "saving"}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg text-sm font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 disabled:opacity-50 disabled:cursor-not-allowed text-[#1a1b26] rounded-lg text-sm font-medium transition-all duration-150"
           >
             <Check className="w-4 h-4" />
             Save Current Position & Size
@@ -261,7 +259,7 @@ export default function WindowPositionSettings({
           <button
             onClick={restoreState}
             disabled={saveStatus === "saving"}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded-lg text-sm font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#9ece6a] hover:bg-[#9ece6a]/90 disabled:opacity-50 disabled:cursor-not-allowed text-[#1a1b26] rounded-lg text-sm font-medium transition-all duration-150"
           >
             <RotateCcw className="w-4 h-4" />
             Restore Saved Position & Size
@@ -270,7 +268,7 @@ export default function WindowPositionSettings({
           <button
             onClick={resetToDefault}
             disabled={saveStatus === "saving"}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#414868] hover:bg-[#565f89] disabled:opacity-50 disabled:cursor-not-allowed text-[#c0caf5] rounded-lg text-sm font-medium transition-all duration-150"
           >
             <Monitor className="w-4 h-4" />
             Reset to Default (800x600, Top-Left)
@@ -278,8 +276,8 @@ export default function WindowPositionSettings({
         </div>
 
         {/* Technical Details */}
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-6 pt-4 border-t border-[#414868]">
+          <div className="text-xs text-[#9aa5ce]">
             <strong>How it works:</strong> The app automatically saves your
             window position and size whenever you move or resize the window. On
             next startup, it will restore the last saved state. You can manually

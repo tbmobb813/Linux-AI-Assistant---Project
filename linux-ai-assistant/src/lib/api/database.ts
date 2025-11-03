@@ -176,6 +176,130 @@ async function callInvoke<T>(
       case "toggle_main_window":
         return undefined as unknown as T;
 
+      // Shortcuts (web preview fallback with default config)
+      case "get_shortcut_config":
+        return {
+          shortcuts: [
+            {
+              action: "ToggleWindow",
+              shortcut: "CommandOrControl+Space",
+              enabled: true,
+            },
+            {
+              action: "NewConversation",
+              shortcut: "CommandOrControl+N",
+              enabled: false,
+            },
+            {
+              action: "OpenSettings",
+              shortcut: "CommandOrControl+Comma",
+              enabled: false,
+            },
+            {
+              action: "QuickCapture",
+              shortcut: "CommandOrControl+Shift+Space",
+              enabled: false,
+            },
+            {
+              action: "FocusInput",
+              shortcut: "CommandOrControl+Shift+I",
+              enabled: false,
+            },
+            {
+              action: "ClearConversation",
+              shortcut: "CommandOrControl+Delete",
+              enabled: false,
+            },
+            {
+              action: "ExportCurrent",
+              shortcut: "CommandOrControl+E",
+              enabled: false,
+            },
+            {
+              action: "ToggleProfileMenu",
+              shortcut: "CommandOrControl+P",
+              enabled: false,
+            },
+            {
+              action: "SearchDocuments",
+              shortcut: "CommandOrControl+Shift+F",
+              enabled: false,
+            },
+            {
+              action: "ShowPerformance",
+              shortcut: "CommandOrControl+Shift+P",
+              enabled: false,
+            },
+            {
+              action: "ToggleRecording",
+              shortcut: "CommandOrControl+R",
+              enabled: false,
+            },
+            {
+              action: "QuickExport",
+              shortcut: "CommandOrControl+Shift+E",
+              enabled: false,
+            },
+          ],
+        } as unknown as T;
+      case "update_shortcut_config":
+        // In web preview, just return success (changes won't persist)
+        return undefined as unknown as T;
+      case "validate_shortcut":
+        // Accept any shortcut as valid in web preview
+        return true as unknown as T;
+      case "get_available_actions":
+        return [
+          "ToggleWindow",
+          "NewConversation",
+          "OpenSettings",
+          "QuickCapture",
+          "FocusInput",
+          "ClearConversation",
+          "ExportCurrent",
+          "ToggleProfileMenu",
+          "SearchDocuments",
+          "ShowPerformance",
+          "ToggleRecording",
+          "QuickExport",
+        ] as unknown as T;
+
+      // Performance monitoring (web preview fallback with mock data)
+      case "get_performance_metrics":
+      case "get_full_performance_snapshot":
+        return {
+          system: {
+            cpu_usage: 25.5,
+            memory_usage: {
+              total_memory: 16777216000,
+              used_memory: 8388608000,
+              available_memory: 8388608000,
+              memory_percent: 50.0,
+              total_swap: 4294967296,
+              used_swap: 1073741824,
+            },
+            process_info: {
+              pid: 12345,
+              cpu_usage: 5.2,
+              memory_usage: 150000000,
+              thread_count: 12,
+            },
+            uptime: 86400,
+            timestamp: Date.now(),
+          },
+          database: {
+            conversation_count: 10,
+            message_count: 150,
+            database_size: 5242880,
+          },
+        } as unknown as T;
+      case "get_database_metrics":
+        return {
+          conversation_count: 10,
+          message_count: 150,
+          database_size: 5242880,
+        } as unknown as T;
+
       default:
         throw new Error(`Command '${cmd}' not available in web preview`);
     }

@@ -371,107 +371,136 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Shortcut Settings Modal */}
       {showShortcutSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Suspense
-            fallback={
-              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    Loading shortcuts...
-                  </span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowShortcutSettings(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <Suspense
+              fallback={
+                <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-xl shadow-2xl p-6">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+                    <span className="ml-2 text-[#9aa5ce]">
+                      Loading shortcuts...
+                    </span>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <ShortcutSettings onClose={() => setShowShortcutSettings(false)} />
-          </Suspense>
+              }
+            >
+              <ShortcutSettings
+                onClose={() => setShowShortcutSettings(false)}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
 
       {/* Window Position Settings Modal */}
       {showWindowPositionSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Suspense
-            fallback={
-              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    Loading window settings...
-                  </span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowWindowPositionSettings(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <Suspense
+              fallback={
+                <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-xl shadow-2xl p-6">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+                    <span className="ml-2 text-[#9aa5ce]">
+                      Loading window settings...
+                    </span>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <WindowPositionSettings
-              onClose={() => setShowWindowPositionSettings(false)}
-            />
-          </Suspense>
+              }
+            >
+              <WindowPositionSettings
+                onClose={() => setShowWindowPositionSettings(false)}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
 
       {/* File Watcher Settings Modal */}
       {showFileWatcherSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Suspense
-            fallback={
-              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    Loading file watcher...
-                  </span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowFileWatcherSettings(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <Suspense
+              fallback={
+                <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-xl shadow-2xl p-6">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+                    <span className="ml-2 text-[#9aa5ce]">
+                      Loading file watcher...
+                    </span>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <FileWatcherSettings
-              onClose={() => setShowFileWatcherSettings(false)}
-            />
-          </Suspense>
+              }
+            >
+              <FileWatcherSettings
+                onClose={() => setShowFileWatcherSettings(false)}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
 
       {/* Performance Dashboard Modal */}
       {showPerformanceDashboard && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Suspense
-            fallback={
-              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    Loading performance dashboard...
-                  </span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowPerformanceDashboard(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <Suspense
+              fallback={
+                <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-xl shadow-2xl p-6">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+                    <span className="ml-2 text-[#9aa5ce]">
+                      Loading performance dashboard...
+                    </span>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <PerformanceDashboard
-              onClose={() => setShowPerformanceDashboard(false)}
-            />
-          </Suspense>
+              }
+            >
+              <PerformanceDashboard
+                onClose={() => setShowPerformanceDashboard(false)}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
 
       {/* Document Search Modal */}
       {showDocumentSearch && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Suspense
-            fallback={
-              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    Loading document search...
-                  </span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowDocumentSearch(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <Suspense
+              fallback={
+                <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-xl shadow-2xl p-6">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+                    <span className="ml-2 text-[#9aa5ce]">
+                      Loading document search...
+                    </span>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <DocumentSearchModal onClose={() => setShowDocumentSearch(false)} />
-          </Suspense>
+              }
+            >
+              <DocumentSearchModal
+                onClose={() => setShowDocumentSearch(false)}
+              />
+            </Suspense>
+          </div>
         </div>
       )}
 

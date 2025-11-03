@@ -225,29 +225,27 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
 
   if (loading) {
     return (
-      <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+      <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-gray-600 dark:text-gray-400">
-            Loading profiles...
-          </span>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+          <span className="ml-2 text-[#9aa5ce]">Loading profiles...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-[480px] max-h-[600px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6 overflow-y-auto">
+    <div className="w-[480px] max-h-[600px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <User className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <User className="w-5 h-5 text-[#7aa2f7]" />
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             Profile Settings
           </h2>
         </div>
         <button
           onClick={onClose}
-          className="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-gray-200"
+          className="text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
           aria-label="Close"
         >
           ✕
@@ -256,21 +254,21 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
 
       {/* Active Profile Display */}
       {activeProfile && (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="mb-6 p-4 bg-[#7aa2f7]/10 border border-[#7aa2f7]/30 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
+            <Check className="w-4 h-4 text-[#9ece6a]" />
+            <span className="text-sm font-medium text-[#c0caf5]">
               Active Profile
             </span>
           </div>
-          <div className="text-sm text-gray-700 dark:text-gray-300">
+          <div className="text-sm text-[#c0caf5]">
             <div className="font-medium">{activeProfile.name}</div>
             {activeProfile.description && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <div className="text-xs text-[#9aa5ce] mt-1">
                 {activeProfile.description}
               </div>
             )}
-            <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            <div className="text-xs text-[#565f89] mt-1">
               {activeProfile.default_provider} • {activeProfile.default_model}
             </div>
           </div>
@@ -278,10 +276,10 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
       )}
 
       {/* Create New Profile Form */}
-      <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div className="mb-6 p-4 bg-[#24283b]/50 border border-[#414868]/50 rounded-lg">
         <div className="flex items-center gap-2 mb-3">
-          <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <Plus className="w-4 h-4 text-[#9aa5ce]" />
+          <span className="text-sm font-medium text-[#c0caf5]">
             Create New Profile
           </span>
         </div>
@@ -295,7 +293,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 text-sm border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5] placeholder-[#565f89]"
             />
           </div>
 
@@ -307,7 +305,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 text-sm border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5] placeholder-[#565f89]"
             />
           </div>
 
@@ -317,7 +315,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
               onChange={(e) =>
                 setFormData({ ...formData, default_provider: e.target.value })
               }
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="px-3 py-2 text-sm border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5]"
             >
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
@@ -332,7 +330,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
               onChange={(e) =>
                 setFormData({ ...formData, default_model: e.target.value })
               }
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="px-3 py-2 text-sm border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5] placeholder-[#565f89]"
             />
           </div>
 
@@ -344,14 +342,14 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                 setFormData({ ...formData, system_prompt: e.target.value })
               }
               rows={2}
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+              className="w-full px-3 py-2 text-sm border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] resize-none"
             />
           </div>
 
           <button
             onClick={handleCreateProfile}
             disabled={creating || !formData.name.trim()}
-            className="w-full px-3 py-2 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded-md"
+            className="w-full px-3 py-2 text-sm bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 disabled:opacity-60 text-[#1a1b26] font-medium rounded-md transition-colors"
           >
             {creating ? "Creating..." : "Create Profile"}
           </button>
@@ -360,16 +358,14 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
 
       {/* Profiles List */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-          All Profiles
-        </h3>
+        <h3 className="text-sm font-medium text-[#c0caf5]">All Profiles</h3>
         {profiles.map((profile) => (
           <div
             key={profile.id}
             className={`p-3 border rounded-lg ${
               profile.is_active
-                ? "border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20"
-                : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                ? "border-[#7aa2f7] bg-[#7aa2f7]/10"
+                : "border-[#414868] bg-[#24283b]/50"
             }`}
           >
             {editing === profile.id ? (
@@ -381,7 +377,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-2 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5]"
                 />
                 <input
                   type="text"
@@ -390,7 +386,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-2 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5] placeholder-[#565f89]"
                 />
                 <div className="flex gap-2">
                   <select
@@ -401,7 +397,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                         default_provider: e.target.value,
                       })
                     }
-                    className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="flex-1 px-2 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5]"
                   >
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
@@ -417,7 +413,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                         default_model: e.target.value,
                       })
                     }
-                    className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="flex-1 px-2 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5]"
                   />
                 </div>
                 <textarea
@@ -427,18 +423,18 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                     setFormData({ ...formData, system_prompt: e.target.value })
                   }
                   rows={2}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                  className="w-full px-2 py-1 text-sm border border-[#414868] rounded bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] resize-none"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleUpdateProfile(profile.id)}
-                    className="px-3 py-1 text-xs bg-green-600 hover:bg-green-500 text-white rounded"
+                    className="px-3 py-1 text-xs bg-[#9ece6a] hover:bg-[#9ece6a]/90 text-[#1a1b26] font-medium rounded"
                   >
                     Save
                   </button>
                   <button
                     onClick={cancelEditing}
-                    className="px-3 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded"
+                    className="px-3 py-1 text-xs bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded"
                   >
                     Cancel
                   </button>
@@ -450,19 +446,19 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-[#c0caf5]">
                         {profile.name}
                       </span>
                       {profile.is_active && (
-                        <Check className="w-4 h-4 text-green-600" />
+                        <Check className="w-4 h-4 text-[#9ece6a]" />
                       )}
                     </div>
                     {profile.description && (
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-xs text-[#9aa5ce] mt-1">
                         {profile.description}
                       </div>
                     )}
-                    <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    <div className="text-xs text-[#565f89] mt-1">
                       {profile.default_provider} • {profile.default_model}
                     </div>
                   </div>
@@ -471,7 +467,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                     {!profile.is_active && (
                       <button
                         onClick={() => handleSetActiveProfile(profile.id)}
-                        className="p-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded"
+                        className="p-1 text-xs bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] rounded"
                         title="Set as active"
                       >
                         <Settings className="w-3 h-3" />
@@ -479,7 +475,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                     )}
                     <button
                       onClick={() => startEditing(profile)}
-                      className="p-1 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                      className="p-1 text-[#9aa5ce] hover:text-[#7aa2f7] transition-colors"
                       title="Edit profile"
                     >
                       <Edit2 className="w-3 h-3" />
@@ -487,7 +483,7 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
                     {profiles.length > 1 && (
                       <button
                         onClick={() => handleDeleteProfile(profile.id)}
-                        className="p-1 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+                        className="p-1 text-[#9aa5ce] hover:text-[#f7768e] transition-colors"
                         title="Delete profile"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -501,10 +497,10 @@ export default function ProfileSettings({ onClose }: ProfileSettingsProps) {
         ))}
       </div>
 
-      <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-[#414868]">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md"
+          className="px-4 py-2 text-sm bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded-md transition-colors"
         >
           Close
         </button>

@@ -1,222 +1,203 @@
 import { useState } from "react";
-import { useSettingsStore } from "../lib/stores/settingsStore";
-import { useUiStore } from "../lib/stores/uiStore";
-import { FolderOpen, Plus, X, AlertCircle, FileText } from "lucide-react";
+import {
+  X,
+  Eye,
+  EyeOff,
+  Plus,
+  Trash2,
+  AlertCircle,
+  Check,
+  Info,
+} from "lucide-react";
 
 interface FileWatcherSettingsProps {
   onClose?: () => void;
 }
 
+interface WatchPattern {
+  id: string;
+  pattern: string;
+  enabled: boolean;
+}
+
 export default function FileWatcherSettings({
   onClose,
 }: FileWatcherSettingsProps) {
-  const {
-    projectRoot,
-    fileWatcherIgnorePatterns,
-    setProjectRoot,
-    stopProjectWatch,
-    setFileWatcherIgnorePatterns,
-  } = useSettingsStore();
-  const addToast = useUiStore((s) => s.addToast);
-
-  const [localPatterns, setLocalPatterns] = useState<string[]>([
-    ...fileWatcherIgnorePatterns,
+  const [patterns, setPatterns] = useState<WatchPattern[]>([
+    { id: "1", pattern: "**/*.{js,ts,tsx,jsx}", enabled: true },
+    { id: "2", pattern: "**/*.md", enabled: true },
+    { id: "3", pattern: "**/*.json", enabled: false },
   ]);
   const [newPattern, setNewPattern] = useState("");
-  const [projectPath, setProjectPath] = useState(projectRoot || "");
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
 
-  const handleAddPattern = () => {
-    const pattern = newPattern.trim();
-    if (pattern && !localPatterns.includes(pattern)) {
-      setLocalPatterns([...localPatterns, pattern]);
-      setNewPattern("");
-    }
-  };
-
-  const handleRemovePattern = (index: number) => {
-    setLocalPatterns(localPatterns.filter((_, i) => i !== index));
-  };
-
-  const handleSavePatterns = async () => {
-    setIsUpdating(true);
-    try {
-      await setFileWatcherIgnorePatterns(localPatterns);
-    } catch (e) {
-      console.error("Failed to save patterns:", e);
-    }
-    setIsUpdating(false);
-  };
-
-  const handleSetProjectRoot = async () => {
-    if (!projectPath.trim()) {
-      addToast({
-        message: "Please enter a valid project path",
-        type: "error",
-        ttl: 2000,
-      });
+  const addPattern = () => {
+    if (!newPattern.trim()) {
+      setError("Pattern cannot be empty");
       return;
     }
 
-    setIsUpdating(true);
-    try {
-      await setProjectRoot(projectPath.trim());
-      setProjectPath(projectPath.trim());
-    } catch (e) {
-      console.error("Failed to set project root:", e);
-    }
-    setIsUpdating(false);
+    const pattern: WatchPattern = {
+      id: Date.now().toString(),
+      pattern: newPattern.trim(),
+      enabled: true,
+    };
+
+    setPatterns([...patterns, pattern]);
+    setNewPattern("");
+    setError(null);
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2000);
   };
 
-  const handleStopWatching = async () => {
-    setIsUpdating(true);
-    try {
-      await stopProjectWatch();
-      setProjectPath("");
-    } catch (e) {
-      console.error("Failed to stop watching:", e);
-    }
-    setIsUpdating(false);
+  const removePattern = (id: string) => {
+    setPatterns(patterns.filter((p) => p.id !== id));
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2000);
   };
 
-  const defaultPatterns = [
-    "node_modules/**",
-    ".git/**",
-    "target/**",
-    "dist/**",
-    "build/**",
-    "*.log",
-    ".DS_Store",
-    "Thumbs.db",
-  ];
-
-  const handleResetToDefaults = () => {
-    setLocalPatterns([...defaultPatterns]);
+  const togglePattern = (id: string) => {
+    setPatterns(
+      patterns.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p)),
+    );
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2000);
   };
 
   return (
-    <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl">
+    <div className="w-[700px] max-h-[80vh] overflow-y-auto bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-[#414868]">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <Eye className="w-5 h-5 text-[#7aa2f7]" />
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             File Watcher Settings
           </h2>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         )}
       </div>
 
-      <div className="p-4 space-y-6">
-        {/* Project Root */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-            Project Root
-          </h3>
-
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={projectPath}
-              onChange={(e) => setProjectPath(e.target.value)}
-              placeholder="/path/to/your/project"
-              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            />
-            <button
-              onClick={handleSetProjectRoot}
-              disabled={isUpdating || !projectPath.trim()}
-              className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md flex items-center gap-1"
-            >
-              <FolderOpen className="w-4 h-4" />
-              Watch
-            </button>
+      <div className="p-4">
+        {/* Save Status */}
+        {saveStatus !== "idle" && (
+          <div className="mb-4">
+            {saveStatus === "saved" && (
+              <div className="flex items-center gap-2 text-[#9ece6a]">
+                <Check className="w-4 h-4" />
+                <span className="text-sm">Settings saved</span>
+              </div>
+            )}
+            {saveStatus === "error" && (
+              <div className="flex items-center gap-2 text-[#f7768e]">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-sm">Failed to save settings</span>
+              </div>
+            )}
           </div>
+        )}
 
-          {projectRoot && (
-            <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-              <span className="text-sm text-green-700 dark:text-green-300">
-                Currently watching: {projectRoot}
-              </span>
-              <button
-                onClick={handleStopWatching}
-                disabled={isUpdating}
-                className="px-2 py-1 text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-              >
-                Stop
-              </button>
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-[#f7768e]/10 border border-[#f7768e]/30 rounded-lg">
+            <div className="flex items-center gap-2 text-[#f7768e]">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Info Box */}
+        <div className="mb-6 p-3 bg-[#7aa2f7]/10 border border-[#7aa2f7]/30 rounded-lg">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-[#7aa2f7] mt-0.5" />
+            <div className="text-sm text-[#c0caf5]">
+              <strong>File Watcher:</strong> Monitor specific files in your
+              project for changes. Use glob patterns like **/*.js or
+              src/**/*.tsx to watch multiple files.
+            </div>
+          </div>
         </div>
 
-        {/* Ignore Patterns */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Ignore Patterns
-            </h3>
-            <button
-              onClick={handleResetToDefaults}
-              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              Reset to defaults
-            </button>
-          </div>
-
-          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-1">
-            <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <span>
-              Use gitignore-style patterns. ** matches directories recursively,
-              * matches files.
-            </span>
-          </div>
-
-          {/* Add New Pattern */}
+        {/* Add Pattern */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-[#c0caf5] mb-2">
+            Add Watch Pattern
+          </label>
           <div className="flex gap-2">
             <input
               type="text"
               value={newPattern}
               onChange={(e) => setNewPattern(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleAddPattern()}
-              placeholder="node_modules/** or *.tmp"
-              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+              onKeyPress={(e) => e.key === "Enter" && addPattern()}
+              placeholder="e.g., **/*.ts or src/**/*.{js,jsx}"
+              className="flex-1 px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] focus:ring-2 focus:ring-[#7aa2f7]/50 transition-all duration-150"
             />
             <button
-              onClick={handleAddPattern}
-              disabled={!newPattern.trim()}
-              className="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-md flex items-center gap-1"
+              onClick={addPattern}
+              className="px-4 py-2 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] rounded-lg flex items-center gap-2 font-medium transition-all duration-150"
             >
               <Plus className="w-4 h-4" />
               Add
             </button>
           </div>
+        </div>
 
-          {/* Pattern List */}
-          <div className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md">
-            {localPatterns.length === 0 ? (
-              <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                No ignore patterns configured
+        {/* Patterns List */}
+        <div>
+          <h3 className="text-sm font-medium text-[#c0caf5] mb-3">
+            Watch Patterns ({patterns.length})
+          </h3>
+          <div className="space-y-2">
+            {patterns.length === 0 ? (
+              <div className="text-center py-8 text-[#9aa5ce]">
+                <Eye className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No watch patterns configured</p>
+                <p className="text-sm mt-1">
+                  Add a pattern above to start watching files
+                </p>
               </div>
             ) : (
-              localPatterns.map((pattern, index) => (
+              patterns.map((pattern) => (
                 <div
-                  key={index}
-                  className="flex items-center justify-between p-2 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+                  key={pattern.id}
+                  className="flex items-center justify-between p-3 bg-[#24283b]/50 rounded-lg border border-[#414868]"
                 >
-                  <code className="text-sm font-mono text-gray-700 dark:text-gray-300">
-                    {pattern}
-                  </code>
+                  <div className="flex items-center gap-3 flex-1">
+                    <button
+                      onClick={() => togglePattern(pattern.id)}
+                      className={`p-1 rounded transition-colors ${
+                        pattern.enabled ? "text-[#9ece6a]" : "text-[#565f89]"
+                      }`}
+                      title={
+                        pattern.enabled ? "Disable pattern" : "Enable pattern"
+                      }
+                    >
+                      {pattern.enabled ? (
+                        <Eye className="w-4 h-4" />
+                      ) : (
+                        <EyeOff className="w-4 h-4" />
+                      )}
+                    </button>
+                    <code className="text-sm font-mono text-[#c0caf5]">
+                      {pattern.pattern}
+                    </code>
+                  </div>
                   <button
-                    onClick={() => handleRemovePattern(index)}
-                    className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    onClick={() => removePattern(pattern.id)}
+                    className="p-1 text-[#f7768e] hover:text-[#f7768e]/80 transition-colors"
+                    title="Remove pattern"
                   >
-                    <X className="w-3 h-3" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))
@@ -224,23 +205,26 @@ export default function FileWatcherSettings({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              Cancel
-            </button>
-          )}
-          <button
-            onClick={handleSavePatterns}
-            disabled={isUpdating}
-            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md"
-          >
-            {isUpdating ? "Saving..." : "Save Patterns"}
-          </button>
+        {/* Help Text */}
+        <div className="mt-6 pt-4 border-t border-[#414868]">
+          <div className="text-xs text-[#9aa5ce]">
+            <strong>Pattern Examples:</strong>
+            <ul className="mt-2 space-y-1 list-disc list-inside">
+              <li>
+                <code>**/*.ts</code> - All TypeScript files
+              </li>
+              <li>
+                <code>{"src/**/*.{js,jsx}"}</code> - JS/JSX files in src
+                directory
+              </li>
+              <li>
+                <code>*.json</code> - JSON files in root directory
+              </li>
+              <li>
+                <code>docs/**/*.md</code> - Markdown files in docs directory
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

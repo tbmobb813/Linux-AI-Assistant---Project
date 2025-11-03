@@ -407,17 +407,17 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1a1b26] rounded-lg shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex border border-[#414868]">
         {/* Filters Panel */}
-        <div className="w-80 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
+        <div className="w-80 border-r border-[#414868] p-6 overflow-y-auto bg-[#1a1b26]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-[#c0caf5]">
               Advanced Search
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-[#565f89] hover:text-[#c0caf5] transition-colors duration-150"
             >
               <X className="h-6 w-6" />
             </button>
@@ -427,11 +427,9 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
           <div className="space-y-4">
             <button
               onClick={() => toggleSection("basic")}
-              className="flex items-center justify-between w-full text-left"
+              className="flex items-center justify-between w-full text-left text-[#c0caf5] hover:text-[#7aa2f7] transition-colors duration-150"
             >
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                Basic Search
-              </h3>
+              <h3 className="font-medium">Basic Search</h3>
               {expandedSections.basic ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
@@ -442,7 +440,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
             {expandedSections.basic && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                     Conversation Title
                   </label>
                   <input
@@ -451,13 +449,13 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                     onChange={(e) =>
                       setFilters({ ...filters, query: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     placeholder="Search in conversation titles..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                     Message Content
                   </label>
                   <input
@@ -466,7 +464,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                     onChange={(e) =>
                       setFilters({ ...filters, messageContent: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     placeholder="Search in message content..."
                   />
                 </div>
@@ -478,11 +476,9 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
           <div className="space-y-4 mt-6">
             <button
               onClick={() => toggleSection("advanced")}
-              className="flex items-center justify-between w-full text-left"
+              className="flex items-center justify-between w-full text-left text-[#c0caf5] hover:text-[#7aa2f7] transition-colors duration-150"
             >
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                Advanced Filters
-              </h3>
+              <h3 className="font-medium">Advanced Filters</h3>
               {expandedSections.advanced ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
@@ -495,7 +491,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                 {/* Date Range */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                       From
                     </label>
                     <input
@@ -510,11 +506,11 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                           },
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                       To
                     </label>
                     <input
@@ -529,14 +525,14 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                           },
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     />
                   </div>
                 </div>
 
                 {/* Message Role */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                     Message Type
                   </label>
                   <select
@@ -547,7 +543,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                         messageRole: e.target.value as any,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                   >
                     <option value="all">All messages</option>
                     <option value="user">User messages</option>
@@ -557,14 +553,14 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
 
                 {/* Tags */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                     Tags
                   </label>
-                  <div className="max-h-32 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2">
+                  <div className="max-h-32 overflow-y-auto border border-[#414868] rounded-lg p-2 bg-[#24283b]">
                     {availableTags.map((tag) => (
                       <label
                         key={tag.id}
-                        className="flex items-center space-x-2 py-1"
+                        className="flex items-center space-x-2 py-1 text-[#c0caf5] hover:text-[#7aa2f7] transition-colors cursor-pointer"
                       >
                         <input
                           type="checkbox"
@@ -582,7 +578,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                               });
                             }
                           }}
-                          className="rounded"
+                          className="rounded bg-[#414868] border-[#565f89] text-[#7aa2f7] focus:ring-[#7aa2f7] focus:ring-offset-[#24283b]"
                         />
                         <span className="text-sm">{tag.name}</span>
                       </label>
@@ -593,7 +589,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                 {/* Sort Options */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                       Sort by
                     </label>
                     <select
@@ -604,7 +600,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                           sortBy: e.target.value as any,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     >
                       <option value="relevance">Relevance</option>
                       <option value="date">Date</option>
@@ -612,7 +608,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-[#9aa5ce] mb-1">
                       Order
                     </label>
                     <select
@@ -623,7 +619,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                           sortOrder: e.target.value as any,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                     >
                       <option value="desc">Descending</option>
                       <option value="asc">Ascending</option>
@@ -638,7 +634,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
           <div className="mt-6">
             <button
               onClick={() => setShowSaveDialog(!showSaveDialog)}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-[#7aa2f7] text-[#1a1b26] rounded-lg hover:bg-[#7aa2f7]/80 transition-all duration-150 font-medium"
             >
               <Save className="h-4 w-4" />
               <span>Save Search</span>
@@ -651,19 +647,19 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                   value={saveSearchName}
                   onChange={(e) => setSaveSearchName(e.target.value)}
                   placeholder="Search name..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent transition-all duration-150"
                 />
                 <div className="flex space-x-2">
                   <button
                     onClick={handleSaveSearch}
                     disabled={!saveSearchName.trim()}
-                    className="flex-1 px-3 py-1 bg-green-500 text-white rounded disabled:opacity-50"
+                    className="flex-1 px-3 py-1 bg-[#9ece6a] text-[#1a1b26] rounded-lg hover:bg-[#9ece6a]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 font-medium"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setShowSaveDialog(false)}
-                    className="flex-1 px-3 py-1 bg-gray-500 text-white rounded"
+                    className="flex-1 px-3 py-1 bg-[#414868] text-[#c0caf5] rounded-lg hover:bg-[#565f89] transition-all duration-150 font-medium"
                   >
                     Cancel
                   </button>
@@ -677,11 +673,9 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
             <div className="space-y-4 mt-6">
               <button
                 onClick={() => toggleSection("saved")}
-                className="flex items-center justify-between w-full text-left"
+                className="flex items-center justify-between w-full text-left text-[#c0caf5] hover:text-[#7aa2f7] transition-colors duration-150"
               >
-                <h3 className="font-medium text-gray-900 dark:text-white">
-                  Saved Searches
-                </h3>
+                <h3 className="font-medium">Saved Searches</h3>
                 {expandedSections.saved ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (
@@ -694,17 +688,17 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                   {savedSearches.map((search) => (
                     <div
                       key={search.id}
-                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded"
+                      className="flex items-center justify-between p-2 bg-[#24283b] hover:bg-[#414868]/30 rounded-lg transition-all duration-150 border border-[#414868]"
                     >
                       <button
                         onClick={() => loadSavedSearch(search)}
-                        className="flex-1 text-left text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                        className="flex-1 text-left text-sm text-[#c0caf5] hover:text-[#7aa2f7] transition-colors"
                       >
                         {search.name}
                       </button>
                       <button
                         onClick={() => deleteSavedSearch(search.id)}
-                        className="text-red-500 hover:text-red-700"
+                        className="text-[#f7768e] hover:text-[#f7768e]/80 transition-colors"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -717,19 +711,17 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
         </div>
 
         {/* Results Panel */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-6 overflow-y-auto bg-[#1a1b26]">
           {loading && (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              <span className="ml-2 text-gray-600 dark:text-gray-400">
-                Searching...
-              </span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7aa2f7]"></div>
+              <span className="ml-2 text-[#9aa5ce]">Searching...</span>
             </div>
           )}
 
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-red-600 dark:text-red-400">{error}</p>
+            <div className="p-4 bg-[#f7768e]/10 border border-[#f7768e]/30 rounded-lg">
+              <p className="text-[#f7768e]">{error}</p>
             </div>
           )}
 
@@ -737,9 +729,9 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
             !error &&
             results.length === 0 &&
             (filters.query || filters.messageContent) && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-8 text-[#565f89]">
                 <Search className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No results found</p>
+                <p className="text-[#9aa5ce]">No results found</p>
                 <p className="text-sm">Try adjusting your search criteria</p>
               </div>
             )}
@@ -749,16 +741,18 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
             results.length === 0 &&
             !filters.query &&
             !filters.messageContent && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-8 text-[#565f89]">
                 <Search className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>Enter a search query to get started</p>
+                <p className="text-[#9aa5ce]">
+                  Enter a search query to get started
+                </p>
               </div>
             )}
 
           {!loading && !error && results.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-[#c0caf5]">
                   Search Results ({results.length})
                 </h3>
               </div>
@@ -767,7 +761,7 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                 {results.map((result) => (
                   <div
                     key={result.conversation.id}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    className="border border-[#414868] rounded-lg p-4 hover:bg-[#24283b] hover:shadow-md transition-all duration-150"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <button
@@ -776,10 +770,10 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                         }
                         className="text-left flex-1"
                       >
-                        <h4 className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                        <h4 className="font-medium text-[#c0caf5] hover:text-[#7aa2f7] transition-colors">
                           {result.conversation.title}
                         </h4>
-                        <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <div className="flex items-center space-x-3 text-xs text-[#565f89] mt-1">
                           <span className="flex items-center space-x-1">
                             <Calendar className="h-3 w-3" />
                             <span>
@@ -812,26 +806,26 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
                                 message.id,
                               )
                             }
-                            className="w-full text-left p-2 bg-gray-50 dark:bg-gray-700 rounded border hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                            className="w-full text-left p-2 bg-[#24283b] rounded border border-[#414868] hover:bg-[#414868]/30 transition-all duration-150"
                           >
                             <div className="flex items-center space-x-2 mb-1">
                               {message.role === "user" ? (
-                                <User className="h-3 w-3 text-blue-500" />
+                                <User className="h-3 w-3 text-[#7aa2f7]" />
                               ) : (
-                                <Bot className="h-3 w-3 text-green-500" />
+                                <Bot className="h-3 w-3 text-[#9ece6a]" />
                               )}
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              <span className="text-xs font-medium text-[#9aa5ce]">
                                 {message.role === "user" ? "You" : "Assistant"}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <p className="text-sm text-[#c0caf5]">
                               {message.snippet ||
                                 message.content.slice(0, 200) + "..."}
                             </p>
                           </button>
                         ))}
                         {result.messages.length > 3 && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                          <p className="text-xs text-[#565f89] text-center">
                             +{result.messages.length - 3} more messages
                           </p>
                         )}

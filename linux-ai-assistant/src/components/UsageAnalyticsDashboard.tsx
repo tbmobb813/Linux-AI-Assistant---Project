@@ -249,15 +249,15 @@ export default function UsageAnalyticsDashboard({
   if (!data) return null;
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 bg-[#1a1b26] min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+          <h1 className="text-2xl font-bold text-[#c0caf5] flex items-center space-x-2">
             <BarChart3 className="h-6 w-6" />
             <span>Usage Analytics</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-[#9aa5ce]">
             Insights into your AI Assistant usage and performance
           </p>
         </div>
@@ -266,7 +266,7 @@ export default function UsageAnalyticsDashboard({
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="px-3 py-2 border border-[#414868] rounded-lg bg-[#24283b] text-[#c0caf5] focus:ring-2 focus:ring-[#7aa2f7]/50 transition-all duration-150"
           >
             <option value="week">Last Week</option>
             <option value="month">Last Month</option>
@@ -276,7 +276,7 @@ export default function UsageAnalyticsDashboard({
 
           <button
             onClick={loadAnalyticsData}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center space-x-2"
+            className="px-4 py-2 bg-[#7aa2f7] text-[#1a1b26] rounded-lg hover:bg-[#7aa2f7]/90 flex items-center space-x-2 font-medium transition-all duration-150"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Refresh</span>
@@ -285,7 +285,7 @@ export default function UsageAnalyticsDashboard({
           {onClose && (
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 bg-[#414868] text-[#c0caf5] rounded-lg hover:bg-[#565f89] transition-all duration-150"
             >
               Close
             </button>

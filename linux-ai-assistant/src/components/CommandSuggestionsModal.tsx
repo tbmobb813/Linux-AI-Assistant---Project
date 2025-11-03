@@ -33,12 +33,14 @@ export default function CommandSuggestionsModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40">
-      <div className="w-[600px] max-w-[95vw] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded shadow-xl p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold">Command suggestions</h3>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm">
+      <div className="w-[600px] max-w-[95vw] bg-[#1a1b26] text-[#c0caf5] border border-[#414868] rounded-lg shadow-2xl p-6 animate-in fade-in duration-150">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-[#c0caf5]">
+            Command suggestions
+          </h3>
           <button
-            className="text-xs text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            className="text-[#565f89] hover:text-[#c0caf5] transition-colors duration-150"
             onClick={closeSuggestions}
             aria-label="Close suggestions"
           >
@@ -46,26 +48,28 @@ export default function CommandSuggestionsModal() {
           </button>
         </div>
         {items.length === 0 ? (
-          <div className="text-sm text-gray-500">No suggestions</div>
+          <div className="text-sm text-[#565f89] text-center py-4">
+            No suggestions
+          </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {items.map((cmd, idx) => (
               <li
                 key={idx}
-                className="p-2 rounded border border-gray-200 dark:border-gray-800"
+                className="p-3 rounded-lg border border-[#414868] bg-[#24283b] hover:bg-[#414868]/30 transition-all duration-150"
               >
-                <div className="text-xs font-mono break-all whitespace-pre-wrap">
+                <div className="text-sm font-mono break-all whitespace-pre-wrap text-[#c0caf5]">
                   {cmd}
                 </div>
-                <div className="mt-2 flex gap-2">
+                <div className="mt-3 flex gap-2">
                   <button
-                    className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] transition-all duration-150 font-medium"
                     onClick={() => onCopy(cmd)}
                   >
                     Copy
                   </button>
                   <button
-                    className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-500"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-[#7aa2f7] hover:bg-[#7aa2f7]/80 text-[#1a1b26] transition-all duration-150 font-medium"
                     onClick={() => onRun(cmd)}
                   >
                     Run

@@ -121,17 +121,13 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
 
   if (error) {
     return (
-      <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+      <div className="w-96 bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6">
         <div className="text-center">
-          <div className="text-red-600 dark:text-red-400 mb-2">
-            Error loading metrics
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            {error}
-          </div>
+          <div className="text-[#f7768e] mb-2">Error loading metrics</div>
+          <div className="text-sm text-[#9aa5ce] mb-4">{error}</div>
           <button
             onClick={fetchMetrics}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm"
+            className="px-4 py-2 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] rounded-md text-sm font-medium transition-all duration-150"
           >
             Retry
           </button>
@@ -143,22 +139,20 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
   if (!metrics) return null;
 
   return (
-    <div className="w-[500px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl">
+    <div className="w-[500px] bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-[#414868]">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <Activity className="w-5 h-5 text-[#7aa2f7]" />
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             Performance Dashboard
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`p-1 rounded ${
-              autoRefresh
-                ? "text-green-600 dark:text-green-400"
-                : "text-gray-400 dark:text-gray-600"
+            className={`p-1 rounded transition-colors ${
+              autoRefresh ? "text-[#9ece6a]" : "text-[#565f89]"
             }`}
             title={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
           >
@@ -168,7 +162,7 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
           </button>
           <button
             onClick={fetchMetrics}
-            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
             title="Refresh now"
           >
             <TrendingUp className="w-4 h-4" />
@@ -176,7 +170,7 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              className="p-1 text-[#9aa5ce] hover:text-[#c0caf5] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -188,15 +182,15 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
         {/* System Overview */}
         <div className="grid grid-cols-2 gap-4">
           {/* CPU Usage */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+          <div className="bg-[#24283b]/50 rounded-lg p-3 border border-[#414868]">
             <div className="flex items-center gap-2 mb-2">
-              <Cpu className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Cpu className="w-4 h-4 text-[#7aa2f7]" />
+              <span className="text-sm font-medium text-[#c0caf5]">
                 CPU Usage
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div className="flex-1 bg-[#414868] rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${getProgressColor(metrics.system.cpu_usage)}`}
                   style={{
@@ -213,15 +207,13 @@ function PerformanceDashboard({ onClose }: PerformanceDashboardProps) {
           </div>
 
           {/* Memory Usage */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+          <div className="bg-[#24283b]/50 rounded-lg p-3 border border-[#414868]">
             <div className="flex items-center gap-2 mb-2">
-              <HardDrive className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Memory
-              </span>
+              <HardDrive className="w-4 h-4 text-[#9ece6a]" />
+              <span className="text-sm font-medium text-[#c0caf5]">Memory</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div className="flex-1 bg-[#414868] rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${getProgressColor(metrics.system.memory_usage.memory_percent)}`}
                   style={{

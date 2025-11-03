@@ -1,6 +1,7 @@
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { useArtifactStore } from "../lib/stores/artifactStore";
+import { useMemoryStore } from "../lib/stores/memoryStore";
 import type { ApiMessage } from "../lib/api/types";
 import { isTauriEnvironment } from "../lib/utils/tauri";
 import { useState, useEffect } from "react";
@@ -11,6 +12,7 @@ import { hasArtifacts } from "../lib/utils/artifactDetection";
 import { suggestFilename } from "../lib/utils/artifactDetection";
 import { invoke } from "@tauri-apps/api/core";
 import CostBadge from "./CostBadge";
+import { Brain } from "lucide-react";
 
 function formatTime(ts?: number) {
   if (!ts) return "";
@@ -39,6 +41,8 @@ export default function MessageBubble({
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
   const addToast = useUiStore((s) => s.addToast);
+  const addMemory = useMemoryStore((s) => s.addMemory);
+  const currentConversation = useChatStore((s) => s.currentConversation);
 
   // Artifact detection
   const extractArtifacts = useArtifactStore((s) => s.extractArtifacts);
@@ -88,6 +92,29 @@ export default function MessageBubble({
   const handleCancel = () => {
     setEditContent(message.content);
     setIsEditing(false);
+  };
+
+  const handleRemember = () => {
+    try {
+      addMemory(message.content, {
+        context: `From ${message.role} message`,
+        conversationId: currentConversation?.id,
+        messageId: message.id,
+        tags: [message.role],
+      });
+
+      addToast({
+        message: "Added to session memory!",
+        type: "success",
+        ttl: 2000,
+      });
+    } catch (error) {
+      addToast({
+        message: "Failed to save memory",
+        type: "error",
+        ttl: 3000,
+      });
+    }
   };
 
   const handleCopy = async () => {
@@ -160,7 +187,7 @@ export default function MessageBubble({
         className={`max-w-[75%] group relative ${
           isUser
             ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
-            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200/50 dark:border-gray-700/50"
+            : "bg-[#24283b] text-[#c0caf5] shadow-sm border border-[#414868]"
         } rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg`}
       >
         <div className="px-5 py-4">
@@ -173,10 +200,10 @@ export default function MessageBubble({
                     onChange={(e) => setEditContent(e.target.value)}
                     className="
                       w-full min-h-24 p-3
-                      border border-gray-300 dark:border-gray-600
-                      rounded-lg bg-white dark:bg-gray-700
-                      text-gray-900 dark:text-white
-                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                      border border-[#414868]
+                      rounded-lg bg-[#1a1b26]
+                      text-[#c0caf5] placeholder-[#565f89]
+                      focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent
                       resize-none transition-all duration-200
                     "
                     autoFocus
@@ -184,13 +211,13 @@ export default function MessageBubble({
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={handleCancel}
-                      className="px-4 py-2 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200"
+                      className="px-4 py-2 text-sm bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded-lg transition-colors duration-200"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSave}
-                      className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                      className="px-4 py-2 text-sm bg-[#7aa2f7] hover:bg-[#7aa2f7]/80 text-[#1a1b26] rounded-lg transition-colors duration-200"
                     >
                       Save Changes
                     </button>
@@ -223,7 +250,7 @@ export default function MessageBubble({
                       ${
                         isUser
                           ? "text-white/70 hover:text-white hover:bg-white/20"
-                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                          : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                       }
                     `}
                     title="Edit message"
@@ -250,7 +277,7 @@ export default function MessageBubble({
                 {!isUser && (
                   <button
                     onClick={handleCopy}
-                    className="p-2 rounded-lg transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                    className="p-2 rounded-lg transition-all duration-200 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     title="Copy to clipboard"
                     aria-label="Copy message"
                   >
@@ -279,7 +306,7 @@ export default function MessageBubble({
                     ${
                       isUser
                         ? "text-white/70 hover:text-white hover:bg-white/20"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     }
                   `}
                   title="Create branch from this message"
@@ -301,6 +328,23 @@ export default function MessageBubble({
                     <circle cx="6" cy="18" r="3" />
                     <path d="m18 9-1.5 1.5L18 12" />
                   </svg>
+                </button>
+
+                {/* Remember This button */}
+                <button
+                  onClick={handleRemember}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${
+                      isUser
+                        ? "text-white/70 hover:text-white hover:bg-white/20"
+                        : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                    }
+                  `}
+                  title="Remember this message"
+                  aria-label="Remember message"
+                >
+                  <Brain className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -349,7 +393,7 @@ export default function MessageBubble({
 
         {/* Artifact Previews */}
         {!isUser && showArtifacts && artifacts.length > 0 && (
-          <div className="border-t border-gray-200/50 dark:border-gray-700/50 p-4 space-y-3 bg-gray-50/50 dark:bg-gray-900/50">
+          <div className="border-t border-[#414868] p-4 space-y-3 bg-[#1a1b26]/50">
             {artifacts.map((artifact) => (
               <ArtifactPreview
                 key={artifact.id}

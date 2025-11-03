@@ -130,19 +130,19 @@ export default function TagInput({
       return a & a;
     }, 0);
     const colors = [
-      "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-      "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-      "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
+      "bg-[#7aa2f7]/20 text-[#7aa2f7] border border-[#7aa2f7]/30",
+      "bg-[#9ece6a]/20 text-[#9ece6a] border border-[#9ece6a]/30",
+      "bg-[#e0af68]/20 text-[#e0af68] border border-[#e0af68]/30",
+      "bg-[#f7768e]/20 text-[#f7768e] border border-[#f7768e]/30",
+      "bg-[#bb9af7]/20 text-[#bb9af7] border border-[#bb9af7]/30",
+      "bg-[#ff9e64]/20 text-[#ff9e64] border border-[#ff9e64]/30",
     ];
     return colors[Math.abs(hash) % colors.length];
   };
 
   return (
     <div className={`relative ${className}`}>
-      <div className="flex flex-wrap items-center gap-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 min-h-10">
+      <div className="flex flex-wrap items-center gap-1 p-2 border border-[#414868] rounded-md bg-[#24283b] min-h-10">
         {/* Existing tags */}
         {tags.map((tag) => (
           <span
@@ -153,7 +153,7 @@ export default function TagInput({
             <button
               type="button"
               onClick={() => removeTag(tag.id)}
-              className="ml-1 text-current hover:text-red-600 focus:outline-none"
+              className="ml-1 text-current hover:text-[#f7768e] focus:outline-none transition-colors"
               aria-label={`Remove tag ${tag.name}`}
             >
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -183,12 +183,12 @@ export default function TagInput({
             setTimeout(() => setShowSuggestions(false), 150);
           }}
           placeholder={tags.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-20 bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          className="flex-1 min-w-20 bg-transparent border-none outline-none text-[#c0caf5] placeholder-[#565f89]"
           disabled={isLoading}
         />
 
         {isLoading && (
-          <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-blue-600 rounded-full"></div>
+          <div className="animate-spin h-4 w-4 border-2 border-[#414868] border-t-[#7aa2f7] rounded-full"></div>
         )}
       </div>
 
@@ -196,7 +196,7 @@ export default function TagInput({
       {showSuggestions && (inputValue.trim() || suggestions.length > 0) && (
         <div
           ref={suggestionsRef}
-          className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-40 overflow-auto"
+          className="absolute z-10 w-full mt-1 bg-[#1a1b26] border border-[#414868] rounded-md shadow-lg max-h-40 overflow-auto"
         >
           {/* Create new tag option */}
           {inputValue.trim() &&
@@ -206,12 +206,10 @@ export default function TagInput({
               <button
                 type="button"
                 onClick={() => addTag(inputValue.trim())}
-                className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600"
+                className="w-full px-3 py-2 text-left hover:bg-[#24283b] border-b border-[#414868] transition-colors"
               >
-                <span className="text-gray-600 dark:text-gray-400">
-                  Create:{" "}
-                </span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
+                <span className="text-[#9aa5ce]">Create: </span>
+                <span className="font-medium text-[#c0caf5]">
                   "{inputValue.trim()}"
                 </span>
               </button>
@@ -223,14 +221,14 @@ export default function TagInput({
               key={tag.id}
               type="button"
               onClick={() => addTag(tag.name)}
-              className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 text-left hover:bg-[#24283b] text-[#c0caf5] transition-colors"
             >
               {tag.name}
             </button>
           ))}
 
           {suggestions.length === 0 && inputValue.trim() && (
-            <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm">
+            <div className="px-3 py-2 text-[#565f89] text-sm">
               No existing tags found. Press Enter to create "{inputValue.trim()}
               "
             </div>

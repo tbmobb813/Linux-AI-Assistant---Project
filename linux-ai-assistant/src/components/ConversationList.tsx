@@ -145,12 +145,12 @@ export default function ConversationList() {
     <aside
       ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
-      className="relative flex flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white"
+      className="relative flex flex-col bg-[#1a1b26]/95 backdrop-blur-lg border-r border-[#414868] text-[#c0caf5]"
     >
       {/* Modern Header */}
-      <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
+      <div className="p-4 border-b border-[#414868]">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-semibold text-[#c0caf5]">
             Conversations
           </h2>
           <AnimatedButton
@@ -168,7 +168,7 @@ export default function ConversationList() {
         {/* Enhanced Search */}
         <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-[#565f89]" />
             <input
               type="text"
               placeholder="Search conversations..."
@@ -178,26 +178,26 @@ export default function ConversationList() {
               onBlur={handleSearchBlur}
               className="
                 w-full pl-10 pr-10 py-2.5
-                text-sm border border-gray-300 dark:border-gray-600
-                rounded-lg bg-white dark:bg-gray-800
-                text-gray-900 dark:text-white
-                placeholder-gray-500 dark:placeholder-gray-400
-                focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                transition-all duration-200
+                text-sm border border-[#414868]
+                rounded-lg bg-[#24283b]
+                text-[#c0caf5]
+                placeholder-[#565f89]
+                focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent
+                transition-all duration-150
               "
             />
             <div className="absolute right-3 top-2.5 flex items-center space-x-1">
               {localSearchQuery && (
                 <button
                   onClick={handleClearSearch}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                  className="p-1 text-[#565f89] hover:text-[#c0caf5] rounded transition-colors duration-150"
                 >
                   <X className="h-3 w-3" />
                 </button>
               )}
               <button
                 onClick={() => setShowAdvancedSearch(true)}
-                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                className="p-1 text-[#565f89] hover:text-[#c0caf5] rounded transition-colors duration-150"
                 title="Advanced search"
               >
                 <Settings className="h-3 w-3" />
@@ -222,11 +222,12 @@ export default function ConversationList() {
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value as any)}
                 className="
-                  w-full text-xs border border-gray-300 dark:border-gray-600
+                  w-full text-xs border border-[#414868]
                   rounded-md px-2 py-1.5
-                  bg-white dark:bg-gray-800
-                  text-gray-700 dark:text-gray-300
-                  focus:ring-1 focus:ring-blue-500 focus:border-transparent
+                  bg-[#24283b]
+                  text-[#c0caf5]
+                  focus:ring-1 focus:ring-[#7aa2f7] focus:border-transparent
+                  transition-all duration-150
                 "
               >
                 <option value="all">All time</option>
@@ -239,11 +240,11 @@ export default function ConversationList() {
             <button
               onClick={() => setShowTagFilter(!showTagFilter)}
               className={`
-                p-2 rounded-md transition-all duration-200
+                p-2 rounded-md transition-all duration-150
                 ${
                   showTagFilter || selectedTags.length > 0
-                    ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    ? "bg-[#7aa2f7]/20 text-[#7aa2f7] shadow-sm border border-[#7aa2f7]/30"
+                    : "bg-[#414868] text-[#9aa5ce] hover:bg-[#565f89]"
                 }
               `}
               title="Filter by tags"
@@ -254,7 +255,7 @@ export default function ConversationList() {
 
           {/* Tag Filter Component */}
           {showTagFilter && (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm">
+            <div className="border border-[#414868] rounded-lg p-3 bg-[#24283b]/50 backdrop-blur-sm">
               <TagFilter
                 selectedTags={selectedTags}
                 onTagsChange={setSelectedTags}
@@ -264,14 +265,14 @@ export default function ConversationList() {
 
           {/* Active Tag Filter Display */}
           {selectedTags.length > 0 && !showTagFilter && (
-            <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between text-xs text-[#7aa2f7] bg-[#7aa2f7]/10 px-3 py-2 rounded-lg border border-[#7aa2f7]/30">
               <span className="font-medium">
                 {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"}{" "}
                 applied
               </span>
               <button
                 onClick={() => setSelectedTags([])}
-                className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                className="text-[#7aa2f7] hover:text-[#7aa2f7]/80 font-medium transition-colors"
               >
                 Clear
               </button>
@@ -280,7 +281,7 @@ export default function ConversationList() {
 
           {/* Search Results Info */}
           {searchQuery && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 px-1">
+            <div className="text-xs text-[#565f89] px-1">
               {isSearching
                 ? "Searching..."
                 : `Found ${filteredConversations.length} conversation${filteredConversations.length !== 1 ? "s" : ""}`}
@@ -294,7 +295,10 @@ export default function ConversationList() {
         {isLoading && (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="px-4 py-3 rounded-xl space-y-2">
+              <div
+                key={i}
+                className="px-4 py-3 rounded-xl space-y-2 bg-[#24283b]/30"
+              >
                 <div className="flex items-center gap-3">
                   <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
                   <div className="flex-1 space-y-2">
@@ -309,14 +313,14 @@ export default function ConversationList() {
 
         {!isLoading && filteredConversations.length === 0 && (
           <FadeIn delay={300}>
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-[#9aa5ce]">
               <div className="text-4xl mb-3">💬</div>
-              <div className="text-sm font-medium mb-1">
+              <div className="text-sm font-medium mb-1 text-[#c0caf5]">
                 {searchQuery
                   ? "No conversations found"
                   : "No conversations yet"}
               </div>
-              <div className="text-xs">
+              <div className="text-xs text-[#565f89]">
                 {searchQuery
                   ? "Try a different search term"
                   : "Create your first conversation to get started"}
@@ -359,9 +363,9 @@ export default function ConversationList() {
         onMouseDown={handleMouseDown}
         className={`
           absolute top-0 right-0 bottom-0 w-1
-          hover:w-1.5 hover:bg-blue-400 dark:hover:bg-blue-500
+          hover:w-1.5 hover:bg-[#7aa2f7]/60
           cursor-ew-resize transition-all duration-150
-          ${isResizing ? "w-1.5 bg-blue-500 dark:bg-blue-400" : "bg-transparent"}
+          ${isResizing ? "w-1.5 bg-[#7aa2f7]" : "bg-transparent"}
         `}
         title="Drag to resize"
       />

@@ -19,6 +19,7 @@ interface SettingsState {
   allowCodeExecution: boolean;
   projectRoot?: string | null;
   fileWatcherIgnorePatterns: string[]; // gitignore-style patterns
+  budgetMonthly: number; // USD monthly budget for AI usage
 
   // Actions
   loadSettings: () => Promise<void>;
@@ -32,6 +33,7 @@ interface SettingsState {
   setProjectRoot: (path: string) => Promise<void>;
   stopProjectWatch: () => Promise<void>;
   setFileWatcherIgnorePatterns: (patterns: string[]) => Promise<void>;
+  setBudgetMonthly: (amount: number) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -52,6 +54,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     ".DS_Store",
     "Thumbs.db",
   ],
+  budgetMonthly: 20,
 
   loadSettings: async () => {
     try {
@@ -68,6 +71,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       const ignorePatterns = await db.settings.getJSON<string[]>(
         "fileWatcherIgnorePatterns",
       );
+      const budgetRaw = await db.settings.get("budgetMonthly");
+      const budgetMonthly = budgetRaw ? parseFloat(budgetRaw) : 20;
 
       set({
         theme: (theme as any) || "system",
@@ -87,6 +92,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
           ".DS_Store",
           "Thumbs.db",
         ],
+        budgetMonthly,
       });
       try {
         applyTheme(((theme as any) || "system") as any);
@@ -259,6 +265,24 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     } catch (e) {
       useUiStore.getState().addToast({
         message: "Failed to update ignore patterns",
+        type: "error",
+        ttl: 1600,
+      });
+    }
+  },
+
+  setBudgetMonthly: async (amount: number) => {
+    try {
+      await db.settings.set("budgetMonthly", String(amount));
+      set({ budgetMonthly: amount });
+      useUiStore.getState().addToast({
+        message: "Monthly budget updated",
+        type: "success",
+        ttl: 1500,
+      });
+    } catch (e) {
+      useUiStore.getState().addToast({
+        message: "Failed to update budget",
         type: "error",
         ttl: 1600,
       });

@@ -86,13 +86,12 @@ export default function ConversationItem({
     <div
       className={`
         group relative
-        bg-white dark:bg-gray-800/50 
-        rounded-xl border transition-all duration-200
+        rounded-xl border transition-all duration-150
         cursor-pointer overflow-hidden
         ${
           selected
-            ? "border-blue-300 dark:border-blue-600 bg-blue-50/30 dark:bg-blue-900/20 shadow-lg shadow-blue-500/10"
-            : "border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:shadow-gray-500/5"
+            ? "border-[#7aa2f7] bg-[#7aa2f7]/10 shadow-lg shadow-[#7aa2f7]/10"
+            : "border-[#414868]/50 bg-[#24283b]/50 hover:border-[#414868] hover:shadow-md hover:bg-[#24283b]/70"
         }
       `}
       onClick={() => onSelect(conversation.id)}
@@ -103,12 +102,12 @@ export default function ConversationItem({
           <>
             {/* Header */}
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate flex-1 pr-2">
+              <h3 className="text-sm font-semibold text-[#c0caf5] truncate flex-1 pr-2">
                 {conversation.title || "Untitled Conversation"}
               </h3>
-              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 <button
-                  className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="p-1 rounded-md bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowTags(!showTags);
@@ -118,7 +117,7 @@ export default function ConversationItem({
                   <span className="text-xs">🏷️</span>
                 </button>
                 <button
-                  className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="p-1 rounded-md bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditing(true);
@@ -132,20 +131,20 @@ export default function ConversationItem({
 
             {/* Model & Provider Info */}
             <div className="flex items-center space-x-2 mb-3">
-              <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300">
+              <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#414868] text-xs font-medium text-[#c0caf5]">
                 🤖 {conversation.model}
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-[#9aa5ce]">
                 {new Date(conversation.updated_at).toLocaleDateString()}
               </span>
             </div>
 
             {/* Action Buttons - Show on Hover */}
-            <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-150">
               <div className="flex items-center space-x-1">
                 {/* Export Buttons */}
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors disabled:opacity-50"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#9ece6a]/20 text-[#9ece6a] border border-[#9ece6a]/30 rounded-md hover:bg-[#9ece6a]/30 transition-colors disabled:opacity-50"
                   onClick={(e) => handleExport(e, "json")}
                   disabled={exporting}
                   title="Export as JSON"
@@ -154,7 +153,7 @@ export default function ConversationItem({
                   <span className="hidden lg:inline">JSON</span>
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#7aa2f7]/20 text-[#7aa2f7] border border-[#7aa2f7]/30 rounded-md hover:bg-[#7aa2f7]/30 transition-colors disabled:opacity-50"
                   onClick={(e) => handleExport(e, "markdown")}
                   disabled={exporting}
                   title="Export as Markdown"
@@ -163,7 +162,7 @@ export default function ConversationItem({
                   <span className="hidden lg:inline">MD</span>
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors disabled:opacity-50"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#bb9af7]/20 text-[#bb9af7] border border-[#bb9af7]/30 rounded-md hover:bg-[#bb9af7]/30 transition-colors disabled:opacity-50"
                   onClick={(e) => handleExport(e, "pdf")}
                   disabled={exporting}
                   title="Export as PDF"
@@ -173,7 +172,7 @@ export default function ConversationItem({
                 </button>
               </div>
               <button
-                className="flex items-center space-x-1 px-2 py-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#f7768e]/20 text-[#f7768e] border border-[#f7768e]/30 rounded-md hover:bg-[#f7768e]/30 transition-colors"
                 onClick={handleDelete}
                 title="Delete conversation"
               >
@@ -188,11 +187,12 @@ export default function ConversationItem({
           <form onSubmit={handleRename} className="space-y-3">
             <input
               className="
-                w-full px-3 py-2 text-sm 
-                border border-gray-300 dark:border-gray-600 
-                rounded-lg bg-white dark:bg-gray-800 
-                text-gray-900 dark:text-white
-                focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                w-full px-3 py-2 text-sm
+                border border-[#414868]
+                rounded-lg bg-[#24283b]
+                text-[#c0caf5] placeholder-[#565f89]
+                focus:ring-2 focus:ring-[#7aa2f7]/50 focus:border-transparent
+                transition-all duration-150
               "
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -202,13 +202,13 @@ export default function ConversationItem({
             <div className="flex items-center space-x-2">
               <button
                 type="submit"
-                className="flex-1 px-3 py-2 text-xs font-medium bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
+                className="flex-1 px-3 py-2 text-xs font-medium bg-[#9ece6a] hover:bg-[#9ece6a]/90 text-[#1a1b26] rounded-md transition-colors"
               >
                 Save
               </button>
               <button
                 type="button"
-                className="flex-1 px-3 py-2 text-xs font-medium bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
+                className="flex-1 px-3 py-2 text-xs font-medium bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded-md transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   setEditing(false);
@@ -224,7 +224,7 @@ export default function ConversationItem({
 
       {/* Tag Management Area */}
       {showTags && (
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50/50 dark:bg-gray-800/50">
+        <div className="border-t border-[#414868] p-4 bg-[#24283b]/50">
           <TagInput
             conversationId={conversation.id}
             placeholder="Add tags to organize this conversation..."
@@ -235,9 +235,9 @@ export default function ConversationItem({
 
       {/* Loading Overlay */}
       {exporting && (
-        <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center rounded-xl">
-          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-            <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+        <div className="absolute inset-0 bg-[#1a1b26]/90 backdrop-blur-sm flex items-center justify-center rounded-xl">
+          <div className="flex items-center space-x-2 text-sm text-[#9aa5ce]">
+            <div className="animate-spin w-4 h-4 border-2 border-[#7aa2f7] border-t-transparent rounded-full"></div>
             <span>Exporting...</span>
           </div>
         </div>

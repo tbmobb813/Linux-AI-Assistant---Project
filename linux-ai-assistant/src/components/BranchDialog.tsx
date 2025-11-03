@@ -51,14 +51,14 @@ export default function BranchDialog({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-        <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+      <div className="bg-[#1a1b26] border border-[#414868] rounded-lg shadow-2xl p-6 w-full max-w-md mx-4">
+        <h2 className="text-lg font-semibold mb-4 text-[#c0caf5]">
           Create Branch
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-[#9aa5ce] mb-4">
           Create a new conversation branch from this message point. This allows
           you to explore alternative conversation paths.
         </p>
@@ -67,7 +67,7 @@ export default function BranchDialog({
           <div className="mb-4">
             <label
               htmlFor="branch-title"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-medium text-[#9aa5ce] mb-2"
             >
               Branch Title
             </label>
@@ -77,7 +77,7 @@ export default function BranchDialog({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter branch title..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-[#414868] rounded-md bg-[#24283b] text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50 transition-all duration-150"
               autoFocus
               disabled={isCreating}
             />
@@ -88,14 +88,14 @@ export default function BranchDialog({
               type="button"
               onClick={onClose}
               disabled={isCreating}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 rounded-md disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-[#c0caf5] bg-[#414868] hover:bg-[#565f89] rounded-md disabled:opacity-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!title.trim() || isCreating}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-[#1a1b26] bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isCreating ? "Creating..." : "Create Branch"}
             </button>

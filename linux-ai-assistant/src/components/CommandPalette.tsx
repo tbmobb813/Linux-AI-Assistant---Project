@@ -44,7 +44,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         selectConversation(conv.id);
         onClose();
       },
-      keywords: [conv.title || "Untitled Conversation", "conversation", "chat", "messages"],
+      keywords: [
+        conv.title || "Untitled Conversation",
+        "conversation",
+        "chat",
+        "messages",
+      ],
     }));
 
     const actionCommands: Command[] = [
@@ -72,8 +77,46 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         },
         keywords: ["reload", "refresh", "conversations"],
       },
+      {
+        id: "code-review",
+        title: "Code Review Mode",
+        subtitle: "Review code changes with AI annotations",
+        category: "actions",
+        icon: "🔍",
+        action: async () => {
+          const { useReviewStore } = await import("../lib/stores/reviewStore");
+          useReviewStore.getState().toggleReviewMode();
+          onClose();
+        },
+        keywords: ["review", "code", "diff", "pr", "pull request", "changes"],
+      },
+      {
+        id: "log-viewer",
+        title: "Log Viewer Mode",
+        subtitle: "Analyze logs with filtering and grouping",
+        category: "actions",
+        icon: "📋",
+        action: async () => {
+          const { useLogStore } = await import("../lib/stores/logStore");
+          useLogStore.getState().toggleLogViewer();
+          onClose();
+        },
+        keywords: ["logs", "viewer", "analyze", "filter", "syslog", "docker"],
+      },
+      {
+        id: "memory-viewer",
+        title: "Session Memory",
+        subtitle: "View and manage project memories",
+        category: "actions",
+        icon: "🧠",
+        action: async () => {
+          const { useMemoryStore } = await import("../lib/stores/memoryStore");
+          useMemoryStore.getState().toggleMemoryViewer();
+          onClose();
+        },
+        keywords: ["memory", "remember", "recall", "knowledge", "session"],
+      },
     ];
-
     const navigationCommands: Command[] = [
       {
         id: "settings",

@@ -428,6 +428,133 @@ The CLI \`capture\` command provides safe execution with comprehensive output an
       }
     },
   },
+  {
+    command: "remember",
+    description: "Save information to session memory",
+    parameters: ["content"],
+    handler: async (args, context) => {
+      if (args.length === 0) {
+        context.addToast({
+          message: "Usage: /remember <what to remember>",
+          type: "warning",
+          ttl: 3000,
+        });
+        return false;
+      }
+
+      try {
+        const { useMemoryStore } = await import("./stores/memoryStore");
+        const content = args.join(" ");
+
+        useMemoryStore.getState().addMemory(content, {
+          context: "Added via /remember command",
+          conversationId: context.conversationId || undefined,
+          tags: ["command"],
+        });
+
+        context.addToast({
+          message: "💾 Saved to session memory!",
+          type: "success",
+          ttl: 2000,
+        });
+
+        // Add confirmation message to conversation
+        if (context.conversationId) {
+          await database.messages.create({
+            conversation_id: context.conversationId,
+            role: "assistant",
+            content: `✓ Saved to memory: "${content}"`,
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Remember command error:", error);
+        context.addToast({
+          message: "Failed to save to memory",
+          type: "error",
+          ttl: 3000,
+        });
+        return false;
+      }
+    },
+  },
+  {
+    command: "recall",
+    description: "Search and recall from session memory",
+    aliases: ["search-memory", "find"],
+    parameters: ["query"],
+    handler: async (args, context) => {
+      if (args.length === 0) {
+        context.addToast({
+          message: "Usage: /recall <search query>",
+          type: "warning",
+          ttl: 3000,
+        });
+        return false;
+      }
+
+      try {
+        const { useMemoryStore } = await import("./stores/memoryStore");
+        const query = args.join(" ");
+        const memories = useMemoryStore.getState().recallMemories(query, 10);
+
+        if (memories.length === 0) {
+          context.addToast({
+            message: "No memories found matching your query",
+            type: "info",
+            ttl: 2000,
+          });
+
+          if (context.conversationId) {
+            await database.messages.create({
+              conversation_id: context.conversationId,
+              role: "assistant",
+              content: `No memories found for: "${query}"`,
+            });
+          }
+
+          return true;
+        }
+
+        // Format memories as markdown
+        let resultText = `**🧠 Found ${memories.length} memories matching "${query}":**\n\n`;
+
+        for (let i = 0; i < memories.length; i++) {
+          const memory = memories[i];
+          const date = new Date(memory.createdAt).toLocaleDateString();
+
+          resultText += `${i + 1}. ${memory.content}\n`;
+          resultText += `   *${date}${memory.context ? ` • ${memory.context}` : ""}*\n\n`;
+        }
+
+        // Add message to conversation
+        if (context.conversationId) {
+          await database.messages.create({
+            conversation_id: context.conversationId,
+            role: "assistant",
+            content: resultText,
+          });
+        }
+
+        context.addToast({
+          message: `Found ${memories.length} memories`,
+          type: "success",
+          ttl: 2000,
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Recall command error:", error);
+        context.addToast({
+          message: "Failed to recall memories",
+          type: "error",
+          ttl: 3000,
+        });
+        return false;
+      }
+    },
+  },
 ];
 
 // Helper function to create new conversation

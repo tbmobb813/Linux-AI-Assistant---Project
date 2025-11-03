@@ -17,6 +17,9 @@ interface UiState {
   toasts: Toast[];
   addToast: (t: Omit<Toast, "id">) => string;
   removeToast: (id: string) => void;
+  // Focus mode
+  focusMode: boolean;
+  toggleFocusMode: () => void;
   // Run output modal
   runModal: {
     open: boolean;
@@ -73,6 +76,8 @@ export const useUiStore = create<UiState>((set) => ({
   },
   removeToast: (id) =>
     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  focusMode: false,
+  toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
   runModal: {
     open: false,
     stdout: "",

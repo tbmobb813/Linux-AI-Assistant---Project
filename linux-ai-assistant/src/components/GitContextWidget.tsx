@@ -125,8 +125,8 @@ export default function GitContextWidget({
   };
   if (isLoading) {
     return (
-      <div className="p-3 rounded-lg bg-gray-100/50 dark:bg-gray-800/50 animate-pulse">
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-32"></div>
+      <div className="p-3 rounded-lg bg-[#24283b]/50 animate-pulse">
+        <div className="h-4 bg-[#414868] rounded w-32"></div>
       </div>
     );
   }
@@ -137,11 +137,11 @@ export default function GitContextWidget({
 
   return (
     <FadeIn>
-      <div className="rounded-xl bg-gradient-to-br from-blue-50/80 to-purple-50/80 dark:from-gray-800/80 dark:to-gray-900/80 backdrop-blur-sm border border-blue-200/50 dark:border-purple-700/50 overflow-hidden">
+      <div className="rounded-xl bg-gradient-to-br from-[#7aa2f7]/10 to-[#bb9af7]/10 backdrop-blur-sm border border-[#7aa2f7]/30 overflow-hidden">
         {/* Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 dark:hover:bg-black/20 transition-colors"
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#24283b]/30 transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
@@ -153,13 +153,13 @@ export default function GitContextWidget({
               <span className="text-2xl">🔀</span>
             </div>
             <div className="text-left">
-              <div className="font-semibold text-gray-900 dark:text-white text-sm">
+              <div className="font-semibold text-[#c0caf5] text-sm">
                 {projectInfo && projectInfo.project_type !== "Unknown"
                   ? `${projectInfo.project_type} Project`
                   : "Git Context"}
               </div>
               {gitContext.branch && (
-                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <div className="text-xs text-[#9aa5ce] flex items-center gap-2">
                   <span className="font-mono">{gitContext.branch}</span>
                   {projectInfo?.name && (
                     <>
@@ -168,7 +168,7 @@ export default function GitContextWidget({
                     </>
                   )}
                   {gitContext.uncommitted_changes > 0 && (
-                    <span className="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded text-xs">
+                    <span className="px-1.5 py-0.5 bg-[#e0af68]/20 text-[#e0af68] border border-[#e0af68]/30 rounded text-xs">
                       {gitContext.uncommitted_changes} uncommitted
                     </span>
                   )}
@@ -186,7 +186,7 @@ export default function GitContextWidget({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`text-gray-600 dark:text-gray-400 transition-transform ${
+            className={`text-[#9aa5ce] transition-transform ${
               isExpanded ? "rotate-180" : ""
             }`}
           >
@@ -196,28 +196,28 @@ export default function GitContextWidget({
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="px-4 pb-4 space-y-3 border-t border-blue-200/30 dark:border-purple-700/30 pt-3">
+          <div className="px-4 pb-4 space-y-3 border-t border-[#7aa2f7]/20 pt-3">
             {/* Project Info */}
             {projectInfo && projectInfo.project_type !== "Unknown" && (
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                <div className="text-xs font-semibold text-[#9aa5ce] uppercase tracking-wide">
                   Project Info
                 </div>
-                <div className="text-sm p-2 rounded bg-white/50 dark:bg-gray-900/50">
+                <div className="text-sm p-2 rounded bg-[#24283b]/50">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">
                       {getProjectIcon(projectInfo.project_type)}
                     </span>
                     <div>
-                      <div className="font-semibold text-gray-800 dark:text-gray-200">
+                      <div className="font-semibold text-[#c0caf5]">
                         {projectInfo.name || "Unknown"}
                         {projectInfo.version && (
-                          <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          <span className="ml-2 text-xs text-[#9aa5ce]">
                             v{projectInfo.version}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <div className="text-xs text-[#9aa5ce]">
                         {projectInfo.project_type}
                         {projectInfo.description && (
                           <span className="ml-1">
@@ -235,17 +235,15 @@ export default function GitContextWidget({
             <div className="flex items-center gap-2 text-sm">
               {gitContext.uncommitted_changes === 0 ? (
                 <>
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span className="text-gray-700 dark:text-gray-300">
+                  <span className="text-[#9ece6a]">✓</span>
+                  <span className="text-[#c0caf5]">
                     Working directory clean
                   </span>
                 </>
               ) : (
                 <>
-                  <span className="text-orange-600 dark:text-orange-400">
-                    ⚠
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
+                  <span className="text-[#e0af68]">⚠</span>
+                  <span className="text-[#c0caf5]">
                     {gitContext.uncommitted_changes} file
                     {gitContext.uncommitted_changes !== 1 ? "s" : ""} modified
                   </span>
@@ -255,7 +253,7 @@ export default function GitContextWidget({
 
             {/* Remote URL */}
             {gitContext.remote_url && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 font-mono truncate">
+              <div className="text-xs text-[#9aa5ce] font-mono truncate">
                 🔗 {gitContext.remote_url}
               </div>
             )}
@@ -263,30 +261,26 @@ export default function GitContextWidget({
             {/* Recent Commits */}
             {gitContext.recent_commits.length > 0 && (
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                <div className="text-xs font-semibold text-[#9aa5ce] uppercase tracking-wide">
                   Recent Commits
                 </div>
                 <div className="space-y-1.5 max-h-32 overflow-y-auto">
                   {gitContext.recent_commits.slice(0, 3).map((commit) => (
                     <div
                       key={commit.hash}
-                      className="text-xs p-2 rounded bg-white/50 dark:bg-gray-900/50"
+                      className="text-xs p-2 rounded bg-[#24283b]/50 border border-[#414868]/30"
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-gray-500 dark:text-gray-400">
+                        <span className="font-mono text-[#565f89]">
                           {commit.hash.slice(0, 7)}
                         </span>
-                        <span className="text-gray-400 dark:text-gray-500">
-                          •
-                        </span>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          {commit.date}
-                        </span>
+                        <span className="text-[#565f89]">•</span>
+                        <span className="text-[#9aa5ce]">{commit.date}</span>
                       </div>
-                      <div className="text-gray-800 dark:text-gray-200 line-clamp-2">
+                      <div className="text-[#c0caf5] line-clamp-2">
                         {commit.message}
                       </div>
-                      <div className="text-gray-500 dark:text-gray-500 text-xs mt-1">
+                      <div className="text-[#565f89] text-xs mt-1">
                         {commit.author}
                       </div>
                     </div>
@@ -299,7 +293,7 @@ export default function GitContextWidget({
             {onIncludeContext && (
               <button
                 onClick={handleIncludeContext}
-                className="w-full mt-2 px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 px-3 py-2 rounded-lg bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
 # Linux AI Assistant - UI/UX Modernization Plan
 
-**Status**: 6/12 Market Opportunities Complete | 70% UI Polish | UX Enhancement Phase  
-**Last Updated**: November 2, 2025
+**Status**: 9/12 Market Opportunities Complete | 85% UI Polish | UX Enhancement Phase  
+**Last Updated**: November 3, 2025
 
 ---
 
@@ -123,41 +123,35 @@ Every decision must align with these principles:
 
 ## Implementation Status: 12 Market Opportunities
 
-### ✅ COMPLETED (6/12) - 50% Complete
+### ✅ COMPLETED (9/12) - 75% Complete
 
-| #   | Feature                  | Status  | Impact   | Time Invested |
-| --- | ------------------------ | ------- | -------- | ------------- |
-| 1   | **Terminal Integration** | ✅ 100% | CRITICAL | 8 hours       |
-| 2   | **Workspace Context**    | ✅ 100% | HIGH     | 6 hours       |
-| 3   | **Multi-Model Routing**  | ✅ 100% | HIGH     | 3 hours       |
-| 4   | **Code Artifacts**       | ✅ 100% | HIGH     | 5 hours       |
-| 8   | **Error Auto-Detection** | ✅ 100% | HIGH     | 4 hours       |
-| 11  | **Code Presentation**    | ✅ 80%  | MEDIUM   | 3 hours       |
+| #   | Feature                  | Status  | Impact   | Time Invested | Sprint |
+| --- | ------------------------ | ------- | -------- | ------------- | ------ |
+| 1   | **Terminal Integration** | ✅ 100% | CRITICAL | 8 hours       | Pre    |
+| 2   | **Workspace Context**    | ✅ 100% | HIGH     | 6 hours       | Pre    |
+| 3   | **Multi-Model Routing**  | ✅ 100% | HIGH     | 3 hours       | Pre    |
+| 4   | **Code Artifacts**       | ✅ 100% | HIGH     | 5 hours       | Pre    |
+| 6   | **Keyboard Shortcuts**   | ✅ 100% | MEDIUM   | 3 hours       | S2     |
+| 8   | **Error Auto-Detection** | ✅ 100% | HIGH     | 4 hours       | Pre    |
+| 11  | **Code Presentation**    | ✅ 90%  | MEDIUM   | 3 hours       | Pre    |
+| 12  | **Adaptive UI**          | ✅ 80%  | MEDIUM   | 4 hours       | S2     |
+| NEW | **Code Review Mode**     | ✅ 100% | HIGH     | 5 hours       | S3     |
+| NEW | **Log Viewer Mode**      | ✅ 100% | HIGH     | 4 hours       | S3     |
+| NEW | **Session Memory**       | ✅ 100% | HIGH     | 5 hours       | S3     |
 
-**Details**:
+**Sprint Details**:
 
-- **#1 Terminal**: CLI tool (`lai`), stdin piping, `--gui` flag, IPC on port 39871
-- **#2 Workspace**: 8 languages detected, git integration, metadata extraction
-- **#3 Routing**: 6 models, smart classification, cost tracking, visual indicator
-- **#4 Artifacts**: HTML/CSS/JS/React/Vue/Svelte previews, sandboxed iframe
-- **#8 Errors**: 9 error sources, auto-detection, "Fix This Error" button
-- **#11 Code**: Syntax highlighting, copy button, formatting (needs: minimap, diff view)
+- **Sprint 2 (S2)**: Vim navigation, onboarding tour, focus mode - See `SPRINT_2_SUMMARY.md`
+- **Sprint 3 (S3)**: Code review, log viewer, session memory - See `SPRINT_3_SUMMARY.md`
+- **Pre**: Features implemented before sprint planning
 
-### 🚧 IN PROGRESS (2/12) - Partial Implementation
-
-| #   | Feature                | Status | Missing                  | Time Needed |
-| --- | ---------------------- | ------ | ------------------------ | ----------- |
-| 6   | **Keyboard Shortcuts** | 🚧 70% | Vim nav, quick actions   | 2-3 hours   |
-| 12  | **Adaptive UI**        | 🚧 40% | Focus mode, multi-column | 3-4 hours   |
-
-### ⏳ NOT STARTED (4/12) - High-Value Remaining
+### ⏳ NOT STARTED (3/12) - Remaining Features
 
 | #   | Feature                    | Priority | Time Estimate | Persona Need    |
 | --- | -------------------------- | -------- | ------------- | --------------- |
-| 5   | **Session Memory**         | MEDIUM   | 4-5 hours     | All personas    |
-| 7   | **Smart Clipboard**        | MEDIUM   | 2-3 hours     | Full-Stack Dev  |
-| 9   | **Conversation Branching** | MEDIUM   | 6-8 hours     | OSS Contributor |
-| 10  | **Cloud Sync**             | HIGH     | 8-10 hours    | Indie Hacker    |
+| 7   | **Smart Clipboard**        | MEDIUM   | 1-2 hours     | Full-Stack Dev  |
+| 9   | **Conversation Branching** | LOW      | 6-8 hours     | OSS Contributor |
+| 10  | **Cloud Sync**             | MEDIUM   | 8-10 hours    | Indie Hacker    |
 
 ---
 
@@ -199,49 +193,86 @@ Every decision must align with these principles:
 
 **Result**: Users discover features, see routing value, faster workflows
 
-### Sprint 2: Power User Features (6-8 hours) 🎯
+### Sprint 2: Power User Features (6-8 hours) ✅ COMPLETE
 
-4. **Enhanced Keyboard Navigation** (3 hours)
+4. **Enhanced Keyboard Navigation** (3 hours) ✅
    - Vim-style: j/k scroll, gg/G top/bottom, / search
    - Quick actions: Ctrl+Shift+E (explain), Ctrl+Shift+D (debug)
    - Conversation navigation: Ctrl+↑/↓
-   - Mouse-free mode indicator
+   - Mouse-free mode indicator with visual feedback
+   - Smart context awareness (disabled in input fields)
+   - Files: `useVimNavigation.ts`, `VimModeIndicator.tsx`
 
-5. **Onboarding Tour** (3-4 hours)
-   - First-time welcome modal
-   - Interactive highlights (5 key features)
-   - Tooltip system for new UI elements
-   - Skip/replay option
+5. **Onboarding Tour** (3-4 hours) ✅
+   - First-time welcome modal with 6 interactive steps
+   - Interactive highlights (5 key features + welcome)
+   - Persistent completion state with localStorage
+   - Skip/replay option (Settings → Advanced)
+   - Tokyo Night themed with progress indicators
+   - Files: `onboardingStore.ts`, `OnboardingTour.tsx`
 
-6. **Focus Mode** (1 hour)
+6. **Focus Mode** (1 hour) ✅
    - Hide sidebar, fullscreen conversation
-   - Minimal distractions
-   - Keyboard toggle (F11)
+   - Minimal distractions (ConversationList hidden)
+   - Keyboard toggle (F11) with preventDefault
+   - Toggle button in header with 🎯/👁️ icons
+   - Files: `uiStore.ts` (focusMode state), `App.tsx` (layout)
 
-**Result**: Power users more productive, new users onboarded faster
+**Result**: Power users more productive, new users onboarded faster  
+**Documentation**: See `SPRINT_2_SUMMARY.md` for complete implementation details
 
-### Sprint 3: Unique Differentiators (8-12 hours) 💎
+### Sprint 3: Unique Differentiators (14 hours) ✅ COMPLETE
 
-7. **Code Review Mode** (5 hours) ⭐ UNIQUE FEATURE
-   - Diff viewer component
-   - Line-by-line AI annotations
+7. **Code Review Mode** (5 hours) ✅ UNIQUE FEATURE
+   - Diff viewer component with file sidebar
+   - Line-by-line AI annotations with severity levels
    - Export as GitHub comment markdown
-   - "Review this PR" command
+   - Session management with persistence
+   - Files: `reviewStore.ts`, `DiffViewer.tsx`, `CodeReviewPanel.tsx`
 
-8. **Log Viewer Mode** (4 hours)
-   - Dedicated log analysis panel
+8. **Log Viewer Mode** (4 hours) ✅
+   - Dedicated log analysis panel with session creation
+   - Multi-format support (JSON, Docker, Syslog, Nginx, Apache)
    - Collapsible sections by severity
-   - Timestamp folding
-   - Syntax highlighting for log formats
+   - Search and level filtering with counts
+   - Timestamp folding and token usage bar
+   - Files: `logStore.ts`, `LogViewerPanel.tsx`
 
-9. **Session Memory** (5 hours)
-   - Project-specific memory storage
-   - "Remember This" button in messages
-   - Memory viewer sidebar
-   - `/remember` and `/recall` commands
-   - Auto-cleanup (token limits)
+9. **Session Memory** (5 hours) ✅
+   - Project-specific memory storage (8k token default)
+   - "Remember This" button in messages (Brain icon)
+   - Memory viewer sidebar with semantic search
+   - `/remember` and `/recall` slash commands
+   - Auto-cleanup at 80% capacity
+   - Export/import as JSON
+   - Files: `memoryStore.ts`, `MemoryViewer.tsx`, modified `MessageBubble.tsx`, `slashCommands.ts`
 
-**Result**: Features no competitor has, especially for Linux developers
+**Result**: Features no competitor has, especially for Linux developers  
+**Documentation**: See `SPRINT_3_SUMMARY.md` for complete implementation details
+
+### Sprint 4: Quick Wins & Polish (4-6 hours) ⏳ NEXT
+
+10. **Cost Dashboard** (2 hours) ⭐ HIGH IMPACT
+    - Visual monthly spend tracker in sidebar
+    - Model usage pie chart
+    - Savings badge (data already in routing store!)
+    - Budget alert system
+    - **Why**: Makes routing value immediately visible
+
+11. **Settings Organization** (2 hours) ⭐ HIGH IMPACT
+    - Tab-based categories (General, Providers, Routing, Shortcuts, Advanced)
+    - Category icons and descriptions
+    - Search within settings
+    - Reset to defaults per category
+    - **Why**: Improves discoverability of ALL features
+
+12. **Smart Clipboard Button** (1 hour)
+    - "Analyze Clipboard" button in input area
+    - Auto-detect: code, error, text, command
+    - One-click analysis with context
+    - **Why**: Developer workflow enhancement
+
+**Result**: Users discover features, see routing value, faster workflows
 
 ---
 
