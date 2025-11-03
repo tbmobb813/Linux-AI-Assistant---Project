@@ -52,13 +52,13 @@ export default function ContextPanel() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-900 border-l border-gray-800 panel-slide-in-right">
+    <div className="h-full flex flex-col bg-[#1a1b26] border-l border-[#414868] panel-slide-in-right">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-gray-200">Context</h2>
+      <div className="px-4 py-3 border-b border-[#414868] flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-[#c0caf5]">Context</h2>
         <button
           onClick={toggleAll}
-          className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded transition-colors flex-shrink-0"
+          className="p-1.5 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#24283b] rounded transition-colors flex-shrink-0"
           title={allExpanded ? "Collapse All Sections" : "Expand All Sections"}
           aria-label={allExpanded ? "Collapse All" : "Expand All"}
         >
@@ -133,10 +133,10 @@ function Section({
   }, []);
 
   return (
-    <div className="border-b border-gray-800">
+    <div className="border-b border-[#414868]">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors-smooth gpu-accelerated"
+        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-[#c0caf5] hover:bg-[#24283b] transition-colors-smooth gpu-accelerated"
         aria-expanded={isOpen}
       >
         {icon}
@@ -188,7 +188,7 @@ function ProjectFilesSection() {
         title="Project Files"
         storageKey="project-files"
       >
-        <div className="text-sm text-gray-500">No files detected</div>
+        <div className="text-sm text-[#565f89]">No files detected</div>
       </Section>
     );
   }
@@ -205,7 +205,7 @@ function ProjectFilesSection() {
             <FileTreeItem key={idx} item={item} depth={0} />
           ))
         ) : (
-          <div className="text-gray-500">No files detected</div>
+          <div className="text-[#565f89]">No files detected</div>
         )}
       </div>
     </Section>
@@ -222,15 +222,15 @@ function FileTreeItem({ item, depth }: FileTreeItemProps) {
   if (item.type === "file") {
     return (
       <div
-        className="flex items-center gap-2 py-1 px-2 hover:bg-gray-800 rounded cursor-pointer transition-colors duration-150"
+        className="flex items-center gap-2 py-1 px-2 hover:bg-[#24283b] rounded cursor-pointer transition-colors duration-150"
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
-        <span className="text-gray-500">📄</span>
-        <span className="text-gray-400 hover:text-gray-200 truncate">
+        <span className="text-[#565f89]">📄</span>
+        <span className="text-[#9aa5ce] hover:text-[#c0caf5] truncate">
           {item.name}
         </span>
         {item.modified && (
-          <span className="ml-auto w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
+          <span className="ml-auto w-1.5 h-1.5 bg-[#e0af68] rounded-full"></span>
         )}
       </div>
     );
@@ -240,7 +240,7 @@ function FileTreeItem({ item, depth }: FileTreeItemProps) {
     <div>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 py-1 px-2 hover:bg-gray-800 rounded transition-colors duration-150"
+        className="w-full flex items-center gap-2 py-1 px-2 hover:bg-[#24283b] rounded transition-colors duration-150"
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
         <ChevronRight
@@ -249,8 +249,8 @@ function FileTreeItem({ item, depth }: FileTreeItemProps) {
             isExpanded ? "rotate-90" : ""
           }`}
         />
-        <span className="text-gray-500">📁</span>
-        <span className="text-gray-400 hover:text-gray-200">{item.name}</span>
+        <span className="text-[#565f89]">📁</span>
+        <span className="text-[#9aa5ce] hover:text-[#c0caf5]">{item.name}</span>
       </button>
       {isExpanded && item.children && (
         <div>
@@ -299,7 +299,7 @@ function GitStatusSection() {
         title="Git Status"
         storageKey="git-status"
       >
-        <div className="text-sm text-gray-500">Not a git repository</div>
+        <div className="text-sm text-[#565f89]">Not a git repository</div>
       </Section>
     );
   }
@@ -313,17 +313,17 @@ function GitStatusSection() {
       storageKey="git-status"
     >
       <div className="space-y-2 text-sm">
-        <div className="flex items-center justify-between text-gray-300">
+        <div className="flex items-center justify-between text-[#c0caf5]">
           <span>Branch:</span>
-          <span className="font-mono text-blue-400">
+          <span className="font-mono text-[#7aa2f7]">
             {gitContext.branch || "main"}
           </span>
         </div>
 
         {changedFiles > 0 && (
-          <div className="flex items-center justify-between text-gray-300">
+          <div className="flex items-center justify-between text-[#c0caf5]">
             <span>Status:</span>
-            <span className="text-yellow-500">
+            <span className="text-[#e0af68]">
               {changedFiles} file{changedFiles !== 1 ? "s" : ""} changed
             </span>
           </div>
@@ -332,16 +332,18 @@ function GitStatusSection() {
         {((gitContext.ahead || 0) > 0 || (gitContext.behind || 0) > 0) && (
           <div className="flex gap-4 text-xs">
             {(gitContext.ahead || 0) > 0 && (
-              <span className="text-green-500">↑ {gitContext.ahead} ahead</span>
+              <span className="text-[#9ece6a]">↑ {gitContext.ahead} ahead</span>
             )}
             {(gitContext.behind || 0) > 0 && (
-              <span className="text-red-500">↓ {gitContext.behind} behind</span>
+              <span className="text-[#f7768e]">
+                ↓ {gitContext.behind} behind
+              </span>
             )}
           </div>
         )}
 
         {!gitContext.dirty && changedFiles === 0 && (
-          <div className="text-green-500 text-xs">✓ Working tree clean</div>
+          <div className="text-[#9ece6a] text-xs">✓ Working tree clean</div>
         )}
       </div>
     </Section>
@@ -375,7 +377,7 @@ function QuickActionsSection() {
           <button
             key={action.command}
             onClick={() => handleAction(action.command)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors duration-150"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c0caf5] bg-[#24283b] hover:bg-[#414868] rounded-lg transition-colors duration-150"
           >
             <span>{action.icon}</span>
             <span>{action.label}</span>
@@ -426,7 +428,7 @@ function RecentFilesSection() {
         {files.map((file, idx) => (
           <button
             key={idx}
-            className="w-full flex items-center justify-between text-gray-400 hover:text-gray-200 transition-colors duration-150 py-1"
+            className="w-full flex items-center justify-between text-[#9aa5ce] hover:text-[#c0caf5] transition-colors duration-150 py-1"
             title={file.path}
           >
             <span className="font-mono truncate">{file.name}</span>

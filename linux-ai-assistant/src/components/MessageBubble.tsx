@@ -37,7 +37,6 @@ export default function MessageBubble({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
   const [showBranchDialog, setShowBranchDialog] = useState(false);
-  const [isHovered, setIsHovered] = useState(false); // Add hover state
   const isUser = message.role === "user";
   const retryMessage = useChatStore((s) => s.retryMessage);
   const updateMessage = useChatStore((s) => s.updateMessage);
@@ -210,87 +209,122 @@ export default function MessageBubble({
   return (
     <div
       id={`message-${message.id}`}
-      className={`my-4 flex ${isUser ? "justify-end" : "justify-start"} ${
+      className={`my-6 flex ${isUser ? "justify-end" : "justify-start"} ${
         isHighlighted
-          ? "bg-yellow-100/10 dark:bg-yellow-900/20 p-4 rounded-2xl transition-all duration-300 border border-yellow-200/30 dark:border-yellow-800/30"
+          ? "bg-[#e0af68]/10 p-4 rounded-3xl transition-all duration-300 border border-[#e0af68]/30 shadow-lg-soft"
           : ""
       } message-appear`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {!isUser && (
-        <div className="w-8 h-8 mr-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-          <span className="text-white text-sm">🤖</span>
+        <div className="w-10 h-10 mr-3 bg-gradient-to-br from-[#7aa2f7] to-[#bb9af7] rounded-2xl flex items-center justify-center shadow-md-soft flex-shrink-0">
+          <span className="text-white text-lg">🤖</span>
         </div>
       )}
 
       <div
         className={`max-w-[75%] group relative ${
           isUser
-            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
-            : "bg-[#24283b] text-[#c0caf5] shadow-sm border border-[#414868]"
-        } rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg`}
+            ? "bg-gradient-to-br from-[#7aa2f7] to-[#7dcfff] text-white shadow-lg-soft"
+            : "bg-[#24283b]/80 backdrop-blur-sm text-[#c0caf5] shadow-md-soft border border-[#414868]/50"
+        } rounded-3xl overflow-hidden transition-all duration-200 hover:shadow-xl-soft hover:scale-[1.01]`}
       >
-        <div className="px-5 py-4">
-          <div className="flex justify-between items-start gap-3">
-            <div className="flex-1 min-w-0">
-              {isEditing ? (
-                <div className="space-y-3">
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="
-                      w-full min-h-24 p-3
-                      border border-[#414868]
-                      rounded-lg bg-[#1a1b26]
-                      text-[#c0caf5] placeholder-[#565f89]
-                      focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent
-                      resize-none transition-all duration-200
-                    "
-                    autoFocus
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={handleCancel}
-                      className="px-4 py-2 text-sm bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded-lg transition-colors duration-200"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      className="px-4 py-2 text-sm bg-[#7aa2f7] hover:bg-[#7aa2f7]/80 text-[#1a1b26] rounded-lg transition-colors duration-200"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
+        <div className="px-6 py-4">
+          <div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="space-y-3">
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="
+                    w-full min-h-24 p-4
+                    border border-[#414868]
+                    rounded-xl bg-[#1a1b26]
+                    text-[#c0caf5] placeholder-[#565f89]
+                    focus:ring-2 focus:ring-[#7aa2f7]/50 focus:border-[#7aa2f7]
+                    resize-none transition-all duration-200
+                    font-sans text-base leading-relaxed
+                    shadow-inner-soft
+                  "
+                  autoFocus
+                />
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={handleCancel}
+                    className="px-4 py-2.5 text-sm font-medium bg-[#414868] hover:bg-[#565f89] text-[#c0caf5] rounded-lg transition-all duration-200 shadow-sm-soft hover:shadow-md-soft"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-2.5 text-sm font-medium bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white rounded-lg transition-all duration-200 shadow-md-soft hover:shadow-lg-soft"
+                  >
+                    Save Changes
+                  </button>
                 </div>
-              ) : (
-                <>
-                  {isUser ? (
-                    <div className="whitespace-pre-wrap leading-relaxed">
-                      {message.content}
-                    </div>
-                  ) : (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <MarkdownContent content={message.content} />
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+              </div>
+            ) : (
+              <>
+                {isUser ? (
+                  <div className="whitespace-pre-wrap leading-relaxed text-base font-normal">
+                    {message.content}
+                  </div>
+                ) : (
+                  <div className="prose prose-sm dark:prose-invert max-w-none leading-relaxed">
+                    <MarkdownContent content={message.content} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
-            {/* Action Buttons - Show on hover */}
-            {!isEditing && isHovered && (
-              <div className="flex items-center space-x-1 transition-opacity duration-150">
+          {/* Message Footer */}
+          {!isEditing && (
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10 dark:border-[#414868]/30">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`text-xs font-medium ${isUser ? "text-white/60" : "text-[#565f89]"}`}
+                >
+                  {formatTime((message as any).timestamp)}
+                </div>
+                {/* Cost Badge */}
+                {(message as any).tokens_used && !isUser && (
+                  <CostBadge
+                    tokens={(message as any).tokens_used}
+                    model={(message as any).model || "gpt-4"}
+                    compact
+                  />
+                )}
+              </div>
+
+              {/* Action Icons */}
+              <div className="flex items-center gap-1">
+                {/* Status Indicators */}
+                {isUser && message.status === "pending" && (
+                  <div className="flex items-center space-x-1 mr-2">
+                    <div className="w-1.5 h-1.5 bg-white/70 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-white/70 font-medium">
+                      Sending
+                    </span>
+                  </div>
+                )}
+                {isUser && message.status === "failed" && (
+                  <button
+                    className="text-xs px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-all duration-200 font-medium shadow-sm-soft hover:shadow-md-soft mr-2"
+                    onClick={() => retryMessage(message.id)}
+                  >
+                    Retry
+                  </button>
+                )}
+
                 {/* Edit button for user messages */}
                 {isUser && (
                   <button
                     onClick={handleEdit}
                     className={`
-                      p-2 rounded-lg transition-all duration-200
+                      p-1.5 rounded-lg transition-all duration-200
                       ${
                         isUser
-                          ? "text-white/70 hover:text-white hover:bg-white/20"
+                          ? "text-white/60 hover:text-white hover:bg-white/10"
                           : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                       }
                     `}
@@ -299,8 +333,8 @@ export default function MessageBubble({
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -318,14 +352,14 @@ export default function MessageBubble({
                 {!isUser && (
                   <button
                     onClick={handleCopy}
-                    className="p-2 rounded-lg transition-all duration-200 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
+                    className="p-1.5 rounded-lg transition-all duration-200 text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     title="Copy to clipboard"
                     aria-label="Copy message"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -343,10 +377,10 @@ export default function MessageBubble({
                 <button
                   onClick={() => setShowBranchDialog(true)}
                   className={`
-                    p-2 rounded-lg transition-all duration-200
+                    p-1.5 rounded-lg transition-all duration-200
                     ${
                       isUser
-                        ? "text-white/70 hover:text-white hover:bg-white/20"
+                        ? "text-white/60 hover:text-white hover:bg-white/10"
                         : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     }
                   `}
@@ -355,8 +389,8 @@ export default function MessageBubble({
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -375,83 +409,43 @@ export default function MessageBubble({
                 <button
                   onClick={handleRemember}
                   className={`
-                    p-2 rounded-lg transition-all duration-200
+                    p-1.5 rounded-lg transition-all duration-200
                     ${
                       isUser
-                        ? "text-white/70 hover:text-white hover:bg-white/20"
+                        ? "text-white/60 hover:text-white hover:bg-white/10"
                         : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     }
                   `}
                   title="Remember this message"
                   aria-label="Remember message"
                 >
-                  <Brain className="w-4 h-4" />
+                  <Brain className="w-3.5 h-3.5" />
                 </button>
 
                 {/* Fork Conversation button */}
                 <button
                   onClick={handleFork}
                   className={`
-                    p-2 rounded-lg transition-all duration-200
+                    p-1.5 rounded-lg transition-all duration-200
                     ${
                       isUser
-                        ? "text-white/70 hover:text-white hover:bg-white/20"
+                        ? "text-white/60 hover:text-white hover:bg-white/10"
                         : "text-[#9aa5ce] hover:text-[#c0caf5] hover:bg-[#414868]"
                     }
                   `}
                   title="Fork conversation from this point"
                   aria-label="Fork conversation"
                 >
-                  <GitFork className="w-4 h-4" />
+                  <GitFork className="w-3.5 h-3.5" />
                 </button>
               </div>
-            )}
-          </div>
-
-          {/* Message Footer */}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/20 dark:border-gray-700/50">
-            <div className="flex items-center gap-2">
-              <div
-                className={`text-xs ${isUser ? "text-white/70" : "text-gray-500 dark:text-gray-400"}`}
-              >
-                {formatTime((message as any).timestamp)}
-              </div>
-              {/* Cost Badge */}
-              {(message as any).tokens_used && !isUser && (
-                <CostBadge
-                  tokens={(message as any).tokens_used}
-                  model={(message as any).model || "gpt-4"}
-                  compact
-                />
-              )}
             </div>
-
-            {/* Status Indicators */}
-            <div className="flex items-center space-x-2">
-              {isUser && message.status === "pending" && (
-                <div className="flex items-center space-x-1">
-                  <div className="w-1 h-1 bg-white/70 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-white/70">Sending</span>
-                </div>
-              )}
-              {isUser && message.status === "failed" && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-red-300">Failed</span>
-                  <button
-                    className="text-xs px-2 py-1 rounded-md bg-white/20 hover:bg-white/30 text-white transition-colors duration-200"
-                    onClick={() => retryMessage(message.id)}
-                  >
-                    Retry
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Artifact Previews */}
         {!isUser && showArtifacts && artifacts.length > 0 && (
-          <div className="border-t border-[#414868] p-4 space-y-3 bg-[#1a1b26]/50">
+          <div className="border-t border-[#414868]/50 p-4 space-y-3 bg-[#1a1b26]/30 backdrop-blur-sm">
             {artifacts.map((artifact) => (
               <ArtifactPreview
                 key={artifact.id}
@@ -472,8 +466,8 @@ export default function MessageBubble({
       </div>
 
       {isUser && (
-        <div className="w-8 h-8 ml-3 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-          <span className="text-white text-sm">👤</span>
+        <div className="w-10 h-10 ml-3 bg-gradient-to-br from-[#565f89] to-[#414868] rounded-2xl flex items-center justify-center shadow-md-soft flex-shrink-0">
+          <span className="text-white text-lg">👤</span>
         </div>
       )}
 

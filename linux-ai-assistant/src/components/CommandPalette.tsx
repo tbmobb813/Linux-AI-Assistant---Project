@@ -290,25 +290,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         bottom: 0,
       }}
     >
-      {/* Backdrop with stronger visual effect */}
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-red-500/30"
+        className="absolute inset-0 bg-black/60"
         onClick={onClose}
         style={{ pointerEvents: "auto" }}
       />
 
-      {/* Command Palette with SOLID, OPAQUE styling for maximum visibility */}
+      {/* Command Palette with Tokyo Night styling */}
       <div
-        className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl border-8 border-red-500 shadow-2xl overflow-hidden transform transition-all duration-300 scale-100"
+        className="relative w-full max-w-2xl bg-[#1a1b26] rounded-2xl border border-[#414868] shadow-2xl overflow-hidden transform transition-all duration-300 scale-100"
         style={{
           pointerEvents: "auto",
-          boxShadow: "0 0 50px rgba(239, 68, 68, 1)",
+          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
         }}
       >
         {/* Enhanced Search Input */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="p-6 border-b border-[#414868] bg-[#24283b]">
           <div className="relative">
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-400 text-xl">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#7aa2f7] text-xl">
               🔍
             </div>
             <input
@@ -317,19 +317,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search conversations, actions, and commands..."
-              className="w-full pl-12 pr-20 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              className="w-full pl-12 pr-20 py-3 bg-[#1a1b26] border border-[#414868] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-[#7aa2f7] transition-all duration-200"
             />
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs font-mono text-[#565f89] bg-[#414868] px-2 py-1 rounded">
               ESC to close
             </div>
           </div>
         </div>{" "}
         {/* Results */}
-        <div className="max-h-96 overflow-y-auto bg-white dark:bg-gray-900">
+        <div className="max-h-96 overflow-y-auto bg-[#1a1b26]">
           {filteredCommands.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-8 text-center text-[#565f89]">
               <div className="text-4xl mb-2">🔍</div>
-              <div className="text-lg font-medium mb-1">No results found</div>
+              <div className="text-lg font-medium mb-1 text-[#9aa5ce]">
+                No results found
+              </div>
               <div className="text-sm">
                 Try searching for conversations, actions, or commands
               </div>
@@ -337,7 +339,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           ) : (
             Object.entries(groupedCommands).map(([category, commands]) => (
               <div key={category} className="p-2">
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                <div className="px-3 py-2 text-xs font-semibold text-[#565f89] uppercase tracking-wide">
                   {categoryLabels[category as keyof typeof categoryLabels]}
                 </div>
                 {commands.map((command) => {
@@ -361,8 +363,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       }}
                       className={`w-full px-3 py-3 rounded-lg text-left transition-all duration-150 ${
                         isSelected
-                          ? "bg-blue-500 text-white"
-                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                          ? "bg-[#7aa2f7] text-white"
+                          : "text-[#c0caf5] hover:bg-[#24283b]"
                       }`}
                     >
                       <div className="flex items-center space-x-3">
@@ -373,7 +375,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                           </div>
                           {command.subtitle && (
                             <div
-                              className={`text-sm truncate ${isSelected ? "text-blue-100" : "text-gray-500 dark:text-gray-400"}`}
+                              className={`text-sm truncate ${isSelected ? "text-white/80" : "text-[#9aa5ce]"}`}
                             >
                               {command.subtitle}
                             </div>
@@ -382,7 +384,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         {command.category === "conversations" &&
                           currentConversation?.id ===
                             command.id.replace("conv-", "") && (
-                            <div className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">
+                            <div className="text-xs bg-[#9ece6a] text-[#1a1b26] px-2 py-1 rounded-full font-medium">
                               Active
                             </div>
                           )}
@@ -396,8 +398,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
         {/* Footer */}
         {filteredCommands.length > 0 && (
-          <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+          <div className="p-3 border-t border-[#414868] bg-[#24283b]">
+            <div className="flex items-center justify-between text-xs text-[#9aa5ce]">
               <div className="flex items-center space-x-4">
                 <span>↑↓ Navigate</span>
                 <span>⏎ Select</span>

@@ -517,24 +517,24 @@ export default function ChatInterface(): JSX.Element {
   return (
     <div className="flex-1 flex flex-col bg-[#1a1b26]">
       {/* Modern Chat Header */}
-      <div className="bg-[#1a1b26]/95 backdrop-blur-lg border-b border-[#414868] p-4">
+      <div className="bg-[#1a1b26]/95 backdrop-blur-lg border-b border-[#414868] p-4 shadow-sm-soft">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white text-lg">🤖</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-[#7aa2f7] to-[#bb9af7] rounded-xl flex items-center justify-center shadow-md-soft">
+                <span className="text-white text-xl">🤖</span>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#c0caf5]">
+                <h3 className="text-lg font-semibold text-[#c0caf5] tracking-tight">
                   {currentConversation.title || "Untitled Conversation"}
                 </h3>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 text-sm text-[#9aa5ce]">
-                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#24283b] text-xs font-medium text-[#c0caf5]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#24283b]/80 text-xs font-medium text-[#c0caf5] shadow-sm-soft">
                       {currentConversation.model}
                     </span>
                     <span className="text-[#565f89]">•</span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#24283b] text-xs font-medium text-[#c0caf5]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#24283b]/80 text-xs font-medium text-[#c0caf5] shadow-sm-soft">
                       {currentConversation.provider}
                     </span>
                   </div>
@@ -543,7 +543,7 @@ export default function ChatInterface(): JSX.Element {
                     const ab = getActiveBranch(currentConversation.id);
                     return ab && ab.parentBranchId ? (
                       <div
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#bb9af7]/20 border border-[#bb9af7]/30"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#bb9af7]/20 border border-[#bb9af7]/30 shadow-sm-soft"
                         title={`Active branch: ${ab.name}`}
                       >
                         <GitBranch className="w-3.5 h-3.5 text-[#bb9af7]" />
@@ -554,7 +554,7 @@ export default function ChatInterface(): JSX.Element {
                     ) : null;
                   })()}
                   {gitContext && gitContext.is_repo && (
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#9ece6a]/20 to-[#73daca]/20 border border-[#9ece6a]/30">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#9ece6a]/20 to-[#73daca]/20 border border-[#9ece6a]/30 shadow-sm-soft">
                       <span className="text-xs font-medium text-[#9ece6a]">
                         {gitContext.branch || "HEAD"}
                       </span>
@@ -573,7 +573,7 @@ export default function ChatInterface(): JSX.Element {
                     </div>
                   )}
                   {conversationCost.tokens > 0 && (
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 border border-[#7aa2f7]/30">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 border border-[#7aa2f7]/30 shadow-sm-soft">
                       <span className="text-xs font-medium text-[#7aa2f7]">
                         {formatCost(conversationCost.cost)}
                       </span>
@@ -589,11 +589,12 @@ export default function ChatInterface(): JSX.Element {
               onClick={handleCopyConversation}
               disabled={messages.length === 0}
               className="
-                flex items-center space-x-2 px-3 py-2 rounded-lg
+                flex items-center space-x-2 px-4 py-2 rounded-lg
                 bg-[#7aa2f7] hover:bg-[#7aa2f7]/90
                 disabled:opacity-50 disabled:cursor-not-allowed
-                text-white transition-all duration-150 gpu-accelerated
-                text-sm font-medium
+                text-white transition-all duration-200 gpu-accelerated
+                text-sm font-medium shadow-md-soft hover:shadow-lg-soft
+                hover:scale-105 active:scale-95
               "
               title="Copy entire conversation as Markdown"
             >
@@ -718,7 +719,7 @@ export default function ChatInterface(): JSX.Element {
       </div>
 
       {/* Modern Input Area */}
-      <div className="bg-[#1a1b26]/95 backdrop-blur-lg border-t border-[#414868] p-4">
+      <div className="bg-[#1a1b26]/95 backdrop-blur-lg border-t border-[#414868] p-4 shadow-lg-soft">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -788,7 +789,7 @@ export default function ChatInterface(): JSX.Element {
             <button
               type="button"
               onClick={handleSmartClipboard}
-              className="flex-shrink-0 p-2 rounded-lg bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 border border-[#7aa2f7]/40 text-[#7aa2f7] hover:from-[#7aa2f7]/30 hover:to-[#bb9af7]/30 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-shrink-0 p-2.5 rounded-lg bg-gradient-to-r from-[#7aa2f7]/20 to-[#bb9af7]/20 border border-[#7aa2f7]/40 text-[#7aa2f7] hover:from-[#7aa2f7]/30 hover:to-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:shadow-md-soft hover:scale-105 active:scale-95"
               disabled={isLoading}
               title="Smart Clipboard: Analyze clipboard content"
               aria-label="Analyze clipboard"
@@ -798,7 +799,7 @@ export default function ChatInterface(): JSX.Element {
             <button
               type="button"
               onClick={handlePasteFromClipboard}
-              className="flex-shrink-0 p-2 rounded-lg bg-[#414868] text-[#9aa5ce] hover:bg-[#565f89] hover:text-[#c0caf5] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-shrink-0 p-2.5 rounded-lg bg-[#414868] text-[#9aa5ce] hover:bg-[#565f89] hover:text-[#c0caf5] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:scale-105 active:scale-95"
               disabled={isLoading}
               title="Paste from clipboard (Ctrl+Shift+V)"
               aria-label="Paste from clipboard"
@@ -849,7 +850,7 @@ export default function ChatInterface(): JSX.Element {
                   });
                 }
               }}
-              className="flex-shrink-0 p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 hover:text-purple-700 dark:hover:text-purple-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-shrink-0 p-2.5 rounded-lg bg-[#bb9af7]/20 border border-[#bb9af7]/40 text-[#bb9af7] hover:bg-[#bb9af7]/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm-soft hover:scale-105 active:scale-95"
               disabled={isLoading}
               title="Suggest terminal commands"
               aria-label="Suggest terminal commands"
@@ -871,10 +872,10 @@ export default function ChatInterface(): JSX.Element {
             </button>
 
             {/* Enhanced Input Field with inline send button */}
-            <div className="flex-1 flex items-center gap-2 border border-[#414868] rounded-xl bg-[#24283b] px-3 py-2 focus-within:ring-2 focus-within:ring-[#7aa2f7]/50 transition-all duration-150">
+            <div className="flex-1 flex items-center gap-3 border border-[#414868] rounded-xl bg-[#24283b]/80 backdrop-blur-sm px-4 py-2.5 focus-within:ring-2 focus-within:ring-[#7aa2f7]/50 focus-within:border-[#7aa2f7]/50 transition-all duration-200 shadow-sm-soft">
               <textarea
                 ref={inputRef as any}
-                className="flex-1 bg-transparent text-[#c0caf5] placeholder-[#565f89] focus:outline-none resize-none min-h-[3rem] max-h-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-transparent text-[#c0caf5] placeholder-[#565f89] focus:outline-none resize-none min-h-[3rem] max-h-[200px] disabled:opacity-50 disabled:cursor-not-allowed font-sans text-base leading-relaxed"
                 value={value}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -916,17 +917,18 @@ export default function ChatInterface(): JSX.Element {
                 onClick={handleAnalyzeClipboard}
                 disabled={isLoading}
                 className={`
-                    flex-shrink-0 p-2 rounded-lg
-                    transition-all duration-150
+                    flex-shrink-0 p-2.5 rounded-lg
+                    transition-all duration-200
                     hover:bg-[#414868] active:scale-95
                     focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
                     disabled:opacity-50 disabled:cursor-not-allowed
                     text-[#9aa5ce] hover:text-[#c0caf5]
+                    shadow-sm-soft
                   `}
                 title="Analyze clipboard content (Shift+V)"
                 aria-label="Analyze clipboard"
               >
-                <Clipboard className="w-4 h-4" />
+                <Clipboard className="w-5 h-5" />
               </button>
 
               {/* Send Button - Inline within input container */}
@@ -934,14 +936,14 @@ export default function ChatInterface(): JSX.Element {
                 type="submit"
                 disabled={isLoading || !value.trim()}
                 className={`
-                  flex-shrink-0 p-2 rounded-lg font-medium
-                  transition-all duration-150 ease-out gpu-accelerated
+                  flex-shrink-0 p-2.5 rounded-lg font-medium
+                  transition-all duration-200 ease-out gpu-accelerated
                   transform hover:scale-105 active:scale-95
                   focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
                   ${
                     value.trim()
-                      ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-[#1a1b26] shadow-sm"
+                      ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white shadow-md-soft hover:shadow-lg-soft"
                       : "bg-[#414868] text-[#565f89]"
                   }
                 `}

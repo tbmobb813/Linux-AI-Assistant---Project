@@ -77,15 +77,15 @@ export const BranchViewer: React.FC = () => {
           <div
             className={`flex items-center gap-2 p-3 rounded-lg mb-2 transition-all ${
               isActive
-                ? "bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500"
-                : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                ? "bg-[#7aa2f7]/20 border-2 border-[#7aa2f7]"
+                : "bg-[#24283b] hover:bg-[#414868]"
             }`}
           >
             {/* Expand/collapse */}
             {hasChildren && (
               <button
                 onClick={() => toggleExpanded(branch.id)}
-                className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+                className="p-1 hover:bg-[#565f89] rounded"
               >
                 {isExpanded ? (
                   <ChevronDown className="w-4 h-4" />
@@ -99,7 +99,7 @@ export const BranchViewer: React.FC = () => {
             {/* Branch icon */}
             <GitBranch
               className={`w-4 h-4 ${
-                isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-600"
+                isActive ? "text-[#7aa2f7]" : "text-[#9aa5ce]"
               }`}
             />
 
@@ -118,20 +118,20 @@ export const BranchViewer: React.FC = () => {
                       setEditingName("");
                     }
                   }}
-                  className="w-full px-2 py-1 text-sm border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-[#7aa2f7] rounded bg-[#1a1b26] text-[#c0caf5] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]"
                   autoFocus
                 />
               ) : (
                 <div>
-                  <div className="font-semibold text-sm text-gray-900 dark:text-white">
+                  <div className="font-semibold text-sm text-[#c0caf5]">
                     {branch.name}
                   </div>
                   {branch.description && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    <div className="text-xs text-[#9aa5ce] mt-0.5">
                       {branch.description}
                     </div>
                   )}
-                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <div className="text-xs text-[#565f89] mt-1">
                     {branch.messageIds.length} messages •{" "}
                     {new Date(branch.createdAt).toLocaleDateString()}
                   </div>
@@ -193,40 +193,40 @@ export const BranchViewer: React.FC = () => {
 
   return (
     <FadeIn>
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="bg-[#1a1b26] rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col border border-[#414868]">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-6 border-b border-[#414868]">
             <div className="flex items-center gap-3">
-              <GitFork className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <GitFork className="w-6 h-6 text-[#bb9af7]" />
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-bold text-[#c0caf5]">
                   Conversation Branches
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                <p className="text-sm text-[#9aa5ce] mt-0.5">
                   Explore alternative conversation paths
                 </p>
               </div>
             </div>
             <button
               onClick={toggleBranchViewer}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-[#24283b] rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-[#9aa5ce]" />
             </button>
           </div>
 
           {/* Active branch info */}
           {activeBranch && (
-            <div className="px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
+            <div className="px-6 py-4 bg-[#7aa2f7]/10 border-b border-[#7aa2f7]/30">
               <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-semibold text-blue-900 dark:text-blue-300">
+                <Check className="w-4 h-4 text-[#7aa2f7]" />
+                <span className="text-sm font-semibold text-[#7aa2f7]">
                   Currently on: {activeBranch.name}
                 </span>
               </div>
               {activeBranch.description && (
-                <p className="text-sm text-blue-700 dark:text-blue-400 mt-1 ml-6">
+                <p className="text-sm text-[#9aa5ce] mt-1 ml-6">
                   {activeBranch.description}
                 </p>
               )}
@@ -237,11 +237,9 @@ export const BranchViewer: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-6">
             {branches.length === 0 ? (
               <div className="text-center py-12">
-                <GitBranch className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  No branches yet
-                </p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                <GitBranch className="w-12 h-12 mx-auto text-[#565f89] mb-4" />
+                <p className="text-[#9aa5ce]">No branches yet</p>
+                <p className="text-sm text-[#565f89] mt-1">
                   Fork the conversation to create a new branch
                 </p>
               </div>
@@ -251,7 +249,7 @@ export const BranchViewer: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+          <div className="px-6 py-4 border-t border-[#414868] flex items-center justify-between text-sm text-[#9aa5ce]">
             <div className="flex items-center gap-4">
               <span>{branches.length} branches</span>
               <span>•</span>
@@ -262,15 +260,15 @@ export const BranchViewer: React.FC = () => {
             </div>
             <div className="text-xs">
               Press{" "}
-              <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded">
+              <kbd className="px-1.5 py-0.5 bg-[#414868] text-[#c0caf5] rounded">
                 Ctrl
               </kbd>
               +
-              <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded">
+              <kbd className="px-1.5 py-0.5 bg-[#414868] text-[#c0caf5] rounded">
                 Shift
               </kbd>
               +
-              <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded">
+              <kbd className="px-1.5 py-0.5 bg-[#414868] text-[#c0caf5] rounded">
                 B
               </kbd>{" "}
               to toggle
