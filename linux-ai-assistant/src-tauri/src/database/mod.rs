@@ -3,8 +3,11 @@
 
 pub mod conversations;
 pub mod messages;
+pub mod profiles;
 pub mod schema;
 pub mod settings;
+pub mod tags;
+pub mod workspace_templates;
 
 use rusqlite::{Connection, Result};
 use std::path::PathBuf;

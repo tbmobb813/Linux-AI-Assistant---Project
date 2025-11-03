@@ -188,7 +188,53 @@ pub fn run() {
 
             println!("Database initialized successfully!");
 
-            // Start CLI IPC server
+            // Initialize shortcut manager
+            commands::shortcuts::initialize_shortcut_manager(app.handle().clone());
+
+            // Restore window state on startup
+            let app_handle = app.handle().clone();
+            let db_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Some(db_state) = db_handle.try_state::<database::Database>() {
+                    if let Err(e) =
+                        commands::window::restore_window_state(app_handle.clone(), db_state).await
+                    {
+                        eprintln!("Failed to restore window state: {}", e);
+                    }
+                }
+            });
+
+            // Set up window event listeners for automatic state saving
+            if let Some(window) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+
+                window.on_window_event(move |event| {
+                    match event {
+                        tauri::WindowEvent::Moved(_) | tauri::WindowEvent::Resized(_) => {
+                            let app_handle_clone = app_handle.clone();
+
+                            // Debounce saves - only save after 500ms of no changes
+                            tauri::async_runtime::spawn(async move {
+                                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                                let app_handle_for_state = app_handle_clone.clone();
+                                if let Some(db_state) =
+                                    app_handle_for_state.try_state::<database::Database>()
+                                {
+                                    if let Err(e) = commands::window::save_window_state(
+                                        app_handle_clone,
+                                        db_state,
+                                    )
+                                    .await
+                                    {
+                                        eprintln!("Failed to save window state: {}", e);
+                                    }
+                                }
+                            });
+                        }
+                        _ => {}
+                    }
+                });
+            } // Start CLI IPC server
             crate::ipc::start_ipc_server(app.handle().clone());
             Ok(())
         })
@@ -203,11 +249,14 @@ pub fn run() {
             commands::conversations::restore_conversation,
             commands::conversations::search_conversations,
             commands::conversations::cleanup_conversations,
+            commands::conversations::create_conversation_branch,
+            commands::conversations::get_conversation_branches,
             // messages
             commands::messages::create_message,
             commands::messages::get_conversation_messages,
             commands::messages::get_last_messages,
             commands::messages::search_messages,
+            commands::messages::update_message,
             commands::messages::delete_message,
             commands::messages::get_conversation_token_count,
             commands::messages::get_last_assistant_message,
@@ -218,6 +267,10 @@ pub fn run() {
             commands::settings::delete_setting,
             // window
             commands::window::toggle_main_window,
+            commands::window::save_window_state,
+            commands::window::restore_window_state,
+            commands::window::get_window_state,
+            commands::window::reset_window_state,
             // health
             commands::health::ping,
             // provider
@@ -235,7 +288,10 @@ pub fn run() {
             // export/import
             commands::export::export_conversations_json,
             commands::export::export_conversation_markdown,
+            commands::export::export_conversation_html,
+            commands::export::export_conversation_pdf,
             commands::export::save_export_file,
+            commands::export::save_export_file_bytes,
             commands::export::import_conversations_json,
             commands::export::load_import_file,
             commands::export::export_single_conversation_json,
@@ -249,6 +305,49 @@ pub fn run() {
             // project watcher
             commands::project::set_project_root,
             commands::project::stop_project_watch,
+            commands::project::update_ignore_patterns,
+            commands::project::search_project_files,
+            commands::project::search_project_files_in_path,
+            // performance monitoring
+            commands::performance::get_performance_metrics,
+            commands::performance::get_database_metrics,
+            commands::performance::get_full_performance_snapshot,
+            // profiles
+            commands::profiles::create_profile,
+            commands::profiles::get_profile,
+            commands::profiles::get_all_profiles,
+            commands::profiles::get_active_profile,
+            commands::profiles::set_active_profile,
+            commands::profiles::update_profile,
+            commands::profiles::delete_profile,
+            // shortcuts
+            commands::shortcuts::get_shortcut_config,
+            commands::shortcuts::update_shortcut_config,
+            commands::shortcuts::validate_shortcut,
+            commands::shortcuts::get_available_actions,
+            // tags
+            commands::tags::create_tag,
+            commands::tags::get_tag,
+            commands::tags::get_tag_by_name,
+            commands::tags::get_all_tags,
+            commands::tags::search_tags,
+            commands::tags::update_tag,
+            commands::tags::delete_tag,
+            commands::tags::get_conversation_tags,
+            commands::tags::add_tag_to_conversation,
+            commands::tags::remove_tag_from_conversation,
+            commands::tags::get_conversations_by_tag,
+            commands::tags::create_or_get_tag,
+            commands::tags::add_tags_to_conversation_bulk,
+            // workspace templates
+            commands::workspace_templates::create_workspace_template,
+            commands::workspace_templates::get_workspace_template,
+            commands::workspace_templates::get_all_workspace_templates,
+            commands::workspace_templates::get_workspace_templates_by_category,
+            commands::workspace_templates::get_workspace_template_categories,
+            commands::workspace_templates::update_workspace_template,
+            commands::workspace_templates::delete_workspace_template,
+            commands::workspace_templates::search_workspace_templates,
             // updater
             commands::updater::check_for_updates,
             commands::updater::download_and_install_update,

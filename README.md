@@ -456,12 +456,60 @@ Keyring: keyring-rs
 - **Progress Feedback**: Real-time status updates for all operations
 - **Error Handling**: Clear error messages and recovery guidance
 
-  ├── package.json
-  ├── tsconfig.json
-  ├── tailwind.config.js
-  └── README.md
+## Linux-Centric Quick Wins ✅ **COMPLETED November 2025**
 
-Development Roadmap
+**🚀 Six major Linux-first enhancements implemented to maximize developer productivity!**
+
+### ✅ **1. Slash Commands System**
+
+- **7 powerful commands**: `/clear`, `/export`, `/new`, `/help`, `/docs`, `/run`, `/profile`
+- **Real-time suggestions** with fuzzy matching and autocomplete
+- **AI integration** for processing command results
+- **Usage**: Type `/` in chat to see available commands
+
+### ✅ **2. Document Search & Full-Text Indexing**
+
+- **40+ file types** supported (code, docs, configs)
+- **FTS5-powered search** with sub-second performance
+- **Smart ignore patterns** (.gitignore + custom patterns)
+- **Usage**: `/docs <query>` or `Ctrl+Shift+F` global shortcut
+
+### ✅ **3. Terminal Capture & AI Analysis**
+
+- **Safe command execution** with validation and sandboxing
+- **AI error analysis** with contextual suggestions
+- **CLI integration**: `linux-ai-assistant capture "command"`
+- **Usage**: `/run <command>` in chat or CLI tool for advanced capture
+
+### ✅ **4. Profile System**
+
+- **Context-aware** conversation management per project
+- **CRUD operations** with intuitive management interface
+- **Quick switching** via `/profile <name>` or `Ctrl+P`
+- **Usage**: Create profiles for different projects or work contexts
+
+### ✅ **5. Enhanced Export Formats**
+
+- **4 professional formats**: JSON, Markdown, HTML, PDF
+- **Rich styling** with syntax highlighting and navigation
+- **Multiple export methods**: slash commands, buttons, shortcuts
+- **Usage**: `/export` command or `Ctrl+E` global shortcut
+
+### ✅ **6. Expanded Global Shortcuts**
+
+- **12 configurable shortcuts** organized by category
+- **System-wide access** to all major features
+- **Enhanced UI** with category organization and conflict detection
+- **Usage**: `Ctrl+Space` (toggle), `Ctrl+E` (export), `Ctrl+P` (profiles), etc.
+
+**Impact**: These enhancements provide immediate productivity improvements for Linux developers while maintaining zero breaking changes and full backward compatibility.
+
+├── package.json
+├── tsconfig.json
+├── tailwind.config.js
+└── README.md
+
+## Development Roadmap
 
 Phase 1: Foundation (Weeks 1-3)
 Goal: Basic application structure and chat interface

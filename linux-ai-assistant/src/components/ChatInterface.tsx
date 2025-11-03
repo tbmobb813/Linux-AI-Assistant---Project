@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import MessageBubble from "./MessageBubble";
+import MessageSearch from "./MessageSearch";
 import { database } from "../lib/api/database";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
@@ -9,12 +10,22 @@ import { getProvider } from "../lib/providers/provider";
 import { useProjectStore } from "../lib/stores/projectStore";
 import CommandSuggestionsModal from "./CommandSuggestionsModal";
 import { withErrorHandling } from "../lib/utils/errorHandler";
+import {
+  parseSlashCommand,
+  executeSlashCommand,
+  getSlashCommandSuggestions,
+  type SlashCommandContext,
+} from "../lib/slashCommands";
 
 export default function ChatInterface(): JSX.Element {
   const { currentConversation, messages, sendMessage, isLoading } =
     useChatStore();
   const addToast = useUiStore((s) => s.addToast);
   const [value, setValue] = useState("");
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null,
+  );
+  const [slashSuggestions, setSlashSuggestions] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -149,6 +160,28 @@ export default function ChatInterface(): JSX.Element {
         </div>
       </div>
 
+      {/* Message Search */}
+      {messages.length > 0 && (
+        <div className="border-b border-gray-200 dark:border-gray-700 p-3">
+          <MessageSearch
+            messages={messages}
+            onMessageSelect={(messageId) => {
+              setSelectedMessageId(messageId);
+              // Scroll to the selected message
+              const messageElement = document.getElementById(
+                `message-${messageId}`,
+              );
+              if (messageElement) {
+                messageElement.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }
+            }}
+          />
+        </div>
+      )}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         {isLoading && messages.length === 0 && (
           <div className="space-y-3">
@@ -162,7 +195,13 @@ export default function ChatInterface(): JSX.Element {
         )}
 
         {!isLoading &&
-          messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+          messages.map((m) => (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              isHighlighted={selectedMessageId === m.id}
+            />
+          ))}
         {!isLoading && messages.length === 0 && (
           <div className="text-sm text-gray-400">
             No messages yet — send the first message!
@@ -179,6 +218,46 @@ export default function ChatInterface(): JSX.Element {
             e.preventDefault();
             if (!value.trim()) return;
             const toSend = value.trim();
+
+            // Check if this is a slash command
+            const slashResult = parseSlashCommand(toSend);
+
+            if (slashResult.isSlashCommand) {
+              // Clear input immediately for slash commands
+              setValue("");
+              setSlashSuggestions([]);
+
+              if (slashResult.command) {
+                // Execute the slash command
+                const context: SlashCommandContext = {
+                  conversationId: currentConversation?.id || null,
+                  currentInput: toSend,
+                  addToast,
+                  clearInput: () => setValue(""),
+                };
+
+                const success = await executeSlashCommand(
+                  slashResult.command,
+                  slashResult.args || [],
+                  context,
+                );
+
+                if (!success) {
+                  // If command failed, restore input
+                  setValue(toSend);
+                }
+              } else {
+                // Unknown slash command
+                addToast({
+                  message: `Unknown command: ${toSend}. Type /help for available commands.`,
+                  type: "error",
+                  ttl: 3000,
+                });
+              }
+              return;
+            }
+
+            // Regular message handling
             // Clear input immediately for snappier UX and to satisfy tests
             setValue("");
 
@@ -261,8 +340,19 @@ export default function ChatInterface(): JSX.Element {
               ref={inputRef}
               className="flex-1 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
               value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Type a message..."
+              onChange={(e) => {
+                const newValue = e.target.value;
+                setValue(newValue);
+
+                // Show slash command suggestions
+                if (newValue.startsWith("/")) {
+                  const suggestions = getSlashCommandSuggestions(newValue);
+                  setSlashSuggestions(suggestions);
+                } else {
+                  setSlashSuggestions([]);
+                }
+              }}
+              placeholder="Type a message or /help for commands..."
               disabled={isLoading}
               aria-label="Message input"
             />
@@ -299,6 +389,33 @@ export default function ChatInterface(): JSX.Element {
             </button>
           </div>
         </form>
+
+        {/* Slash command suggestions dropdown */}
+        {slashSuggestions.length > 0 && (
+          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            {slashSuggestions.map((command) => (
+              <button
+                key={command.name}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
+                onClick={() => {
+                  setValue(command.name + " ");
+                  setSlashSuggestions([]);
+                  inputRef.current?.focus();
+                }}
+              >
+                <div className="font-medium text-blue-600">{command.name}</div>
+                <div className="text-sm text-gray-600">
+                  {command.description}
+                </div>
+                {command.parameters && (
+                  <div className="text-xs text-gray-500">
+                    Parameters: {command.parameters}
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <CommandSuggestionsModal />
     </div>

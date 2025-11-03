@@ -60,7 +60,11 @@ CREATE TABLE conversations (
   archived INTEGER DEFAULT 0,
   pinned INTEGER DEFAULT 0,
   tags TEXT,
-  metadata JSON
+  metadata JSON,
+  parent_conversation_id TEXT,
+  branch_point_message_id TEXT,
+  FOREIGN KEY (parent_conversation_id) REFERENCES conversations(id),
+  FOREIGN KEY (branch_point_message_id) REFERENCES messages(id)
 );
 ```
 
@@ -76,6 +80,8 @@ CREATE TABLE conversations (
 - `pinned`: Boolean flag (0/1)
 - `tags`: Comma-separated tags for organization
 - `metadata`: JSON with additional data
+- `parent_conversation_id`: Reference to parent conversation for branching
+- `branch_point_message_id`: Message ID where branch was created
 
 ### Messages Table
 
@@ -129,6 +135,109 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(
 );
 ```
 
+### New Tables (Added in Recent Enhancements)
+
+#### Tags Table
+
+```sql
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  color TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+```
+
+#### Conversation Tags Table
+
+```sql
+CREATE TABLE conversation_tags (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL,
+  tag_id TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+  UNIQUE(conversation_id, tag_id)
+);
+```
+
+#### Workspace Templates Table
+
+```sql
+CREATE TABLE workspace_templates (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL,
+  default_model TEXT NOT NULL,
+  default_provider TEXT NOT NULL,
+  system_prompt TEXT,
+  settings_json TEXT,
+  ignore_patterns TEXT,
+  file_extensions TEXT,
+  context_instructions TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  is_builtin INTEGER NOT NULL DEFAULT 0
+);
+```
+
+### Previous Tables (Linux Quick Wins)
+
+#### Profiles Table
+
+```sql
+CREATE TABLE profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  settings TEXT, -- JSON
+  project_path TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  active INTEGER NOT NULL DEFAULT 0
+);
+```
+
+#### Document Index Table
+
+```sql
+CREATE TABLE documents (
+  id TEXT PRIMARY KEY,
+  path TEXT NOT NULL UNIQUE,
+  filename TEXT NOT NULL,
+  content TEXT NOT NULL,
+  file_type TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  last_modified INTEGER NOT NULL,
+  indexed_at INTEGER NOT NULL,
+  metadata TEXT -- JSON
+);
+
+-- Full-text search for documents
+CREATE VIRTUAL TABLE documents_fts USING fts5(
+  content,
+  path,
+  filename,
+  tokenize='porter'
+);
+```
+
+#### Shortcuts Configuration Table
+
+```sql
+CREATE TABLE shortcuts (
+  id TEXT PRIMARY KEY,
+  action TEXT NOT NULL UNIQUE,
+  shortcut TEXT NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+```
+
 ## Backend API
 
 ### Command Handler Pattern
@@ -177,6 +286,21 @@ archive_conversation(id: String, archived: bool) -> Conversation
 
 // Pin conversation
 pin_conversation(id: String, pinned: bool) -> Conversation
+
+// Conversation branching (NEW)
+create_branch(
+  parent_conversation_id: String,
+  message_id: String,
+  title: String
+) -> Conversation
+
+get_branches(conversation_id: String) -> Vec<Conversation>
+
+// Search conversations (NEW)
+search_conversations(
+  query: String,
+  filters: SearchFilters
+) -> Vec<SearchResult>
 ```
 
 #### Message Commands
@@ -201,6 +325,71 @@ delete_message(id: String) -> bool
 
 // Regenerate message (try again)
 regenerate_message(message_id: String) -> Message
+```
+
+#### Tag Management Commands (NEW)
+
+```rust
+// Create tag
+create_tag(name: String, color: Option<String>) -> Tag
+
+// Get all tags
+get_all_tags() -> Vec<Tag>
+
+// Search tags
+search_tags(query: String) -> Vec<Tag>
+
+// Get tags for conversation
+get_conversation_tags(conversation_id: String) -> Vec<Tag>
+
+// Add tag to conversation
+add_tag_to_conversation(conversation_id: String, tag_id: String) -> bool
+
+// Remove tag from conversation
+remove_tag_from_conversation(conversation_id: String, tag_id: String) -> bool
+
+// Get conversations by tag
+get_conversations_by_tag(tag_id: String) -> Vec<Conversation>
+
+// Create or get existing tag
+create_or_get_tag(name: String, color: Option<String>) -> Tag
+
+// Bulk add tags to conversation
+add_tags_to_conversation_bulk(
+  conversation_id: String,
+  tag_names: Vec<String>
+) -> Vec<Tag>
+```
+
+#### Workspace Template Commands (NEW)
+
+```rust
+// Create workspace template
+create_workspace_template(template: NewWorkspaceTemplate) -> WorkspaceTemplate
+
+// Get workspace template
+get_workspace_template(id: String) -> Option<WorkspaceTemplate>
+
+// Get all workspace templates
+get_all_workspace_templates() -> Vec<WorkspaceTemplate>
+
+// Get templates by category
+get_workspace_templates_by_category(category: String) -> Vec<WorkspaceTemplate>
+
+// Get template categories
+get_workspace_template_categories() -> Vec<String>
+
+// Update workspace template
+update_workspace_template(
+  id: String,
+  template: NewWorkspaceTemplate
+) -> WorkspaceTemplate
+
+// Delete workspace template
+delete_workspace_template(id: String) -> bool
+
+// Search workspace templates
+search_workspace_templates(query: String) -> Vec<WorkspaceTemplate>
 ```
 
 #### Settings Commands
@@ -248,9 +437,160 @@ window_close() -> bool
 open_file_dialog(options: FileDialogOptions) -> Option<PathBuf>
 save_file_dialog(options: FileDialogOptions) -> Option<PathBuf>
 
+// Database operations
+backup_database(path: String) -> bool
+restore_database(path: String) -> bool
+```
+
+#### Document Search Commands (Linux Quick Wins)
+
+```rust
+// Search project files with full-text search
+search_project_files(
+  query: String,
+  file_types: Vec<String>,
+  include_patterns: Vec<String>,
+  exclude_patterns: Vec<String>
+) -> Vec<FileMatch>
+
+// Index project documents
+index_project_documents(
+  path: String,
+  recursive: bool,
+  follow_gitignore: bool
+) -> IndexResult
+
+// Get document content
+get_document_content(path: String) -> DocumentContent
+
+// Get search statistics
+get_search_stats() -> SearchStats
+```
+
+#### Profile Management Commands (Linux Quick Wins)
+
+```rust
+// Create new profile
+create_profile(
+  name: String,
+  description: String,
+  settings: ProfileSettings
+) -> Profile
+
+// Get profile by ID
+get_profile(id: String) -> Profile
+
+// List all profiles
+list_profiles() -> Vec<Profile>
+
+// Update profile
+update_profile(
+  id: String,
+  name: String,
+  description: String,
+  settings: ProfileSettings
+) -> Profile
+
+// Delete profile
+delete_profile(id: String) -> bool
+
+// Switch active profile
+switch_profile(id: String) -> Profile
+
+// Get active profile
+get_active_profile() -> Profile
+```
+
+#### Enhanced Export Commands (Linux Quick Wins)
+
+```rust
+// Export conversation in multiple formats
+export_conversation(
+  conversation_id: String,
+  format: ExportFormat,
+  options: ExportOptions
+) -> ExportResult
+
+// Export all conversations
+export_all_conversations(
+  format: ExportFormat,
+  options: ExportOptions
+) -> ExportResult
+
+// Supported export formats
+enum ExportFormat {
+  Json,
+  Markdown,
+  Html,
+  Pdf
+}
+
+// Export options
+struct ExportOptions {
+  include_metadata: bool,
+  include_timestamps: bool,
+  html_theme: String,
+  pdf_layout: String,
+  filename: Option<String>
+}
+```
+
+#### Global Shortcuts Commands (Linux Quick Wins)
+
+```rust
+// Get shortcut configuration
+get_shortcut_config() -> ShortcutConfig
+
+// Update shortcut configuration
+update_shortcut_config(config: ShortcutConfig) -> bool
+
+// Validate shortcut
+validate_shortcut(shortcut: String) -> bool
+
+// Get available shortcut actions
+list_shortcut_actions() -> Vec<ShortcutAction>
+
+// Register global shortcut
+register_global_shortcut(
+  action: ShortcutAction,
+  shortcut: String
+) -> bool
+
+// Unregister global shortcut
+unregister_global_shortcut(action: ShortcutAction) -> bool
+```
+
+#### Terminal Integration Commands (Linux Quick Wins)
+
+```rust
+// Execute command safely
+execute_command(
+  command: String,
+  working_dir: Option<String>,
+  timeout: Option<u64>
+) -> CommandResult
+
+// Validate command safety
+validate_command_safety(command: String) -> SafetyReport
+
+// Get command suggestions
+get_command_suggestions(
+  error_output: String,
+  context: ProjectContext
+) -> Vec<CommandSuggestion>
+
+// Analyze command output
+analyze_command_output(
+  output: String,
+  command: String,
+  context: ProjectContext
+) -> AnalysisResult
+```
+
 // System info
 get_system_info() -> SystemInfo
-```
+
+````
 
 ## Frontend Components
 
@@ -265,14 +605,26 @@ interface ChatState {
   messages: Message[];
   isLoading: boolean;
   error: Error | null;
+  // Search functionality (NEW)
+  searchQuery: string;
+  searchResults: Conversation[];
+  isSearching: boolean;
+  // Branching functionality (NEW)
+  branches: Conversation[];
 
   // Actions
   loadConversations: () => Promise<void>;
   createConversation: (title: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
+  // New actions
+  searchConversations: (query: string) => Promise<void>;
+  clearSearch: () => void;
+  createBranch: (messageId: string, title: string) => Promise<void>;
+  getBranches: (conversationId: string) => Promise<void>;
+  updateMessage: (messageId: string, content: string) => Promise<void>;
 }
-```
+````
 
 **Settings Store:**
 
@@ -287,6 +639,39 @@ interface SettingsState {
   loadSettings: () => Promise<void>;
   updateProvider: (name: string, config: ProviderConfig) => Promise<void>;
   updateTheme: (theme: string) => Promise<void>;
+}
+```
+
+**Profile Store (New):**
+
+```typescript
+interface ProfileState {
+  profiles: Profile[];
+  activeProfile: Profile | null;
+  isLoading: boolean;
+
+  // Actions
+  loadProfiles: () => Promise<void>;
+  createProfile: (profile: Partial<Profile>) => Promise<void>;
+  updateProfile: (id: string, updates: Partial<Profile>) => Promise<void>;
+  deleteProfile: (id: string) => Promise<void>;
+  switchProfile: (id: string) => Promise<void>;
+}
+```
+
+**Search Store (New):**
+
+```typescript
+interface SearchState {
+  results: DocumentMatch[];
+  isSearching: boolean;
+  lastQuery: string;
+  indexStats: IndexStats | null;
+
+  // Actions
+  searchDocuments: (query: string, filters?: SearchFilters) => Promise<void>;
+  clearResults: () => void;
+  indexProject: (path: string) => Promise<void>;
 }
 ```
 
@@ -314,6 +699,237 @@ interface SettingsProps {
 export function Settings({ onClose }: SettingsProps) {
   // Component implementation
 }
+```
+
+**New Components (Recent Enhancements):**
+
+**AdvancedSearchModal Component:**
+
+```typescript
+interface AdvancedSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectConversation?: (conversation: Conversation) => void;
+  onSelectMessage?: (message: Message) => void;
+}
+
+export function AdvancedSearchModal({
+  isOpen,
+  onClose,
+  onSelectConversation,
+  onSelectMessage,
+}: AdvancedSearchModalProps) {
+  // Advanced search interface with comprehensive filtering
+}
+```
+
+**SearchSuggestions Component:**
+
+```typescript
+interface SearchSuggestionsProps {
+  query: string;
+  onSuggestionSelect: (suggestion: SearchSuggestion) => void;
+  className?: string;
+}
+
+export function SearchSuggestions({
+  query,
+  onSuggestionSelect,
+  className,
+}: SearchSuggestionsProps) {
+  // Smart search suggestions with recent searches and templates
+}
+```
+
+**BranchDialog Component:**
+
+```typescript
+interface BranchDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  messageId: string | null;
+  onCreateBranch: (title: string) => void;
+}
+
+export function BranchDialog({
+  isOpen,
+  onClose,
+  messageId,
+  onCreateBranch,
+}: BranchDialogProps) {
+  // Conversation branching interface
+}
+```
+
+**TagInput Component:**
+
+```typescript
+interface TagInputProps {
+  conversationId: string;
+  initialTags?: Tag[];
+  onTagsChange?: (tags: Tag[]) => void;
+  placeholder?: string;
+  className?: string;
+}
+
+export function TagInput({
+  conversationId,
+  initialTags,
+  onTagsChange,
+  placeholder,
+  className,
+}: TagInputProps) {
+  // Tag management with autocomplete
+}
+```
+
+**TagFilter Component:**
+
+```typescript
+interface TagFilterProps {
+  selectedTags: string[];
+  onTagsChange: (tags: string[]) => void;
+  className?: string;
+}
+
+export function TagFilter({
+  selectedTags,
+  onTagsChange,
+  className,
+}: TagFilterProps) {
+  // Tag-based filtering interface
+}
+```
+
+**WorkspaceTemplateSelector Component:**
+
+```typescript
+interface WorkspaceTemplateSelectorProps {
+  onSelectTemplate: (template: WorkspaceTemplate) => void;
+  onCreateCustom?: () => void;
+  selectedTemplateId?: string;
+}
+
+export function WorkspaceTemplateSelector({
+  onSelectTemplate,
+  onCreateCustom,
+  selectedTemplateId,
+}: WorkspaceTemplateSelectorProps) {
+  // Template selection with categories and search
+}
+```
+
+**WorkspaceTemplateDialog Component:**
+
+```typescript
+interface WorkspaceTemplateDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (template: WorkspaceTemplate) => void;
+  template?: WorkspaceTemplate;
+}
+
+export function WorkspaceTemplateDialog({
+  isOpen,
+  onClose,
+  onSave,
+  template,
+}: WorkspaceTemplateDialogProps) {
+  // Template creation and editing interface
+}
+```
+
+**UsageAnalyticsDashboard Component:**
+
+```typescript
+interface UsageAnalyticsDashboardProps {
+  onClose: () => void;
+}
+
+export function UsageAnalyticsDashboard({
+  onClose,
+}: UsageAnalyticsDashboardProps) {
+  // Comprehensive analytics with charts and metrics
+}
+```
+
+**Enhanced Components (Previous Quick Wins):**
+
+**DocumentSearchModal Component:**
+
+```typescript
+interface DocumentSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onDocumentSelect?: (document: DocumentMatch) => void;
+}
+
+export function DocumentSearchModal({
+  isOpen,
+  onClose,
+  onDocumentSelect,
+}: DocumentSearchModalProps) {
+  // Full-text search interface with file preview
+}
+```
+
+**ProfileSettings Component:**
+
+```typescript
+interface ProfileSettingsProps {
+  onClose?: () => void;
+}
+
+export function ProfileSettings({ onClose }: ProfileSettingsProps) {
+  // Profile management interface with CRUD operations
+}
+```
+
+**ShortcutSettings Component:**
+
+```typescript
+interface ShortcutSettingsProps {
+  onClose?: () => void;
+}
+
+export function ShortcutSettings({ onClose }: ShortcutSettingsProps) {
+  // Global shortcuts configuration with category organization
+}
+```
+
+**CommandSuggestionsModal Component:**
+
+```typescript
+interface CommandSuggestionsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  suggestions: CommandSuggestion[];
+  onCommandSelect: (command: string) => void;
+}
+
+export function CommandSuggestionsModal({
+  isOpen,
+  onClose,
+  suggestions,
+  onCommandSelect,
+}: CommandSuggestionsModalProps) {
+  // Terminal command suggestions with safety indicators
+}
+```
+
+**Slash Commands System:**
+
+```typescript
+interface SlashCommand {
+  command: string;
+  description: string;
+  usage: string;
+  handler: (args: string[], context: ChatContext) => Promise<void>;
+}
+
+export const slashCommands: SlashCommand[] = [
+  // /clear, /export, /new, /help, /docs, /run, /profile
+];
 ```
 
 **Error Boundary:**
