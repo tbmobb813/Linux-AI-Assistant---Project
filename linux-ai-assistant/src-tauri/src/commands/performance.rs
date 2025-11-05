@@ -133,10 +133,11 @@ pub async fn get_database_metrics(
         .and_then(|mut stmt| stmt.query_row([], |row| row.get(0)))
         .map_err(|e| e.to_string())?;
 
-    // Get database file size
-    let database_size = std::fs::metadata(conn.path().ok_or("Failed to get database path")?)
-        .map_err(|e| e.to_string())?
-        .len();
+    // Get database file size (handle in-memory DB gracefully)
+    let database_size = match conn.path() {
+        Some(path) => std::fs::metadata(path).map_err(|e| e.to_string())?.len(),
+        None => 0, // In-memory DB or unavailable path
+    };
 
     Ok(DatabaseMetrics {
         conversation_count,

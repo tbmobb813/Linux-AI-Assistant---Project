@@ -18,7 +18,7 @@ export async function registerGlobalShortcutSafe(
   handler: () => void | Promise<void>,
 ): Promise<boolean> {
   if (!isTauriEnvironment()) {
-    console.warn(
+    console.info(
       "Global shortcut registration skipped (not in Tauri environment)",
     );
     return false;
