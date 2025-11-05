@@ -1,3 +1,21 @@
+// Polyfills and test setup helpers
+// Provide a no-op scrollTo implementation for jsdom which may not implement it.
+if (typeof window !== "undefined") {
+  // Ensure HTMLElement.prototype.scrollTo exists to avoid errors in components that call it
+  if (!window.HTMLElement.prototype.scrollTo) {
+    // @ts-ignore
+    window.HTMLElement.prototype.scrollTo = function () {};
+  }
+
+  // Provide a minimal clipboard stub if missing (tests that need it can override)
+  if (!navigator.clipboard) {
+    // @ts-ignore
+    navigator.clipboard = {
+      writeText: async () => {},
+      readText: async () => "",
+    };
+  }
+}
 import { vi } from "vitest";
 import "@testing-library/jest-dom";
 

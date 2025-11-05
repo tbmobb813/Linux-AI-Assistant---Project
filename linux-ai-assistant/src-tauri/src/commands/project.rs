@@ -471,7 +471,6 @@ pub fn search_project_files_in_path(
 
     walk_directory(&search_path, &query, case_sensitive, max_results)
 }
-
 // Project type detection
 use crate::project::ProjectInfo;
 

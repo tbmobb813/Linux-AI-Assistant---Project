@@ -61,7 +61,7 @@
     "@tauri-apps/plugin-notification": "2.3.1",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.11",
-    "lucide-react": "^0.548.0",
+    "lucide-react": "^0.552.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^10.1.0",
@@ -81,7 +81,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^5.1.0",
     "@vitest/coverage-v8": "^4.0.5",
     "autoprefixer": "^10.4.19",
     "husky": "^9.1.7",
@@ -94,6 +94,7 @@
     "vitest": "^4.0.5"
   },
   "vitest": {
+    "setupFiles": ["src/setupTests.ts"],
     "exclude": [
       "e2e/**"
     ]

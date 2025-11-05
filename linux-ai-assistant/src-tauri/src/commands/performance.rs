@@ -133,13 +133,10 @@ pub async fn get_database_metrics(
         .and_then(|mut stmt| stmt.query_row([], |row| row.get(0)))
         .map_err(|e| e.to_string())?;
 
-    // Get database file size
+    // Get database file size (handle in-memory DB gracefully)
     let database_size = match conn.path() {
         Some(path) => std::fs::metadata(path).map_err(|e| e.to_string())?.len(),
-        None => {
-            // Database is in-memory or path is unavailable
-            0
-        }
+        None => 0, // In-memory DB or unavailable path
     };
 
     Ok(DatabaseMetrics {
