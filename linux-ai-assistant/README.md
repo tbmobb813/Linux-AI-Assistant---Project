@@ -1,14 +1,150 @@
 # Linux AI Assistant
 
-A native desktop AI assistant built specifically for Linux users.
+**The AI Assistant Built for Linux Developers** 🐧
 
-## Features
+A native desktop AI assistant with deep terminal integration, workspace awareness, and developer-optimized workflows.
 
-- Multi-provider AI support (OpenAI, Anthropic, Gemini)
-- Native Linux desktop integration
-- Developer-optimized workflows
-- Privacy-respecting local processing options
-- CLI companion tool
+## ⭐ What Makes It Different
+
+### 🔥 Terminal Integration (Killer Feature)
+
+Work with AI directly from your terminal - no context switching required:
+
+```bash
+# Analyze errors instantly
+cat error.log | lai analyze
+npm test 2>&1 | lai analyze "Help fix these failures"
+
+# Get AI help while coding
+git diff | lai analyze "Security review"
+docker logs app 2>&1 | lai analyze "Why did it crash?"
+
+# Ask questions without leaving terminal
+lai chat "How do I optimize this SQL query?"
+
+# Open detailed responses in GUI
+lai chat "Explain Rust ownership" --gui
+```
+
+### 💻 Native Linux Desktop
+
+- Built with Tauri (not Electron) - fast, lightweight, native
+- Deep system integration via Tauri plugins
+- Respects your desktop environment
+- Global keyboard shortcuts
+- Command Palette (Ctrl+K)
+
+### 🔒 Privacy-First
+
+- Local-first data storage (SQLite)
+- Support for local models (Ollama)
+- Transparent about what goes where
+- Export everything, anytime
+- No vendor lock-in
+
+### 🎯 Developer-Focused
+
+- Workspace-aware context
+- Git integration
+- Project file tracking
+- Keyboard-driven workflow
+- Multi-model support (OpenAI, Anthropic, Gemini, Ollama)
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Build from source
+git clone https://github.com/tbmobb813/Linux-AI-Assistant---Project
+cd linux-ai-assistant
+pnpm install
+pnpm tauri build
+
+# Install CLI tool
+sudo ln -s $(pwd)/cli/target/release/linux-ai-cli /usr/local/bin/lai
+```
+
+### First Run
+
+1. **Start the desktop app**:
+
+   ```bash
+   ./target/release/linux-ai-assistant
+   ```
+
+2. **Configure API keys** (Settings → API Keys):
+   - OpenAI, Anthropic, Google Gemini, or
+   - Use Ollama for local models (no API key needed)
+
+3. **Try the CLI**:
+   ```bash
+   lai chat "Hello! What can you help me with?"
+   ```
+
+## 📖 CLI Usage
+
+### Core Commands
+
+```bash
+# Chat with AI
+lai chat "your question"
+lai ask "your question"  # 'ask' is alias for 'chat'
+
+# Analyze piped input (🔥 most useful!)
+cat file.txt | lai analyze
+command 2>&1 | lai analyze "optional context"
+
+# Capture and analyze command output
+lai capture "npm test" --ai-analyze
+
+# Get last response
+lai last
+
+# Send notification
+lai notify "Build completed!"
+```
+
+### Real-World Examples
+
+```bash
+# Debug errors
+cargo build 2>&1 | lai analyze "Fix compilation errors"
+
+# Code review
+git diff | lai analyze "Review these changes" --gui
+
+# Log analysis
+journalctl -n 50 --priority=err | lai analyze
+
+# System diagnostics
+docker ps -a | lai analyze "Any container issues?"
+```
+
+See [CLI Quick Start](CLI_QUICK_START.md) for more examples and workflows.
+
+## 🎨 Desktop Features
+
+### Command Palette (Ctrl+K)
+
+Quick access to all features:
+
+- Search conversations
+- Create new conversation
+- Open settings
+- Navigate to any conversation
+
+### Resizable Sidebar
+
+Drag the sidebar edge to resize (200-600px).
+Width persists across sessions.
+
+### Keyboard Shortcuts
+
+- `Ctrl+K` or `Alt+K` - Command Palette
+- `Ctrl+,` or `Alt+,` - Settings
+- `Ctrl+N` or `Alt+N` - New Conversation
+- `Ctrl+Space` - Toggle window (global)
 
 ### CLI usage
 

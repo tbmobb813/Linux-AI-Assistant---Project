@@ -44,6 +44,10 @@
     "build:full": "pnpm build && pnpm cli:build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "cli:build": "cd cli && cargo build --release",
+    "cli:dev": "cd cli && cargo build",
+    "cli:test": "cd cli && cargo test",
+    "cli:install": "cd cli && ./install.sh",
     "dev:insert-message": "python3 ../dev/insert_test_message.py",
     "test": "vitest --run --reporter dot",
     "test:watch": "vitest",
@@ -90,6 +94,7 @@
     "vitest": "^4.0.5"
   },
   "vitest": {
+    "setupFiles": ["src/setupTests.ts"],
     "exclude": [
       "e2e/**"
     ]

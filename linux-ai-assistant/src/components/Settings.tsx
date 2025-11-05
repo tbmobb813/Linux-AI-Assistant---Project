@@ -89,153 +89,292 @@ export default function Settings({ onClose }: Props): JSX.Element {
   };
 
   return (
-    <div className="w-80 bg-gray-100 text-gray-900 border border-gray-300 dark:bg-gray-900 dark:text-white dark:border-gray-700 rounded shadow-xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Settings</h2>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 text-xs"
-            aria-label="Close settings"
-            title="Close"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      <div className="space-y-1">
-        <label
-          htmlFor="global-shortcut-input"
-          className="text-xs text-gray-700 dark:text-gray-300"
-        >
-          Global shortcut
-        </label>
-        <input
-          id="global-shortcut-input"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="CommandOrControl+Space"
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <p className="text-[11px] text-gray-600 dark:text-gray-400">
-          Examples: CommandOrControl+Space, Ctrl+Shift+K
-        </p>
-        {error && <p className="text-[11px] text-red-400">{error}</p>}
-      </div>
-
-      <div className="space-y-1 pt-2">
-        <label
-          htmlFor="theme-select"
-          className="text-xs text-gray-700 dark:text-gray-300"
-        >
-          Theme
-        </label>
-        <select
-          id="theme-select"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value as any)}
-          className="w-full px-2 py-1 rounded bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-sm"
-        >
-          <option value="system">System (default)</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-        <p className="text-[11px] text-gray-600 dark:text-gray-400">
-          When set to System, the app follows your OS dark mode.
-        </p>
-      </div>
-
-      {/* File Watcher Settings Button */}
-      <div className="pt-2 space-y-2">
-        <button
-          onClick={() => setShowProfileSettings(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <User className="w-4 h-4" />
-          Profile Settings
-        </button>
-
-        <button
-          onClick={() => setShowShortcutSettings(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <Keyboard className="w-4 h-4" />
-          Global Shortcuts
-        </button>
-
-        <button
-          onClick={() => setShowWindowPositionSettings(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <Monitor className="w-4 h-4" />
-          Window Position
-        </button>
-
-        <button
-          onClick={() => setShowFileWatcherSettings(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <FileText className="w-4 h-4" />
-          File Watcher Settings
-        </button>
-
-        <button
-          onClick={() => setShowDocumentSearch(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <Search className="w-4 h-4" />
-          Document Search
-        </button>
-
-        <button
-          onClick={() => setShowPerformanceDashboard(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300"
-        >
-          <Activity className="w-4 h-4" />
-          Performance Dashboard
-        </button>
-
-        <button
-          onClick={() => setShowUsageAnalytics(true)}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-50 hover:bg-blue-100 dark:bg-blue-900 dark:hover:bg-blue-800 border border-blue-300 dark:border-blue-600 rounded-md text-blue-700 dark:text-blue-300"
-        >
-          <BarChart3 className="w-4 h-4" />
-          Usage Analytics
-        </button>
-      </div>
-
-      <div className="flex justify-end gap-2 pt-1">
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="px-3 py-1 text-xs rounded bg-gray-200 border border-gray-300 hover:bg-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-        )}
-        <button
-          onClick={onSave}
-          disabled={saving}
-          className="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 disabled:opacity-60"
-        >
-          {saving ? "Saving…" : "Save"}
-        </button>
-      </div>
-
-      {/* Shortcut Settings Modal */}
-      {showShortcutSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <ShortcutSettings onClose={() => setShowShortcutSettings(false)} />
+    <div className="w-96 bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-700/60 rounded-xl shadow-2xl shadow-gray-500/10 dark:shadow-black/20 text-gray-900 dark:text-white overflow-hidden">
+      {/* Modern Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800/50 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm">⚙️</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Settings
+              </h2>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Configure your preferences
+              </p>
+            </div>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-all duration-200"
+              aria-label="Close settings"
+              title="Close"
+            >
+              <span className="text-lg">✕</span>
+            </button>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Main Settings Content */}
+      <div className="p-6 space-y-6">
+        {/* Quick Settings Section */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2">
+            <span className="w-4 h-4 bg-blue-100 dark:bg-blue-900/50 rounded flex items-center justify-center">
+              <span className="text-xs">⚡</span>
+            </span>
+            <span>Quick Settings</span>
+          </h3>
+
+          {/* Global Shortcut Setting */}
+          <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700/50">
+            <div className="space-y-3">
+              <label
+                htmlFor="global-shortcut-input"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Global Shortcut
+              </label>
+              <input
+                id="global-shortcut-input"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="CommandOrControl+Space"
+                className="
+                  w-full px-3 py-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg bg-white dark:bg-gray-800
+                  text-sm text-gray-900 dark:text-white
+                  placeholder-gray-500 dark:placeholder-gray-400
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  transition-all duration-200
+                "
+              />
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Examples: CommandOrControl+Space, Ctrl+Shift+K
+              </p>
+              {error && (
+                <p className="text-xs text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
+                  {error}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Theme Setting */}
+          <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700/50">
+            <div className="space-y-3">
+              <label
+                htmlFor="theme-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Appearance Theme
+              </label>
+              <select
+                id="theme-select"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as any)}
+                className="
+                  w-full px-3 py-2
+                  border border-gray-300 dark:border-gray-600
+                  rounded-lg bg-white dark:bg-gray-800
+                  text-sm text-gray-900 dark:text-white
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  transition-all duration-200
+                "
+              >
+                <option value="system">🖥️ System (Auto)</option>
+                <option value="light">☀️ Light Mode</option>
+                <option value="dark">🌙 Dark Mode</option>
+              </select>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                System mode follows your OS dark mode preference
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Advanced Settings Section */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center space-x-2">
+            <span className="w-4 h-4 bg-purple-100 dark:bg-purple-900/50 rounded flex items-center justify-center">
+              <span className="text-xs">🔧</span>
+            </span>
+            <span>Advanced Options</span>
+          </h3>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setShowProfileSettings(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <User className="w-5 h-5 mb-2 text-blue-500 group-hover:text-blue-600" />
+              <span className="text-xs font-medium text-center">
+                Profile Settings
+              </span>
+            </button>
+
+            <button
+              onClick={() => setShowShortcutSettings(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <Keyboard className="w-5 h-5 mb-2 text-green-500 group-hover:text-green-600" />
+              <span className="text-xs font-medium text-center">Shortcuts</span>
+            </button>
+
+            <button
+              onClick={() => setShowWindowPositionSettings(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <Monitor className="w-5 h-5 mb-2 text-orange-500 group-hover:text-orange-600" />
+              <span className="text-xs font-medium text-center">Window</span>
+            </button>
+
+            <button
+              onClick={() => setShowFileWatcherSettings(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <FileText className="w-5 h-5 mb-2 text-purple-500 group-hover:text-purple-600" />
+              <span className="text-xs font-medium text-center">
+                File Watcher
+              </span>
+            </button>
+
+            <button
+              onClick={() => setShowDocumentSearch(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <Search className="w-5 h-5 mb-2 text-indigo-500 group-hover:text-indigo-600" />
+              <span className="text-xs font-medium text-center">Search</span>
+            </button>
+
+            <button
+              onClick={() => setShowPerformanceDashboard(true)}
+              className="
+                group flex flex-col items-center p-4
+                bg-white dark:bg-gray-800/50
+                border border-gray-200 dark:border-gray-700
+                rounded-lg shadow-sm
+                hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600
+                transition-all duration-200
+                text-gray-700 dark:text-gray-300
+              "
+            >
+              <Activity className="w-5 h-5 mb-2 text-red-500 group-hover:text-red-600" />
+              <span className="text-xs font-medium text-center">
+                Performance
+              </span>
+            </button>
+          </div>
+
+          {/* Usage Analytics - Special Highlight */}
+          <button
+            onClick={() => setShowUsageAnalytics(true)}
+            className="
+              w-full group flex items-center justify-center p-4
+              bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20
+              border border-blue-200 dark:border-blue-700
+              rounded-lg shadow-sm
+              hover:shadow-md hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30
+              transition-all duration-200
+              text-blue-700 dark:text-blue-300
+            "
+          >
+            <BarChart3 className="w-5 h-5 mr-3" />
+            <span className="font-medium">Usage Analytics Dashboard</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className="bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-200/50 dark:border-gray-700/50 px-6 py-4">
+        <div className="flex justify-end space-x-3">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="
+                px-4 py-2 text-sm font-medium
+                text-gray-700 dark:text-gray-300
+                bg-white dark:bg-gray-800
+                border border-gray-300 dark:border-gray-600
+                rounded-lg
+                hover:bg-gray-50 dark:hover:bg-gray-700
+                transition-all duration-200
+              "
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="
+              px-4 py-2 text-sm font-medium
+              bg-blue-600 hover:bg-blue-700
+              disabled:opacity-50 disabled:cursor-not-allowed
+              text-white rounded-lg
+              transition-all duration-200
+              flex items-center space-x-2
+            "
+          >
+            {saving && (
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+            )}
+            <span>{saving ? "Saving..." : "Save Changes"}</span>
+          </button>
+        </div>
+      </div>
 
       {/* Shortcut Settings Modal */}
       {showShortcutSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -252,10 +391,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Window Position Settings Modal */}
       {showWindowPositionSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -274,10 +413,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* File Watcher Settings Modal */}
       {showFileWatcherSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -296,10 +435,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Performance Dashboard Modal */}
       {showPerformanceDashboard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -318,10 +457,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Document Search Modal */}
       {showDocumentSearch && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -338,10 +477,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Profile Settings Modal */}
       {showProfileSettings && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
@@ -358,10 +497,10 @@ export default function Settings({ onClose }: Props): JSX.Element {
 
       {/* Usage Analytics Dashboard */}
       {showUsageAnalytics && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <Suspense
             fallback={
-              <div className="w-96 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-6">
+              <div className="w-96 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-2xl p-6">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
