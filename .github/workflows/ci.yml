@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           # Use Node 22 for better IPC/worker stability and full toolchain compatibility
           node-version: "22"
