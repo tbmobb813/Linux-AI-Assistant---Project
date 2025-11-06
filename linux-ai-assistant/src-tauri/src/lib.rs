@@ -2,7 +2,9 @@
 // This is the authoritative run() that `src/main.rs` calls.
 pub mod commands;
 pub mod database;
+pub mod git;
 mod ipc;
+pub mod project;
 
 use std::path::PathBuf;
 use tauri::{Emitter, Manager};
@@ -298,16 +300,14 @@ pub fn run() {
             commands::export::save_single_conversation_export,
             // git
             commands::git::get_git_context,
-            // run code snippets
-            commands::run::run_code,
-            commands::run::read_audit,
-            commands::run::rotate_audit,
+            commands::git::format_git_context,
             // project watcher
             commands::project::set_project_root,
             commands::project::stop_project_watch,
             commands::project::update_ignore_patterns,
             commands::project::search_project_files,
             commands::project::search_project_files_in_path,
+            commands::project::detect_project_type,
             // performance monitoring
             commands::performance::get_performance_metrics,
             commands::performance::get_database_metrics,

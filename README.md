@@ -17,7 +17,12 @@
 
 - 🔒 **Privacy First**: Local AI processing with Ollama - your data never leaves your machine
 - 🌐 **Multi-Provider Support**: OpenAI, Anthropic, Google Gemini, and local models
-- 🖥️ **Native Linux Integration**: System tray, global shortcuts, desktop notifications
+- 🖥️ **Native Linux Integration**: System tray, 12 global shortcuts, desktop notifications
+- 💬 **Slash Commands**: 7 powerful shortcuts (`/docs`, `/run`, `/export`, `/profile`, etc.)
+- 🔍 **Document Search**: Full-text search across 40+ file types with instant results
+- 🖥️ **Terminal Integration**: Safe command execution with AI analysis via CLI tool
+- 👤 **Profile System**: Context-aware conversation management for different projects
+- 📤 **Enhanced Export**: 4 formats (JSON, Markdown, HTML, PDF) with rich styling
 - 🔧 **Developer Tools**: CLI companion, IPC communication, project-aware context
 - 📦 **Easy Installation**: AppImage, DEB, RPM packages available
 - ⚡ **High Performance**: 67% smaller than Electron alternatives, built with Rust + Tauri
@@ -60,7 +65,12 @@ sudo rpm -i linux-ai-assistant_*.rpm
 3. **Add API Key** (for cloud providers) or **Install Ollama** (for local AI)
 4. **Start Chatting**! 🎉
 
-> 💡 **Tip**: Use `Ctrl+Space` (global shortcut) to invoke the assistant from anywhere!
+> 💡 **Pro Tips**:
+>
+> - Use `Ctrl+Space` to invoke the assistant from anywhere
+> - Type `/` in chat for slash commands (`/docs`, `/run`, `/export`, etc.)
+> - Use `Ctrl+Shift+F` for instant document search
+> - Use `Ctrl+E` to export current conversation
 
 ## Project Overview
 

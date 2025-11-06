@@ -3,12 +3,11 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUiStore } from "../lib/stores/uiStore";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { isTauriEnvironment, invokeSafe } from "../lib/utils/tauri";
 import "katex/dist/katex.min.css";
-import "highlight.js/styles/github-dark.css";
+import "highlight.js/styles/tokyo-night-dark.css";
 
 interface Props {
   content: string;
@@ -39,6 +38,9 @@ interface CodeProps {
 function CodeBlock({ inline, className, children, ...props }: CodeProps) {
   const addToast = useUiStore((s) => s.addToast);
   const [showActions, setShowActions] = useState(false);
+  const [showLineNumbers, setShowLineNumbers] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const codeRef = useRef<HTMLElement>(null);
 
   // Extract language from className (format: language-xxx)
   const match = /language-(\w+)/.exec(className || "");
@@ -46,6 +48,12 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
 
   // Get the code content as string
   const codeString = String(children).replace(/\n$/, "");
+  const lineCount = codeString.split("\n").length;
+
+  // Auto-show line numbers for code with 3+ lines
+  useEffect(() => {
+    setShowLineNumbers(lineCount >= 3);
+  }, [lineCount]);
 
   // Inline code (backticks)
   if (inline) {
@@ -63,11 +71,16 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
   const handleCopy = async () => {
     try {
       if (isTauriEnvironment()) {
+        const { writeText } = await import(
+          "@tauri-apps/plugin-clipboard-manager"
+        );
         await writeText(codeString);
       } else {
         await navigator.clipboard.writeText(codeString);
       }
+      setCopied(true);
       addToast({ message: "Code copied", type: "success", ttl: 1500 });
+      setTimeout(() => setCopied(false), 2000);
     } catch (e) {
       console.error("Failed to copy code:", e);
       addToast({ message: "Failed to copy", type: "error", ttl: 2000 });
@@ -165,36 +178,64 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
 
   return (
     <div
-      className="relative group my-2"
+      className="relative group my-2 rounded-2xl overflow-hidden border border-gray-700/50 bg-gray-900"
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      {/* Language badge and action buttons */}
-      <div className="flex items-center justify-between px-3 py-1 bg-gray-800 dark:bg-gray-900 rounded-t text-xs text-gray-400">
-        <span>{language || "code"}</span>
+      {/* Enhanced header with language badge and action buttons */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/50">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono font-semibold text-blue-400 uppercase tracking-wide">
+            {language || "text"}
+          </span>
+          <span className="text-xs text-gray-500">
+            {lineCount} {lineCount === 1 ? "line" : "lines"}
+          </span>
+        </div>
         <div
-          className={`flex gap-1 transition-opacity ${showActions ? "opacity-100" : "opacity-0"}`}
+          className={`flex items-center gap-1 transition-opacity duration-150 ${
+            showActions ? "opacity-100" : "opacity-0"
+          }`}
         >
+          {/* Line numbers toggle */}
+          {lineCount >= 3 && (
+            <button
+              onClick={() => setShowLineNumbers(!showLineNumbers)}
+              className="px-2 py-1 rounded-lg hover:bg-gray-700 transition-colors duration-150 text-xs text-gray-400 hover:text-gray-200"
+              title="Toggle line numbers"
+              aria-label="Toggle line numbers"
+            >
+              #️⃣
+            </button>
+          )}
+
+          {/* Copy button with animation */}
           <button
             onClick={handleCopy}
-            className="px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+            className={`px-2 py-1 rounded-lg hover:bg-gray-700 transition-all duration-150 text-xs ${
+              copied
+                ? "text-green-400 bg-green-900/30"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
             title="Copy code"
             aria-label="Copy code"
           >
-            📋 Copy
+            {copied ? "✓ Copied!" : "📋 Copy"}
           </button>
+
           <button
             onClick={handleSave}
-            className="px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+            className="px-2 py-1 rounded-lg hover:bg-gray-700 transition-colors duration-150 text-xs text-gray-400 hover:text-gray-200"
             title="Save to file"
             aria-label="Save code to file"
           >
             💾 Save
           </button>
+
           {isRunnable && (
             <button
               onClick={handleRun}
-              className="px-2 py-1 rounded hover:bg-gray-700 transition-colors text-yellow-400"
+              className="px-2 py-1 rounded-lg hover:bg-yellow-900/30 transition-colors duration-150 text-xs text-yellow-400 hover:text-yellow-300 font-medium"
               title="Run code (with confirmation)"
               aria-label="Run code"
             >
@@ -204,12 +245,42 @@ function CodeBlock({ inline, className, children, ...props }: CodeProps) {
         </div>
       </div>
 
-      {/* Code content */}
-      <pre className="!mt-0 !rounded-t-none overflow-x-auto">
-        <code className={className} {...props}>
-          {children}
-        </code>
-      </pre>
+      {/* Code content with optional line numbers */}
+      <div className="relative">
+        {showLineNumbers && lineCount >= 3 ? (
+          <div className="flex">
+            {/* Line numbers column */}
+            <div className="select-none flex-shrink-0 py-4 px-2 bg-gray-800/50 text-gray-500 text-xs font-mono text-right border-r border-gray-700/50">
+              {Array.from({ length: lineCount }, (_, i) => (
+                <div key={i + 1} className="leading-6">
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+
+            {/* Code content */}
+            <pre className="flex-1 !mt-0 !mb-0 !rounded-none overflow-x-auto">
+              <code
+                ref={codeRef}
+                className={`${className} block py-4 px-4 text-sm leading-6`}
+                {...props}
+              >
+                {children}
+              </code>
+            </pre>
+          </div>
+        ) : (
+          <pre className="!mt-0 !mb-0 !rounded-none overflow-x-auto">
+            <code
+              ref={codeRef}
+              className={`${className} block py-4 px-4 text-sm leading-6`}
+              {...props}
+            >
+              {children}
+            </code>
+          </pre>
+        )}
+      </div>
     </div>
   );
 }
