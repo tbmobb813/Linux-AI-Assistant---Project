@@ -1,6 +1,19 @@
-import { lazy, useEffect, useState, Suspense } from "react";
+import {
+  lazy,
+  useEffect,
+  useState,
+  Suspense,
+  startTransition,
+  useCallback,
+} from "react";
 import ConversationList from "./components/ConversationList";
 import ChatInterface from "./components/ChatInterface";
+import ContextPanel from "./components/ContextPanel";
+import CommandPalette from "./components/CommandPalette";
+import KeyboardDebugger from "./components/KeyboardDebugger";
+import ErrorMonitor from "./components/ErrorMonitor";
+import { FadeIn, AnimatedButton } from "./components/Animations";
+import { useKeyboardShortcuts, useCommandPalette } from "./lib/hooks";
 import { database } from "./lib/api/database";
 import Toaster from "./components/Toaster";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
@@ -30,6 +43,33 @@ export default function App(): JSX.Element {
   const { loadSettings, registerGlobalShortcut, globalShortcut, theme } =
     useSettingsStore();
   const { events } = useProjectStore();
+  const { createConversation } = useChatStore();
+
+  // Command palette integration
+  const { isOpen, open, close } = useCommandPalette();
+
+  // Memoize callbacks to prevent recreating listeners on every render
+  const handleCommandPalette = useCallback(() => {
+    console.log("🎯 Opening Command Palette from App.tsx");
+    open();
+  }, [open]);
+
+  const handleNewConversation = useCallback(() => {
+    console.log("🎯 Creating new conversation from App.tsx");
+    createConversation("New conversation", "gpt-4", "local");
+  }, [createConversation]);
+
+  const handleSettings = useCallback(() => {
+    console.log("🎯 Opening settings from App.tsx");
+    startTransition(() => setShowSettings(true));
+  }, []);
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    onCommandPalette: handleCommandPalette,
+    onNewConversation: handleNewConversation,
+    onSettings: handleSettings,
+  });
 
   useEffect(() => {
     // Load settings on startup and register the global shortcut with error handling
@@ -223,6 +263,14 @@ export default function App(): JSX.Element {
     };
   }, [theme]);
 
+  // Listen for DOM custom event from Command Palette to open Settings
+  useEffect(() => {
+    const handler = () => startTransition(() => setShowSettings(true));
+    document.addEventListener("open-settings", handler as EventListener);
+    return () =>
+      document.removeEventListener("open-settings", handler as EventListener);
+  }, []);
+
   // Keyboard shortcut: Ctrl+, toggles Settings panel
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -237,62 +285,150 @@ export default function App(): JSX.Element {
 
   return (
     <AppErrorBoundary>
-      <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
         <ConversationList />
-        <main className="flex-1 flex flex-col relative">
-          {/* Small toggle button to demonstrate invoking the window toggle command */}
-          <button
-            onClick={async () => {
-              try {
-                await database.window.toggle();
-              } catch (e) {
-                console.error("failed to toggle window", e);
-              }
-            }}
-            className="absolute right-4 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Toggle window"
-          >
-            Toggle
-          </button>
+        <main className="flex-1 flex flex-col min-w-0 relative">
+          {/* Modern Header Bar with Animations */}
+          <FadeIn>
+            <header
+              className="
+                bg-gradient-to-r from-blue-50/90 to-purple-50/90 dark:from-gray-900/90 dark:to-gray-800/90 backdrop-blur-xl
+                border-b-2 border-blue-200/50 dark:border-purple-700/50
+                px-6 py-4
+                flex items-center justify-between
+                relative z-30
+                shadow-lg shadow-blue-500/10
+              "
+            >
+              {/* Left side - App branding */}
+              <div className="flex items-center space-x-4">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">
+                  Linux AI Assistant
+                </h1>
+                <div className="text-xs text-gray-500 dark:text-gray-400 hidden md:block">
+                  {useChatStore((state) => state.currentConversation?.title) ||
+                    "No conversation"}
+                </div>
+                {/* Debug indicator: BRIGHT green pill that clearly shows palette state */}
+                <div
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-xs font-bold shadow-lg transition-all duration-200 ${
+                    isOpen
+                      ? "bg-green-500 text-white ring-2 ring-green-300"
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                  aria-live="polite"
+                  aria-label={`Command palette is ${isOpen ? "open" : "closed"}`}
+                >
+                  <span
+                    className={`inline-block w-2.5 h-2.5 rounded-full animate-pulse ${
+                      isOpen ? "bg-white" : "bg-gray-500 dark:bg-gray-500"
+                    }`}
+                  />
+                  <span className="tracking-wide">
+                    CMD+K: {isOpen ? "OPEN" : "CLOSED"}
+                  </span>
+                </div>
+              </div>
 
-          {/* Settings button and panel */}
-          <button
-            onClick={() => setShowSettings((s) => !s)}
-            className="absolute right-24 top-4 bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1 rounded"
-            title="Settings"
-          >
-            Settings
-          </button>
+              {/* Center - Command Palette Trigger */}
+              <div className="hidden md:flex">
+                <AnimatedButton
+                  onClick={open}
+                  variant="primary"
+                  size="sm"
+                  className="!bg-gradient-to-r !from-blue-500 !to-purple-600 !text-white font-bold"
+                >
+                  🔍 Search (Alt+K or Ctrl+K)
+                </AnimatedButton>
+              </div>
+
+              {/* Right side - Action buttons */}
+              <div className="flex items-center space-x-2">
+                {/* Project Context Button */}
+                <AnimatedButton
+                  onClick={() => setShowProjectContext((s) => !s)}
+                  variant={showProjectContext ? "primary" : "secondary"}
+                  size="sm"
+                >
+                  <span className="text-base">📁</span>
+                  <span className="hidden sm:inline ml-1">Context</span>
+                  {events.filter(
+                    (event) => Date.now() - event.ts < 5 * 60 * 1000,
+                  ).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
+                </AnimatedButton>
+
+                {/* Settings Button */}
+                <AnimatedButton
+                  onClick={() => setShowSettings((s) => !s)}
+                  variant={showSettings ? "primary" : "secondary"}
+                  size="sm"
+                >
+                  <span className="text-base">⚙️</span>
+                  <span className="hidden sm:inline ml-1">Settings</span>
+                </AnimatedButton>
+
+                {/* Window Toggle Button */}
+                <AnimatedButton
+                  onClick={async () => {
+                    try {
+                      await database.window.toggle();
+                    } catch (e) {
+                      console.error("failed to toggle window", e);
+                    }
+                  }}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <span className="text-base">🪟</span>
+                  <span className="hidden lg:inline ml-1">Toggle</span>
+                </AnimatedButton>
+              </div>
+            </header>
+          </FadeIn>
+
+          {/* Settings Panel */}
           {showSettings && (
-            <div className="absolute right-4 top-12 z-50">
-              <Settings onClose={() => setShowSettings(false)} />
-            </div>
-          )}
-
-          {/* Project Context button and panel */}
-          <button
-            onClick={() => setShowProjectContext((s) => !s)}
-            className="absolute right-32 top-4 bg-blue-600 hover:bg-blue-700 text-sm px-3 py-1 rounded relative"
-            title="Project Context"
-          >
-            📁
-            {events.filter((event) => Date.now() - event.ts < 5 * 60 * 1000)
-              .length > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            )}
-          </button>
-          {showProjectContext && (
             <Suspense fallback={null}>
-              <ProjectContextPanel
-                onClose={() => setShowProjectContext(false)}
+              {/* Dim background overlay to avoid visual bleed-through */}
+              <div
+                className="fixed inset-0 z-40 bg-black/40"
+                onClick={() => setShowSettings(false)}
               />
+              <div className="absolute right-6 top-20 z-50 shadow-xl">
+                <Settings onClose={() => setShowSettings(false)} />
+              </div>
             </Suspense>
           )}
 
-          <ChatInterface />
+          {/* Project Context Panel */}
+          {showProjectContext && (
+            <Suspense fallback={null}>
+              <div className="absolute right-6 top-20 z-50">
+                <ProjectContextPanel
+                  onClose={() => setShowProjectContext(false)}
+                />
+              </div>
+            </Suspense>
+          )}
+
+          <div className="flex-1 flex overflow-hidden">
+            <ChatInterface />
+            <div className="w-80 flex-shrink-0">
+              <ContextPanel />
+            </div>
+          </div>
         </main>
       </div>
+
+      {/* Command Palette */}
+      <CommandPalette isOpen={isOpen} onClose={close} />
+
       <Toaster />
+      <ErrorMonitor />
+      {/* Keyboard Debugger - Press F12 to toggle */}
+      <KeyboardDebugger />
       <Suspense fallback={null}>
         <RunOutputModal />
         <ExecutionAuditModal />
