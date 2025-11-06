@@ -471,3 +471,16 @@ pub fn search_project_files_in_path(
 
     walk_directory(&search_path, &query, case_sensitive, max_results)
 }
+// Project type detection
+use crate::project::ProjectInfo;
+
+#[tauri::command]
+pub async fn detect_project_type(path: Option<String>) -> Result<ProjectInfo, String> {
+    let project_path = match path {
+        Some(p) => PathBuf::from(p),
+        None => std::env::current_dir()
+            .map_err(|e| format!("Failed to get current directory: {}", e))?,
+    };
+
+    Ok(ProjectInfo::detect(&project_path))
+}

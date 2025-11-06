@@ -1,3 +1,4 @@
+use crate::database::settings::Setting;
 use rusqlite::OptionalExtension;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager, PhysicalPosition, PhysicalSize};
@@ -57,12 +58,8 @@ pub async fn save_window_state(
         };
 
         let conn = db.conn().lock().map_err(|e| e.to_string())?;
-        let state_json = serde_json::to_string(&window_state)
-            .map_err(|e| format!("Failed to serialize window state: {}", e))?;
-
-        conn.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")
-            .and_then(|mut stmt| stmt.execute(["window_state", &state_json]))
-            .map_err(|e| e.to_string())?;
+        // Use settings helper to ensure updated_at is set to avoid NOT NULL constraint errors
+        Setting::set_json(&conn, "window_state", &window_state).map_err(|e| e.to_string())?;
 
         Ok(())
     } else {

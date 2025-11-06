@@ -182,7 +182,7 @@ export default function ConversationItem({
               disabled={exporting}
               title="Export as PDF"
             >
-              �
+              📄
             </button>
             <button
               className="text-xs px-2 py-1 bg-red-600 rounded hover:bg-red-700"

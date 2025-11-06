@@ -10,6 +10,10 @@ import type {
 import { getProvider } from "../providers/provider";
 import { notifySafe } from "../utils/tauri";
 import { useProjectStore } from "./projectStore";
+import { useRoutingStore } from "./routingStore";
+import { useSettingsStore } from "./settingsStore";
+import { selectOptimalModel, classifyQuery } from "../services/routingService";
+import { invokeSafe, isTauriEnvironment } from "../utils/tauri";
 
 interface ChatState {
   // Current state
@@ -195,6 +199,70 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       // Call provider to generate assistant response with streaming support and persist it
       const provider = getProvider();
+
+      // INTELLIGENT ROUTING: Select optimal model based on query and context
+      const routingStore = useRoutingStore.getState();
+      const settingsStore = useSettingsStore.getState();
+      let selectedModelId = settingsStore.defaultModel;
+
+      // Only route if enabled (and not manually overridden)
+      if (routingStore.settings.enabled || routingStore.manualOverride) {
+        try {
+          // Get project context if available
+          let projectType: string | undefined;
+          if (isTauriEnvironment()) {
+            try {
+              const projectInfo = await invokeSafe<{ project_type?: string }>(
+                "detect_project_type",
+                {},
+              );
+              projectType = projectInfo?.project_type;
+            } catch {}
+          }
+
+          // Build routing context
+          const routingContext = {
+            query: content,
+            projectType,
+            conversationLength: get().messages.length,
+            hasCodeContext: content.includes("```") || content.includes("code"),
+            hasErrorContext:
+              content.toLowerCase().includes("error") ||
+              content.toLowerCase().includes("fix"),
+            previousModel: selectedModelId || undefined,
+            userPreference: routingStore.manualOverride || undefined,
+          };
+
+          // Get routing decision
+          const decision = selectOptimalModel(
+            routingContext,
+            routingStore.settings,
+          );
+
+          // Update routing store with decision
+          routingStore.setCurrentDecision(decision);
+
+          // Track decision for analytics
+          const classification = classifyQuery(content, routingContext);
+          routingStore.addRoutingDecision(
+            decision,
+            classification.type,
+            projectType,
+          );
+
+          // Use routed model
+          selectedModelId = decision.modelId;
+        } catch (err) {
+          console.warn("Routing failed, using default model:", err);
+        }
+      }
+
+      // Temporarily override settings for this request
+      const originalModel = settingsStore.defaultModel;
+      if (selectedModelId && selectedModelId !== originalModel) {
+        settingsStore.defaultModel = selectedModelId;
+      }
+
       const messagesForProvider = get().messages.map((m) => ({
         role: m.role as "user" | "assistant" | "system",
         content: m.content,
@@ -247,6 +315,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messagesForProvider as any,
           onChunk,
         );
+
+        // Restore original model setting
+        if (selectedModelId && selectedModelId !== originalModel) {
+          settingsStore.defaultModel = originalModel;
+        }
+
         // if provider didn't stream, assistantContent will hold final string
         if (!finalContent) finalContent = assistantContent;
 
@@ -273,6 +347,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
           await notifySafe(title, preview);
         } catch {}
       } catch (err) {
+        // Restore original model setting on error
+        if (selectedModelId && selectedModelId !== originalModel) {
+          settingsStore.defaultModel = originalModel;
+        }
+
         // mark assistant message as failed
         set((state) => ({
           messages: state.messages.map((m) =>
