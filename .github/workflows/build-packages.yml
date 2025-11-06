@@ -173,7 +173,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           name: linux-ai-assistant-packages
           path: packages
