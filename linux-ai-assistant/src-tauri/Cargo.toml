@@ -32,13 +32,13 @@ image = { version = "0.24", default-features = false, features = ["png", "jpeg"]
 reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 tauri-plugin-clipboard-manager = "2.3.1"
 tauri-plugin-updater = "2"
-notify = "6"
+notify = "8"
 ignore = "0.4"
 sysinfo = "0.30"
 tempfile = "3"
 keyring = "2"
 chrono = { version = "0.4", features = ["serde"] }
-dirs = "5"
+dirs = "6"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 lazy_static = "1.4"
 comrak = "0.18"  # Markdown to HTML conversion
