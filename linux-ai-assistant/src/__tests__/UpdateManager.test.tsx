@@ -44,7 +44,7 @@ describe("UpdateManager", () => {
       useUiStore: () => ({ addToast }),
     }));
 
-    // mock tauri invoke
+    // mock tauri-related utilities so component performs the update check in tests
     const invoke = vi.fn().mockImplementation(async (cmd: string) => {
       if (cmd === "check_for_updates")
         return {
@@ -56,7 +56,12 @@ describe("UpdateManager", () => {
       if (cmd === "download_and_install_update") return "ok";
       return null;
     });
-    vi.doMock("@tauri-apps/api/core", () => ({ invoke }));
+
+    // Mock the tauri utils module used by UpdateManager
+    vi.doMock("@/lib/utils/tauri", () => ({
+      isTauriEnvironment: () => true,
+      invokeSafe: async (cmd: string, args?: any) => invoke(cmd, args),
+    }));
 
     // Import component AFTER mocks are set so its useEffect will call the mocked invoke
     const { default: UpdateManager } = await import(
@@ -65,13 +70,13 @@ describe("UpdateManager", () => {
     render(<UpdateManager />);
 
     // dialog should appear because the mocked check_for_updates returns has_update=true
-    await screen.findByText(/Update Available/);
+    await screen.findByText(/Update Available/i);
 
     // dialog shows version
     expect(screen.getByText(/1.2.3/)).toBeTruthy();
 
     // click Download - should call tauri invoke and addToast
-    fireEvent.click(screen.getByText(/Download/));
+    fireEvent.click(screen.getByText(/Download/i));
     await waitFor(() =>
       expect(invoke).toHaveBeenCalledWith("download_and_install_update", {
         version: "1.2.3",
@@ -80,6 +85,6 @@ describe("UpdateManager", () => {
     await waitFor(() => expect(addToast).toHaveBeenCalled());
 
     // after successful download the dialog should close
-    expect(screen.queryByText(/Later/)).toBeNull();
+    expect(screen.queryByText(/Later/i)).toBeNull();
   });
 });
