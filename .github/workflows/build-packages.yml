@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -95,7 +95,7 @@ jobs:
           du -sh dist/packages/*
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: linux-ai-assistant-packages
           path: linux-ai-assistant/dist/packages/
@@ -173,7 +173,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           name: linux-ai-assistant-packages
           path: packages
@@ -191,7 +191,7 @@ jobs:
 
     steps:
       - name: Create deployment status
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             const tag = context.ref.replace('refs/tags/', '');
