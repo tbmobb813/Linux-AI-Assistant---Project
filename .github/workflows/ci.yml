@@ -57,14 +57,14 @@ jobs:
 
       - name: Upload vitest debug log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: vitest-debug-log
           path: linux-ai-assistant/test-debug.log
 
       - name: Upload coverage JSON
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: vitest-coverage-json
           path: linux-ai-assistant/coverage/coverage-final.json
