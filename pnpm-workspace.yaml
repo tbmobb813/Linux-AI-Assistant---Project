@@ -1,2 +1,9 @@
 packages:
-  - "linux-ai-assistant"
+  - linux-ai-assistant
+
+onlyBuiltDependencies:
+  - esbuild
+
+overrides:
+  '@lai/core': link:../lai-core
+  lai-core: link:../../../../path/to/lai-core

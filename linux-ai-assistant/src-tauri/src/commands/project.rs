@@ -1,3 +1,59 @@
+/// Sets the project root directory and initializes file watching with ignore patterns.
+///
+/// This function establishes a project root directory for file operations and starts
+/// monitoring file system changes within that directory. It supports custom ignore
+/// patterns to exclude specific files and directories from monitoring.
+///
+/// # Parameters
+/// 
+/// * `path` - The absolute or relative path to the project root directory
+/// * `patterns` - Optional vector of gitignore-style patterns to exclude from monitoring.
+///   If not provided, defaults to common patterns like:
+///   - `node_modules/**` - Node.js dependencies
+///   - `.git/**` - Git repository metadata
+///   - `target/**` - Rust build artifacts
+///   - `dist/**` - Distribution/build output
+///   - `build/**` - Build directories
+///   - `*.log` - Log files
+///   - `.DS_Store` - macOS metadata files
+///   - `Thumbs.db` - Windows thumbnail cache
+///   
+///   Pattern format follows gitignore conventions:
+///   - `*` matches any number of characters except `/`
+///   - `**` matches any number of characters including `/`
+///   - `!pattern` negates a pattern (includes instead of excludes)
+///   - Patterns ending with `/` only match directories
+///   - Leading `/` anchors pattern to project root
+/// * `app` - Tauri application handle for emitting file system events
+///
+/// # Returns
+///
+/// Returns `Ok(())` on success, or an error string if:
+/// - The path doesn't exist or isn't a directory
+/// - Invalid gitignore patterns are provided
+/// - File watcher initialization fails
+/// - Unable to start monitoring the directory
+///
+/// # Example Patterns
+///
+/// ```
+/// vec![
+///     "*.tmp".to_string(),           // Ignore all .tmp files
+///     "logs/".to_string(),           // Ignore logs directory
+///     "src/**/*.bak".to_string(),    // Ignore .bak files in src tree
+///     "!important.log".to_string(),  // Include important.log even if *.log is ignored
+/// ]
+/// ```
+///
+/// # Events
+///
+/// Emits `project://file-event` events to the frontend when files change,
+/// containing an array of file paths that were modified (excluding ignored files).
+///
+/// # Note
+///
+/// This function stops any existing file watcher before starting a new one.
+/// Only one project can be monitored at a time per application instance.
 use ignore::gitignore::{Gitignore, GitignoreBuilder};
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};

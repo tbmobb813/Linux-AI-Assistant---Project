@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
 import { useUiStore } from "../lib/stores/uiStore";
 import { useBranchStore } from "../lib/stores/branchStore";
+import laiClient from "../lib/lai-client";
 import MessageBubble from "./MessageBubble";
 import MessageSearch from "./MessageSearch";
 import { LoadingSpinner, FadeIn } from "./Animations";
@@ -46,8 +47,33 @@ export default function ChatInterface(): JSX.Element {
   );
   const [slashSuggestions, setSlashSuggestions] = useState<any[]>([]);
   const [isCopied, setIsCopied] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Initialize LAI client when component mounts
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await laiClient.initialize();
+        setInitialized(true);
+        console.log('LAI Client ready');
+        addToast({
+          message: "AI Assistant initialized successfully",
+          type: "success",
+          ttl: 2000,
+        });
+      } catch (error) {
+        console.error('Failed to initialize LAI client:', error);
+        addToast({
+          message: "Failed to initialize AI Assistant",
+          type: "error",
+          ttl: 3000,
+        });
+      }
+    };
+    init();
+  }, [addToast]);
 
   // Filter messages based on active branch
   const visibleMessages = useMemo(() => {
@@ -568,11 +594,10 @@ export default function ChatInterface(): JSX.Element {
                         {gitContext.branch || "HEAD"}
                       </span>
                       <span
-                        className={`w-2 h-2 rounded-full ${
-                          gitContext.dirty
-                            ? "bg-[#f7768e] animate-pulse"
-                            : "bg-[#9ece6a]"
-                        }`}
+                        className={`w-2 h-2 rounded-full ${gitContext.dirty
+                          ? "bg-[#f7768e] animate-pulse"
+                          : "bg-[#9ece6a]"
+                          }`}
                         title={
                           gitContext.dirty
                             ? "Uncommitted changes"
@@ -588,6 +613,26 @@ export default function ChatInterface(): JSX.Element {
                       </span>
                     </div>
                   )}
+                  {/* LAI Client Status Indicator */}
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-gradient-to-r from-[#9ece6a]/20 to-[#73daca]/20 border border-[#9ece6a]/30 shadow-sm-soft">
+                    <span
+                      className={`w-2 h-2 rounded-full ${initialized
+                        ? "bg-[#9ece6a]"
+                        : "bg-[#f7768e] animate-pulse"
+                        }`}
+                      title={
+                        initialized
+                          ? "LAI Client ready"
+                          : "LAI Client initializing..."
+                      }
+                    />
+                    <span className="text-xs font-medium text-[#9ece6a]">
+                      {initialized
+                        ? (laiClient.getCurrentProvider() || "LAI Ready")
+                        : "Initializing..."
+                      }
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -678,9 +723,8 @@ export default function ChatInterface(): JSX.Element {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`max-w-[70%] px-4 py-3 rounded-2xl bg-[#24283b]/60 animate-pulse h-16 ${
-                  i % 2 === 0 ? "ml-auto" : ""
-                }`}
+                className={`max-w-[70%] px-4 py-3 rounded-2xl bg-[#24283b]/60 animate-pulse h-16 ${i % 2 === 0 ? "ml-auto" : ""
+                  }`}
               />
             ))}
           </div>
@@ -901,7 +945,7 @@ export default function ChatInterface(): JSX.Element {
                   }
                 }}
                 placeholder="Type a message... (Ctrl+Enter to send, Shift+V to paste)"
-                disabled={isLoading}
+                disabled={isLoading || !initialized}
                 aria-label="Message input"
                 rows={1}
               />
@@ -910,7 +954,7 @@ export default function ChatInterface(): JSX.Element {
               <button
                 type="button"
                 onClick={handleAnalyzeClipboard}
-                disabled={isLoading}
+                disabled={isLoading || !initialized}
                 className={`
                     flex-shrink-0 p-3 rounded-lg
                     transition-all duration-200
@@ -920,7 +964,7 @@ export default function ChatInterface(): JSX.Element {
                     text-[#9aa5ce] hover:text-[#c0caf5]
                     shadow-sm-soft
                   `}
-                title="Analyze clipboard content (Shift+V)"
+                title={!initialized ? "Waiting for LAI client..." : "Analyze clipboard content (Shift+V)"}
                 aria-label="Analyze clipboard"
               >
                 <Clipboard className="w-5 h-5" />
@@ -931,19 +975,19 @@ export default function ChatInterface(): JSX.Element {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
-                disabled={isLoading || !value.trim()}
+                disabled={isLoading || !value.trim() || !initialized}
                 className={`
                   flex-shrink-0 p-3.5 rounded-xl font-medium
                   transition-all duration-200 ease-out
                   focus:outline-none focus:ring-2 focus:ring-[#7aa2f7]/50
                   disabled:opacity-50 disabled:cursor-not-allowed
-                  ${
-                    value.trim()
-                      ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white shadow-lg hover:shadow-glow"
-                      : "bg-[#414868]/50 text-[#565f89]"
+                  ${value.trim() && initialized
+                    ? "bg-[#7aa2f7] hover:bg-[#7aa2f7]/90 text-white shadow-lg hover:shadow-glow"
+                    : "bg-[#414868]/50 text-[#565f89]"
                   }
                 `}
                 aria-label="Send message"
+                title={!initialized ? "Waiting for LAI client to initialize..." : "Send message"}
               >
                 {isLoading ? <LoadingSpinner size="sm" /> : <Send size={20} />}
               </motion.button>

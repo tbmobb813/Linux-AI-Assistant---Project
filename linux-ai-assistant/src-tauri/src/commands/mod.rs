@@ -2,6 +2,7 @@
 // Public re-exports for the commands submodules. Each submodule lives in its
 // own file (conversations.rs, messages.rs, settings.rs).
 
+pub mod chat;
 pub mod conversations;
 pub mod export;
 pub mod git;

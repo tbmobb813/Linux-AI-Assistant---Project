@@ -1,6 +1,18 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Add to imports
+mod commands;
+use commands::chat::{get_settings, get_watched_files, save_provider_settings};
+use commands::provider::{get_api_key, set_api_key};
 
 fn main() {
-    app_lib::run();
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            get_settings,
+            get_api_key,
+            set_api_key,
+            save_provider_settings,
+            get_watched_files,
+            // ... your other commands
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

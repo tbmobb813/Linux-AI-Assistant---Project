@@ -363,17 +363,10 @@ pub fn export_conversation_pdf(
     let helvetica_bold = doc
         .add_builtin_font(BuiltinFont::HelveticaBold)
         .map_err(|e| e.to_string())?;
-    let _courier = doc
-        .add_builtin_font(BuiltinFont::Courier)
-        .map_err(|e| e.to_string())?;
 
-    let title_size = 18.0;
-    let header_size = 14.0;
-    let body_size = 11.0;
     let small_size = 9.0;
 
     let margin_left = Mm(20.0);
-    let _margin_right = Mm(190.0);
     let page_width = Mm(170.0); // 210 - 20 - 20
     let mut current_y = Mm(270.0); // Start near top
     let line_height = Mm(5.0);

@@ -4,9 +4,23 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  lai-core: link:../../../../path/to/lai-core
+  '@lai/core': link:../lai-core
+
 importers:
 
   .:
+    dependencies:
+      '@lai/core':
+        specifier: link:../lai-core
+        version: link:../lai-core
+      '@tauri-apps/api':
+        specifier: 2.9.0
+        version: 2.9.0
+      lai-core:
+        specifier: link:../../../../path/to/lai-core
+        version: link:../../../../path/to/lai-core
     devDependencies:
       '@playwright/test':
         specifier: ^1.56.1
@@ -62,6 +76,9 @@ importers:
 
   linux-ai-assistant:
     dependencies:
+      '@lai/core':
+        specifier: link:../../lai-core
+        version: link:../../lai-core
       '@tauri-apps/api':
         specifier: 2.9.0
         version: 2.9.0

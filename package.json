@@ -43,5 +43,10 @@
     "linux-ai-assistant/src-tauri/**/*.rs": [
       "bash -c 'cd linux-ai-assistant/src-tauri && cargo fmt -- \"$@\"' --"
     ]
+  },
+  "dependencies": {
+    "@lai/core": "link:../lai-core",
+    "@tauri-apps/api": "2.9.0",
+    "lai-core": "link:../../../../path/to/lai-core"
   }
 }

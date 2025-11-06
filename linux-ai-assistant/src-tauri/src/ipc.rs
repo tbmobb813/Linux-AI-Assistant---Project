@@ -256,13 +256,18 @@ fn handle_create_message(app: &AppHandle, msg: &IpcMessage) -> IpcResponse {
 
 pub fn start_ipc_server(app: AppHandle) {
     // Check if dev mode is enabled at startup
-    let dev_mode_enabled = match std::env::var("DEV_MODE") {
-        Ok(val) => {
-            let v = val.trim().to_lowercase();
-            !v.is_empty() && (v == "1" || v == "true" || v == "yes")
+    let dev_mode_enabled = is_dev_mode_enabled();
+
+    // Check if dev mode is enabled at startup
+    fn is_dev_mode_enabled() -> bool {
+        match std::env::var("DEV_MODE") {
+            Ok(val) => {
+                let v = val.trim().to_lowercase();
+                !v.is_empty() && (v == "1" || v == "true" || v == "yes")
+            }
+            Err(_) => false,
         }
-        Err(_) => false,
-    };
+    }
 
     // Fixed localhost port; can be made configurable later
     let addr = "127.0.0.1:39871";
