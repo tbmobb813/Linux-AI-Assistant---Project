@@ -1,10 +1,16 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useChatStore } from "../lib/stores/chatStore";
-import ConversationItem from "./ConversationItem";
+import ConversationItemModern from "./ConversationItemModern";
 import TagFilter from "./TagFilter";
 import { AdvancedSearchModal } from "./AdvancedSearchModal";
 import { SearchSuggestions } from "./SearchSuggestions";
-import { Search, X, Filter, Tag, Settings } from "lucide-react";
+import {
+  AnimatedButton,
+  StaggerContainer,
+  FadeIn,
+  Skeleton,
+} from "./Animations";
+import { Search, X, Tag, Settings } from "lucide-react";
 
 export default function ConversationList() {
   const {
@@ -29,6 +35,14 @@ export default function ConversationList() {
   const [showTagFilter, setShowTagFilter] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+
+  // Resizable sidebar state
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem("sidebarWidth");
+    return saved ? parseInt(saved, 10) : 320;
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     loadConversations();
@@ -64,6 +78,45 @@ export default function ConversationList() {
     return conversationsToFilter.filter((c) => now - c.updated_at < filterTime);
   }, [conversations, searchResults, searchQuery, dateFilter]);
 
+  // Resize handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const newWidth = e.clientX;
+      const minWidth = 200;
+      const maxWidth = 600;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        setSidebarWidth(newWidth);
+        localStorage.setItem("sidebarWidth", newWidth.toString());
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ew-resize";
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
+
   const handleClearSearch = () => {
     setLocalSearchQuery("");
     clearSearch();
@@ -89,153 +142,201 @@ export default function ConversationList() {
   };
 
   return (
-    <aside className="w-72 p-3 flex flex-col bg-gray-100 border-r border-gray-300 text-gray-900 dark:bg-gray-900 dark:border-gray-800 dark:text-white">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold">Conversations</h2>
-        <button
-          className="text-sm px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-700"
-          onClick={async () => {
-            await createConversation("New conversation", "gpt-4", "local");
-          }}
-        >
-          New
-        </button>
-      </div>
+    <aside
+      ref={sidebarRef}
+      style={{ width: `${sidebarWidth}px` }}
+      className="relative flex flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white"
+    >
+      {/* Modern Header */}
+      <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Conversations
+          </h2>
+          <AnimatedButton
+            onClick={async () => {
+              await createConversation("New conversation", "gpt-4", "local");
+            }}
+            variant="primary"
+            size="sm"
+          >
+            <span className="text-base">✨</span>
+            <span>New</span>
+          </AnimatedButton>
+        </div>
 
-      {/* Search and Filters */}
-      <div className="mb-3 space-y-2">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search conversations..."
-            value={localSearchQuery}
-            onChange={(e) => setLocalSearchQuery(e.target.value)}
-            onFocus={handleSearchFocus}
-            onBlur={handleSearchBlur}
-            className="w-full pl-8 pr-16 py-2 text-sm border border-gray-300 rounded-md bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-          />
-          <div className="absolute right-2 top-2 flex items-center space-x-1">
-            {localSearchQuery && (
+        {/* Enhanced Search */}
+        <div className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={localSearchQuery}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              className="
+                w-full pl-10 pr-10 py-2.5
+                text-sm border border-gray-300 dark:border-gray-600
+                rounded-lg bg-white dark:bg-gray-800
+                text-gray-900 dark:text-white
+                placeholder-gray-500 dark:placeholder-gray-400
+                focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                transition-all duration-200
+              "
+            />
+            <div className="absolute right-3 top-2.5 flex items-center space-x-1">
+              {localSearchQuery && (
+                <button
+                  onClick={handleClearSearch}
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
               <button
-                onClick={handleClearSearch}
-                className="text-gray-400 hover:text-gray-600"
+                onClick={() => setShowAdvancedSearch(true)}
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded"
+                title="Advanced search"
               >
-                <X className="h-4 w-4" />
+                <Settings className="h-3 w-3" />
               </button>
+            </div>
+
+            {/* Search Suggestions */}
+            {showSearchSuggestions && (
+              <div className="absolute top-full left-0 right-0 z-50 mt-1">
+                <SearchSuggestions
+                  query={localSearchQuery}
+                  onSuggestionSelect={handleSuggestionSelect}
+                />
+              </div>
             )}
+          </div>
+
+          {/* Modern Filters */}
+          <div className="flex items-center space-x-2">
+            <div className="flex-1">
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value as any)}
+                className="
+                  w-full text-xs border border-gray-300 dark:border-gray-600
+                  rounded-md px-2 py-1.5
+                  bg-white dark:bg-gray-800
+                  text-gray-700 dark:text-gray-300
+                  focus:ring-1 focus:ring-blue-500 focus:border-transparent
+                "
+              >
+                <option value="all">All time</option>
+                <option value="today">Today</option>
+                <option value="week">This week</option>
+                <option value="month">This month</option>
+              </select>
+            </div>
+
             <button
-              onClick={() => setShowAdvancedSearch(true)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              title="Advanced search"
+              onClick={() => setShowTagFilter(!showTagFilter)}
+              className={`
+                p-2 rounded-md transition-all duration-200
+                ${
+                  showTagFilter || selectedTags.length > 0
+                    ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }
+              `}
+              title="Filter by tags"
             >
-              <Settings className="h-4 w-4" />
+              <Tag className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Search Suggestions */}
-          {showSearchSuggestions && (
-            <SearchSuggestions
-              query={localSearchQuery}
-              onSuggestionSelect={handleSuggestionSelect}
-            />
+          {/* Tag Filter Component */}
+          {showTagFilter && (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <TagFilter
+                selectedTags={selectedTags}
+                onTagsChange={setSelectedTags}
+              />
+            </div>
+          )}
+
+          {/* Active Tag Filter Display */}
+          {selectedTags.length > 0 && !showTagFilter && (
+            <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+              <span className="font-medium">
+                {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"}{" "}
+                applied
+              </span>
+              <button
+                onClick={() => setSelectedTags([])}
+                className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+
+          {/* Search Results Info */}
+          {searchQuery && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 px-1">
+              {isSearching
+                ? "Searching..."
+                : `Found ${filteredConversations.length} conversation${filteredConversations.length !== 1 ? "s" : ""}`}
+            </div>
           )}
         </div>
-
-        {/* Date Filter */}
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-gray-400" />
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value as any)}
-            className="flex-1 text-sm border border-gray-300 rounded-md px-2 py-1 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-          >
-            <option value="all">All time</option>
-            <option value="today">Today</option>
-            <option value="week">This week</option>
-            <option value="month">This month</option>
-          </select>
-
-          {/* Tag Filter Toggle */}
-          <button
-            onClick={() => setShowTagFilter(!showTagFilter)}
-            className={`p-1 rounded-md transition-colors ${
-              showTagFilter || selectedTags.length > 0
-                ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            }`}
-            title="Filter by tags"
-          >
-            <Tag className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Tag Filter Component */}
-        {showTagFilter && (
-          <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-gray-50 dark:bg-gray-800">
-            <TagFilter
-              selectedTags={selectedTags}
-              onTagsChange={setSelectedTags}
-            />
-          </div>
-        )}
-
-        {/* Active Tag Filter Display */}
-        {selectedTags.length > 0 && !showTagFilter && (
-          <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
-            <span>
-              {selectedTags.length} tag{selectedTags.length === 1 ? "" : "s"}{" "}
-              applied
-            </span>
-            <button
-              onClick={() => setSelectedTags([])}
-              className="hover:text-blue-800 dark:hover:text-blue-300"
-            >
-              Clear
-            </button>
-          </div>
-        )}
-
-        {/* Search Results Info */}
-        {searchQuery && (
-          <div className="text-xs text-gray-500">
-            {isSearching
-              ? "Searching..."
-              : `Found ${filteredConversations.length} conversation${filteredConversations.length !== 1 ? "s" : ""}`}
-          </div>
-        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-1">
+      {/* Conversation List */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {isLoading && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="px-3 py-2 rounded-md h-12 animate-pulse bg-gray-200 dark:bg-gray-800"
-              />
+              <div key={i} className="px-4 py-3 rounded-xl space-y-2">
+                <div className="flex items-center gap-3">
+                  <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton variant="text" width="70%" height="0.875rem" />
+                    <Skeleton variant="text" width="50%" height="0.75rem" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}
 
         {!isLoading && filteredConversations.length === 0 && (
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            {searchQuery
-              ? "No conversations found"
-              : "No conversations yet — create one."}
-          </div>
+          <FadeIn delay={300}>
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-4xl mb-3">💬</div>
+              <div className="text-sm font-medium mb-1">
+                {searchQuery
+                  ? "No conversations found"
+                  : "No conversations yet"}
+              </div>
+              <div className="text-xs">
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Create your first conversation to get started"}
+              </div>
+            </div>
+          </FadeIn>
         )}
 
-        {!isLoading &&
-          filteredConversations.map((c) => (
-            <ConversationItem
-              key={c.id}
-              conversation={c}
-              selected={currentConversation?.id === c.id}
-              onSelect={(id) => selectConversation(id)}
-            />
-          ))}
+        {!isLoading && filteredConversations.length > 0 && (
+          <StaggerContainer staggerDelay={50}>
+            {filteredConversations.map((c) => (
+              <ConversationItemModern
+                key={c.id}
+                conversation={c}
+                selected={currentConversation?.id === c.id}
+                onSelect={(id: string) => selectConversation(id)}
+              />
+            ))}
+          </StaggerContainer>
+        )}
       </div>
 
       {/* Advanced Search Modal */}
@@ -251,6 +352,18 @@ export default function ConversationList() {
           setShowAdvancedSearch(false);
           // Could add message highlighting logic here
         }}
+      />
+
+      {/* Resize Handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className={`
+          absolute top-0 right-0 bottom-0 w-1
+          hover:w-1.5 hover:bg-blue-400 dark:hover:bg-blue-500
+          cursor-ew-resize transition-all duration-150
+          ${isResizing ? "w-1.5 bg-blue-500 dark:bg-blue-400" : "bg-transparent"}
+        `}
+        title="Drag to resize"
       />
     </aside>
   );
