@@ -44,6 +44,10 @@
     "build:full": "pnpm build && pnpm cli:build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "cli:build": "cd cli && cargo build --release",
+    "cli:dev": "cd cli && cargo build",
+    "cli:test": "cd cli && cargo test",
+    "cli:install": "cd cli && ./install.sh",
     "dev:insert-message": "python3 ../dev/insert_test_message.py",
     "test": "vitest --run --reporter dot",
     "test:watch": "vitest",
@@ -53,7 +57,7 @@
   "dependencies": {
     "@tauri-apps/api": "2.9.0",
     "@tauri-apps/plugin-clipboard-manager": "^2.3.1",
-    "@tauri-apps/plugin-global-shortcut": "2.3.0",
+    "@tauri-apps/plugin-global-shortcut": "2.3.1",
     "@tauri-apps/plugin-notification": "2.3.1",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.11",
@@ -74,22 +78,23 @@
     "@tauri-apps/cli": "^2.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
-    "@types/node": "^22.10.0",
+    "@types/node": "^24.10.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^5.1.0",
-    "@vitest/coverage-v8": "^4.0.5",
+    "@vitest/coverage-v8": "^4.0.7",
     "autoprefixer": "^10.4.19",
     "husky": "^9.1.7",
-    "jsdom": "^27.0.1",
+    "jsdom": "^27.1.0",
     "postcss": "^8.4.39",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.7.2",
     "vite": "^7.1.12",
-    "vitest": "^4.0.5"
+    "vitest": "^4.0.6"
   },
   "vitest": {
+    "setupFiles": ["src/setupTests.ts"],
     "exclude": [
       "e2e/**"
     ]

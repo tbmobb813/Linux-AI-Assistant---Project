@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useUpdateStore } from "@/lib/stores/updateStore";
 import { useUiStore } from "@/lib/stores/uiStore";
-import { invoke } from "@tauri-apps/api/core";
+import { invokeSafe, isTauriEnvironment } from "@/lib/utils/tauri";
 
 export const UpdateManager: React.FC = () => {
   const {
@@ -25,9 +25,14 @@ export const UpdateManager: React.FC = () => {
   // Initialize current version on mount
   useEffect(() => {
     const initializeVersion = async () => {
+      // Skip if not in Tauri environment (web preview)
+      if (!isTauriEnvironment()) return;
+
       try {
-        const version = await invoke<string>("get_current_version");
-        setCurrentVersion(version);
+        const version = await invokeSafe<string>("get_current_version");
+        if (version) {
+          setCurrentVersion(version);
+        }
       } catch (error) {
         console.error("Failed to get current version:", error);
       }
@@ -38,6 +43,9 @@ export const UpdateManager: React.FC = () => {
 
   // Auto-check for updates on mount and periodically
   useEffect(() => {
+    // Skip if not in Tauri environment (web preview)
+    if (!isTauriEnvironment()) return;
+
     const checkUpdates = async () => {
       await performUpdateCheck();
     };
@@ -53,12 +61,15 @@ export const UpdateManager: React.FC = () => {
   const performUpdateCheck = async () => {
     setIsChecking(true);
     try {
-      const status = await invoke<any>("check_for_updates");
-      setUpdateStatus(status);
+      const status = await invokeSafe<any>("check_for_updates");
+      if (status) {
+        setUpdateStatus(status);
+      }
       setLastCheckTime(Date.now());
 
       // Show notification if update is available and not dismissed
       if (
+        status &&
         status.has_update &&
         status.new_version &&
         !dismissedVersions.includes(status.new_version)
@@ -87,7 +98,7 @@ export const UpdateManager: React.FC = () => {
 
     setIsDownloading(true);
     try {
-      await invoke<string>("download_and_install_update", {
+      await invokeSafe<string>("download_and_install_update", {
         version: updateStatus.new_version,
       });
 

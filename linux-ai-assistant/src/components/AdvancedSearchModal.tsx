@@ -113,7 +113,12 @@ export const AdvancedSearchModal: React.FC<AdvancedSearchModalProps> = ({
       // For now, use localStorage. Could be moved to database later
       const saved = localStorage.getItem("savedSearches");
       if (saved) {
-        setSavedSearches(JSON.parse(saved));
+        try {
+          setSavedSearches(JSON.parse(saved));
+        } catch (parseErr) {
+          console.error("Corrupted saved searches in localStorage:", parseErr);
+          setSavedSearches([]);
+        }
       }
     } catch (err) {
       console.error("Failed to load saved searches:", err);

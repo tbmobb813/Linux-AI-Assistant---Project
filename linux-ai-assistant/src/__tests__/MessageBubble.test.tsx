@@ -53,8 +53,13 @@ describe("MessageBubble", () => {
       role: "assistant",
       content: "Some content",
     } as any;
-    const { getByLabelText } = render(<MessageBubble message={message} />);
-    const copyBtn = getByLabelText("Copy message");
+    const { container, getByRole } = render(
+      <MessageBubble message={message} />,
+    );
+    // Hover to reveal action buttons (copy/edit) which appear on mouse enter
+    const root = container.querySelector(`#message-${message.id}`)!;
+    fireEvent.mouseEnter(root);
+    const copyBtn = getByRole("button", { name: /copy/i });
     fireEvent.click(copyBtn);
     await waitFor(() =>
       expect((uiStoreMock as any).__mockAddToast).toHaveBeenCalled(),
@@ -70,8 +75,12 @@ describe("MessageBubble", () => {
       writeText: vi.fn().mockRejectedValue(new Error("denied")),
     };
     const message = { id: "3", role: "assistant", content: "x" } as any;
-    const { getByLabelText } = render(<MessageBubble message={message} />);
-    const copyBtn = getByLabelText("Copy message");
+    const { container, getByRole } = render(
+      <MessageBubble message={message} />,
+    );
+    const root = container.querySelector(`#message-${message.id}`)!;
+    fireEvent.mouseEnter(root);
+    const copyBtn = getByRole("button", { name: /copy/i });
     fireEvent.click(copyBtn);
     await waitFor(() =>
       expect((uiStoreMock as any).__mockAddToast).toHaveBeenCalled(),
