@@ -162,7 +162,7 @@ importers:
         version: 5.1.0(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1))
       '@vitest/coverage-v8':
         specifier: ^4.0.5
-        version: 4.0.5(vitest@4.0.5(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1))
+        version: 4.0.5(vitest@4.0.7(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1))
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.21(postcss@8.5.6)
@@ -188,8 +188,8 @@ importers:
         specifier: ^7.1.12
         version: 7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1)
       vitest:
-        specifier: ^4.0.5
-        version: 4.0.5(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1)
+        specifier: ^4.0.6
+        version: 4.0.7(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1)
 
 packages:
 
@@ -3452,23 +3452,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@4.0.5(vitest@4.0.5(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1))':
-    dependencies:
-      '@bcoe/v8-coverage': 1.0.2
-      '@vitest/utils': 4.0.5
-      ast-v8-to-istanbul: 0.3.8
-      debug: 4.4.3
-      istanbul-lib-coverage: 3.2.2
-      istanbul-lib-report: 3.0.1
-      istanbul-lib-source-maps: 5.0.6
-      istanbul-reports: 3.2.0
-      magicast: 0.3.5
-      std-env: 3.10.0
-      tinyrainbow: 3.0.3
-      vitest: 4.0.5(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - supports-color
-
   '@vitest/coverage-v8@4.0.5(vitest@4.0.5(@types/debug@4.1.12)(@types/node@24.9.2)(jiti@1.21.7)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1))':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
@@ -3483,6 +3466,23 @@ snapshots:
       std-env: 3.10.0
       tinyrainbow: 3.0.3
       vitest: 4.0.5(@types/debug@4.1.12)(@types/node@24.9.2)(jiti@1.21.7)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitest/coverage-v8@4.0.5(vitest@4.0.7(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1))':
+    dependencies:
+      '@bcoe/v8-coverage': 1.0.2
+      '@vitest/utils': 4.0.5
+      ast-v8-to-istanbul: 0.3.8
+      debug: 4.4.3
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-lib-source-maps: 5.0.6
+      istanbul-reports: 3.2.0
+      magicast: 0.3.5
+      std-env: 3.10.0
+      tinyrainbow: 3.0.3
+      vitest: 4.0.7(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -5587,7 +5587,7 @@ snapshots:
       lightningcss: 1.30.2
       yaml: 2.8.1
 
-  vitest@4.0.5(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1):
+  vitest@4.0.5(@types/debug@4.1.12)(@types/node@24.9.2)(jiti@1.21.7)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1):
     dependencies:
       '@vitest/expect': 4.0.5
       '@vitest/mocker': 4.0.5(vite@7.1.12(@types/node@24.9.2)(jiti@1.21.7)(lightningcss@1.30.2)(yaml@2.8.1))
@@ -5611,7 +5611,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
-      '@types/node': 22.18.12
+      '@types/node': 24.9.2
       jsdom: 27.1.0
     transitivePeerDependencies:
       - jiti
@@ -5627,7 +5627,7 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@4.0.5(@types/debug@4.1.12)(@types/node@24.9.2)(jiti@1.21.7)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1):
+  vitest@4.0.7(@types/debug@4.1.12)(@types/node@22.18.12)(jiti@2.6.1)(jsdom@27.1.0)(lightningcss@1.30.2)(yaml@2.8.1):
     dependencies:
       '@vitest/expect': 4.0.7
       '@vitest/mocker': 4.0.7(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1))
@@ -5651,7 +5651,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
-      '@types/node': 24.9.2
+      '@types/node': 22.18.12
       jsdom: 27.1.0
     transitivePeerDependencies:
       - jiti
