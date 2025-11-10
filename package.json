@@ -31,7 +31,7 @@
     "tailwindcss": "^3.4.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "vitest": "^4.0.5"
+    "vitest": "^4.0.8"
   },
   "husky": {
     "version": "8"
