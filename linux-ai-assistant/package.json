@@ -91,7 +91,7 @@
     "tailwindcss": "^4.1.16",
     "typescript": "^5.7.2",
     "vite": "^7.1.12",
-    "vitest": "^4.0.6"
+    "vitest": "^4.0.8"
   },
   "vitest": {
     "setupFiles": ["src/setupTests.ts"],
