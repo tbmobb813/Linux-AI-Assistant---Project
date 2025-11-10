@@ -44,7 +44,7 @@ lazy_static = "1.4"
 comrak = "0.18"  # Markdown to HTML conversion
 printpdf = "0.7"  # PDF generation
 rusttype = "0.9"  # Font handling for PDF
-toml = "0.8"  # TOML parsing for project detection
+toml = "0.9"  # TOML parsing for project detection
 
 [dev-dependencies]
 # dev-dependencies kept minimal
