@@ -4,6 +4,7 @@ pub mod commands;
 pub mod database;
 pub mod git;
 mod ipc;
+pub mod lib;
 pub mod project;
 
 use std::path::PathBuf;
@@ -38,6 +39,10 @@ pub fn run() {
             let db_path: PathBuf = app_data_dir.join("database.db");
             let db = database::Database::new(db_path).expect("Failed to initialize database");
             app.manage(db);
+
+            // Initialize provider registry
+            let registry = lib::providers::ProviderRegistry::new();
+            app.manage(registry);
 
             // Register a global shortcut (CommandOrControl+Space) to toggle main window.
             // Do this by constructing the plugin with its handler here (registering it once).
@@ -275,7 +280,12 @@ pub fn run() {
             commands::window::reset_window_state,
             // health
             commands::health::ping,
-            // provider
+            // provider - new unified commands
+            commands::provider::provider_generate,
+            commands::provider::provider_stream,
+            commands::provider::list_providers,
+            commands::provider::list_provider_models,
+            // provider - backward compatibility (deprecated)
             commands::provider::provider_openai_generate,
             commands::provider::provider_openai_stream,
             commands::provider::provider_anthropic_generate,
